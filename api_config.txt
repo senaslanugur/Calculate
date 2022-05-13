@@ -1,0 +1,2 @@
+https://api.frankfurter.app/latest
+https://api.frankfurter.app/latest?amount=1&from=TRY&to=USD
