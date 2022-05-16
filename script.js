@@ -37,7 +37,6 @@ function calculate(){
           button: "Kapat",
         })
       } else {
-
         swal({
           title: "Total Amount, decreased",
           text: "USD: "+ result.rates.USD + " TRY: " + result.amount,
@@ -45,10 +44,6 @@ function calculate(){
           button: "Kapat",
         })
       }
-
-
-
-
   }});
 
 }

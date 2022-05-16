@@ -1,69 +1,49 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
+<html>
+
+<head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=-1">
     <title>Calculate</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" type="text/css" href="./style.css">
 
-
-  </head>
-  <body>
-    <div class="form-body">
-        <div class="row">
-            <div class="form-holder">
-                <div class="form-content">
-                    <div class="form-items">
-                        <h3>Calculate Personel Staff</h3>
-                        <p>Fill Data</p>
-
-
-                            <div class="col-md-12">
-                               <input class="form-control" type="number" id="staff-1" placeholder="Staff-1" required>
-                            </div>
-
-                            <div class="col-md-12">
-                                <input class="form-control" type="number" id="staff-2" placeholder="Staff-2" required>
-
-                            </div>
-
-                           <div class="col-md-12">
-                             <input class="form-control" type="number" id="staff-3" placeholder="Staff-3" required>
-
-                           </div>
-
-
-                           <div class="col-md-12">
-                              <input class="form-control" type="number" id="staff-4" placeholder="Staff-4" required>
-
-                           </div>
-
-                           <div class="col-md-12">
-                              <input class="form-control" type="number" id="staff-5" placeholder="Staff-5" required>
-
-                           </div>
-
-                           <div class="col-md-12">
-                              <input class="form-control" type="number" id="staff-6" placeholder="Staff-6" required>
-                           </div>
-
-
-
-                            <div class="form-button mt-3">
-                                <button id="submit" type="submit" class="btn btn-primary" onclick="calculate()">Calculate</button>
-                            </div>
-
-                    </div>
-                </div>
+</head>
+<body>
+    <div class="registration-form">
+        <form>
+            <div class="form-icon">
+                <span><i class="icon icon-calculator"></i></span>
             </div>
-        </div>
+            <div class="form-group">
+              <input type="number" class="form-control item" id="staff-1" placeholder="Staff-1"  >
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control item" id="staff-2" placeholder="Staff-2"  >
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control item" id="staff-3" placeholder="Staff-3"  >
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control item" id="staff-4" placeholder="Staff-4"  >
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control item" id="staff-5" placeholder="Staff-5"  >
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control item" id="staff-6" placeholder="Staff-6"  >
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-block create-account" onclick="calculate()">Calculate</button>
+            </div>
+        </form>
     </div>
-
-  </body>
-<script src="./script.js"></script>
-
+<script type="text/javascript" src="./script.js"></script>
+</body>
 </html>
