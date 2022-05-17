@@ -30,7 +30,7 @@ function calculate(){
   $.ajax({url: url, async:false, success: function(result){
 
       if( old_amount < all_amount || old_amount == all_amount){
-        swal({
+        Swal.fire({
           title: "Total Amount, increased",
           text: "USD: "+ result.rates.USD + " TRY: " + result.amount,
           icon: "success",
