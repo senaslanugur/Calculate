@@ -10,6 +10,7 @@ if(localStorage.getItem("labels") === null){
 	 "label_6":"label_6",
 	}
 	localStorage.setItem("labels",JSON.stringify(labels))
+	graph()
 }else{
 
 	var values = JSON.parse(localStorage.getItem("values"))
