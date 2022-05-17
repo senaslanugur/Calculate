@@ -1,27 +1,36 @@
-window.onload = function () {
+function graph(){
 
+var values = JSON.parse(localStorage.getItem("values"))
 var chart = new CanvasJS.Chart("chartContainer", {
+	theme: "light2", // "light1", "light2", "dark1", "dark2"
+	exportEnabled: true,
 	animationEnabled: true,
-	theme: "light2",
-	title:{
-		text: "Simple Line Chart"
+	title: {
+		text: "Amount Rates",
+    fontSize: 20,
 	},
+  subtitles: [{
+    text: "Amount "+localStorage.getItem("all_amount"),
+    backgroundColor: "#2eacd1",
+    fontSize: 14,
+    fontColor: "white",
+    padding: 5
+  }],
 	data: [{
-		type: "line",
-      	indexLabelFontSize: 16,
+		type: "doughnut",
+		startAngle: 180,
+		toolTipContent: "<b>{label}</b>: {y}%",
+		showInLegend: "true",
+		legendText: "{label}",
+		indexLabelFontSize: 11,
+		indexLabel: "{label} - {y}%",
 		dataPoints: [
-			{ y: 450 },
-			{ y: 414},
-			{ y: 520, indexLabel: "\u2191 highest",markerColor: "red", markerType: "triangle" },
-			{ y: 460 },
-			{ y: 450 },
-			{ y: 500 },
-			{ y: 480 },
-			{ y: 480 },
-			{ y: 410 , indexLabel: "\u2193 lowest",markerColor: "DarkSlateGrey", markerType: "cross" },
-			{ y: 500 },
-			{ y: 480 },
-			{ y: 510 }
+			{ y: values.staff_1, label: "Staff-1" },
+			{ y: values.staff_2, label: "Staff-2" },
+			{ y: values.staff_3, label: "Staff-3" },
+			{ y: values.staff_4, label: "Staff-4" },
+			{ y: values.staff_5, label: "Staff-5" },
+			{ y: values.staff_6, label: "Staff-6" }
 		]
 	}]
 });
