@@ -62,6 +62,14 @@ function get(){
   document.getElementById("staff-6").value = values.staff_6
   document.getElementById("staff-7").value = values.staff_7
 
+  var labels = JSON.parse(localStorage.getItem("labels"))
+  document.getElementById("staff-1-name").innerText = labels.label_1
+  document.getElementById("staff-2-name").innerText = labels.label_2
+  document.getElementById("staff-3-name").innerText = labels.label_3
+  document.getElementById("staff-4-name").innerText = labels.label_4
+  document.getElementById("staff-5-name").innerText = labels.label_5
+  document.getElementById("staff-6-name").innerText = labels.label_6
+  document.getElementById("staff-7-name").innerText = labels.label_7
 
 }
 get()
