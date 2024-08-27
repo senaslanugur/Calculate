@@ -6,8 +6,10 @@ function calculate(){
   const staff_4 = parseFloat(document.getElementById("staff-4").value);
   const staff_5 = parseFloat(document.getElementById("staff-5").value);
   const staff_6 = parseFloat(document.getElementById("staff-6").value);
+  const staff_7 = parseFloat(document.getElementById("staff-7").value);
 
-  const all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6
+
+  const all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7
 
   const old_amount = parseFloat(localStorage.getItem("all_amount"))
 
@@ -20,6 +22,8 @@ function calculate(){
    "staff_4":staff_4,
    "staff_5":staff_5,
    "staff_6":staff_6,
+   "staff_7":staff_7,
+
   }
 
   localStorage.setItem("values",JSON.stringify(values))
@@ -56,6 +60,8 @@ function get(){
   document.getElementById("staff-4").value = values.staff_4
   document.getElementById("staff-5").value = values.staff_5
   document.getElementById("staff-6").value = values.staff_6
+  document.getElementById("staff-7").value = values.staff_7
+
 
 }
 get()

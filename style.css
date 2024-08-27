@@ -18,7 +18,7 @@ padding: 50px 0;
 
 .registration-form .form-icon{
   text-align: center;
-  background-color: #5891ff;
+  background-color: #e95237;
   border-radius: 50%;
   font-size: 40px;
   color: white;
@@ -40,8 +40,11 @@ border-radius: 20px;
   padding: 10px 20px;
   font-size: 18px;
   font-weight: bold;
-  background-color: #5791ff;
+  background-color: #e95237;
   border: none;
   color: white;
   margin-top: 20px;
+}
+h5 {
+  font-size: smaller;
 }
