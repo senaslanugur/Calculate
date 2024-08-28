@@ -36,14 +36,14 @@ function calculate(){
       if( old_amount < all_amount || old_amount == all_amount){
         Swal.fire({
           title: "Total Amount, increased",
-          text: "USD: "+ result.rates.USD + " TRY: " + result.amount,
+          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseInt(result.amount),
           icon: "success",
           button: "Kapat",
         })
       } else {
-        swal({
+        Swal.fire({
           title: "Total Amount, decreased",
-          text: "USD: "+ result.rates.USD + " TRY: " + result.amount,
+          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseInt(result.amount) + "<br><b>PrevAmount: </b>" + old_amount,
           icon: "warning",
           button: "Kapat",
         })
