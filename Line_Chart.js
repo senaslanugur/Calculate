@@ -88,11 +88,11 @@ if(localStorage.getItem("labels") === null){
 	  	},
 			type: "doughnut",
 			startAngle: 180,
-			toolTipContent: "<b>{label}</b>: {y}%",
+			toolTipContent: "<b>{label}</b>: {y}",
 			showInLegend: "true",
 			legendText: "{label}",
 			indexLabelFontSize: 11,
-			indexLabel: "{label} - {y}%",
+			indexLabel: "{label} - {y}",
 			dataPoints: [
 				{ y: values.staff_1, label: labels.label_1 },
 				{ y: values.staff_2, label: labels.label_2 },
