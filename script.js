@@ -1,3 +1,33 @@
+function getCurrentDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Aylar 0'dan başlıyor
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function addDayDate(tl, usd) {
+  const dateKey = getCurrentDate();
+
+  let existingData = JSON.parse(localStorage.getItem("day_data_set")) || [];
+
+
+  const existingIndex = existingData.findIndex(item => item.date === dateKey);
+
+  if (existingIndex !== -1) {
+    // Eğer mevcutsa, üzerine yaz
+    existingData[existingIndex] = { date: dateKey, turkish_lira: tl, dolar: usd };
+  } else {
+    // Eğer mevcut değilse, yeni veri ekle
+    existingData.push({ date: dateKey, turkish_lira: tl, dolar: usd });
+  }
+
+  localStorage.setItem("day_data_set", JSON.stringify(existingData));
+
+}
+
+
+
 function calculate(){
 
   const staff_1 = parseFloat(document.getElementById("staff-1").value);
@@ -48,6 +78,7 @@ function calculate(){
           button: "Kapat",
         })
       }
+      addDayDate(result.amount, result.rates.USD)
   }});
 
 }
