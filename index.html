@@ -1,83 +1,240 @@
 <!DOCTYPE html>
-<html>
+
+<html class="dark" lang="en">
 
 <head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=-1">
-    <title>Calculate</title>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Wallet</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="./style.css">
-
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="registration-form">
-        <form>
-            <div class="form-icon">
-                <span><i class="icon icon-fire"></i></span>
-            </div>
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden font-display">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 md:px-10 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                    <header
+                        class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-b-[#283039] px-4 md:px-10 py-3">
+                        <div class="flex items-center gap-4 text-black dark:text-white">
+                            <div class="size-6">
+                                <span class="material-symbols-outlined">
+                                    wallet
+                                </span>
+                            </div>
+                            <h2 class="text-black dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">
+                                Hesaplarım</h2>
+                        </div>
+                        <div class="flex flex-1 justify-end gap-4">
+                            <button onclick="calculate()"
+                                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-gray-200 dark:bg-[#283039] text-black dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0">
+                                <span class="material-symbols-outlined">
+                                    notifications
+                                </span>
+                            </button>
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" onclick="location.href='old.html';"
+                                data-alt="User avatar"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSZpcCc0dT1DhdDQKWT81EXGWi8rqUgI_SFnF_0Rh_YB0Qz5T5RW2IesH2nfPiSWZLHRYUthzsWMpwMWjCj1rRIBC3Pytm81Bh0zHG0LhevSnzTMcTnE32gr2EvkrGc2MBay3WSjRr3q-Uf3d6LfIMJupEKKwHyKIqurfwvF0vYemYGojnBvxEwsl2hRtUxSVNjXvT7vkgzsO4vCjEDyiC90b4V_F0MZvtJ5ivqDZu-slU3Dza1g4FGErpS9xOd8vorVv_75MEtEc6");'>
+                            </div>
+                        </div>
+                    </header>
+                    <main class="flex flex-col">
+                        <div class="flex flex-col px-4 md:px-6 lg:px-8">
+                            <div class="flex min-w-72 flex-col gap-2">
+                                <p class="text-black dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]"> Toplam Param</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xl text-gray-500 dark:text-[#9dabb9]"> currency_lira </span>
+                                    <p class="text-gray-500 dark:text-[#9dabb9] text-2xl font-normal leading-normal" id="total_interface">$12,456.78 - 100 TL</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-1-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-1" />
+                              </div>
+                            </div>
+                            </div>
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-2-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-2" />
+                              </div>
+                            </div>
+                            </div>
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-3-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-3" />
+                              </div>
+                            </div>
+                            </div>                                                       
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-4-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-4" />
+                              </div>
+                            </div>
+                            </div>
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-5-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-5" />
+                              </div>
+                            </div>
+                            </div>
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-6-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-6" />
+                              </div>
+                            </div>
+                            </div>
+                            <div
+                            class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div class="flex w-full items-start justify-between">
+                              <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white" id="staff-7-name">Bank of America</p>
+                            </div>
+                            <div class="flex w-full flex-wrap items-center justify-between gap-4">
+                              <div class="relative grow sm:max-w-xs">
+                                <span
+                                  class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-base">
+                                  currency_lira </span>
+                                <input
+                                  class="w-full rounded-md border-gray-300 bg-white py-2 pl-8 pr-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
+                                  placeholder="Amount" type="number" id="staff-7" />
+                              </div>
+                            </div>
+                            </div>                                                                                                                
+                        </div>
+                        <div class="flex justify-center py-6">
+                            <div class="flex flex-1 gap-4 flex-wrap px-4 py-3 max-w-[480px] justify-center">
+                                <button onclick="calculate()"
+                                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] grow gap-2">
+                                    <span class="material-symbols-outlined">calculate</span>
+                                    <span class="truncate">Calculate</span>
+                                </button>
+                                <button onclick="lineGraph()"
+                                    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gray-200 dark:bg-[#283039] text-black dark:text-white text-base font-bold leading-normal tracking-[0.015em] grow gap-2">
+                                    <span class="material-symbols-outlined">bar_chart_4_bars</span>
+                                    <span class="truncate">Daily Graph</span>
+                                </button>
+                                <button onclick="graph()"
+                                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gray-200 dark:bg-[#283039] text-black dark:text-white text-base font-bold leading-normal tracking-[0.015em] grow gap-2">
+                                <span class="material-symbols-outlined">   pie_chart </span>
+                                <span>Distribution Graph</span>
+                            </button>
+                            </div>
+                        </div>
 
-            <div class="form-group">
-              <h5 id="staff-1-name">Wallet-1</h5>
-              <input type="number" class="form-control item" id="staff-1" placeholder="Wallet-1">
+                        <div class="mt-8 border-t border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                            <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+                        </div>
+                    </main>
+                    <footer
+                        class="flex items-center justify-center gap-6 p-4 border-t border-gray-200 dark:border-[#283039] mt-auto">
+                        <a class="text-sm text-gray-500 dark:text-[#9dabb9] hover:text-primary" href="#">Support</a>
+                        <a class="text-sm text-gray-500 dark:text-[#9dabb9] hover:text-primary" href="#">Settings</a>
+                        <a class="text-sm text-gray-500 dark:text-[#9dabb9] hover:text-primary" href="#">Privacy
+                            Policy</a>
+                    </footer>
+                </div>
             </div>
-
-            <div class="form-group">
-              <h5 id="staff-2-name">Wallet-2</h5>
-              <input type="number" class="form-control item" id="staff-2" placeholder="Wallet-2">
-            </div>
-
-            <div class="form-group">
-              <h5 id="staff-3-name">Wallet-3</h5>
-              <input type="number" class="form-control item" id="staff-3" placeholder="Wallet-3">
-            </div>
-
-            <div class="form-group">
-              <h5 id="staff-4-name">Wallet-4</h5>
-              <input type="number" class="form-control item" id="staff-4" placeholder="Wallet-4">
-            </div>
-
-            <div class="form-group">
-              <h5 id="staff-5-name">Wallet-5</h5>
-              <input type="number" class="form-control item" id="staff-5" placeholder="Wallet-5">
-            </div>
-
-            <div class="form-group">
-              <h5 id="staff-6-name">Wallet-6</h5>
-              <input type="number" class="form-control item" id="staff-6" placeholder="Wallet-6">
-            </div>
-
-            <div class="form-group">
-              <h5 id="staff-7-name">Wallet-7</h5>
-              <input type="number" class="form-control item" id="staff-7" placeholder="Wallet-7">
-            </div>
-
-            <div class="form-group">
-                <button type="button" class="btn btn-block create-account" onclick="calculate()">Calculate</button>
-            </div>
-
-            <div class="form-group">
-              <button type="button" class="btn btn-block create-account" onclick="lineGraph()">Day Graph</button>
-            </div>
-
-            <div class="form-group">
-                <button type="button" class="btn btn-block create-account" onclick="graph()">Graph</button>
-            </div>
-
-        </form>
-        <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+        </div>
     </div>
-
+</body>
     <script type="text/javascript" src="./script.js"></script>
     <script type="text/javascript" src="./Line_Chart.js"></script>
     <script type="text/javascript" src="./day_date_graph.js"></script>
-
-</body>
 </html>

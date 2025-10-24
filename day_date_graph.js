@@ -7,7 +7,7 @@ function lineGraph(){
     data.forEach(entry => {
         const date = new Date(entry.date);
         dataPointsTL.push({ x: date, y: entry.turkish_lira });
-        dataPointsUSD.push({ x: date, y: entry.dolar });
+        dataPointsUSD.push({ x: date, y: entry.dolar*10 });
     });
 
     const chart = new CanvasJS.Chart("chartContainer", {
@@ -25,7 +25,7 @@ function lineGraph(){
         },
         axisY: {
             title: "Değer",
-            suffix: " TL veya $",
+            suffix: " TL-$",
             includeZero: true,
             gridThickness: 1 // Şebeke çizgisi kalınlığı
         },

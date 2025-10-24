@@ -81,6 +81,7 @@ function calculate(){
       addDayDate(result.amount, result.rates.USD)
   }});
 
+  get()
 }
 
 function get(){
@@ -92,6 +93,7 @@ function get(){
   document.getElementById("staff-5").value = values.staff_5
   document.getElementById("staff-6").value = values.staff_6
   document.getElementById("staff-7").value = values.staff_7
+  document.getElementById("total_interface").innerHTML = values.staff_1 + values.staff_2 + values.staff_3 + values.staff_4 + values.staff_5 + values.staff_6 + values.staff_7 
 
   var labels = JSON.parse(localStorage.getItem("labels"))
   document.getElementById("staff-1-name").innerText = labels.label_1

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=-1">
+    <title>Calculate</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css">
+
+</head>
+<body>
+    <div class="registration-form">
+        <form>
+            <div class="form-icon">
+                <span><i class="icon icon-fire"></i></span>
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-1-name">Wallet-1</h5>
+              <input type="number" class="form-control item" id="staff-1" placeholder="Wallet-1">
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-2-name">Wallet-2</h5>
+              <input type="number" class="form-control item" id="staff-2" placeholder="Wallet-2">
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-3-name">Wallet-3</h5>
+              <input type="number" class="form-control item" id="staff-3" placeholder="Wallet-3">
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-4-name">Wallet-4</h5>
+              <input type="number" class="form-control item" id="staff-4" placeholder="Wallet-4">
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-5-name">Wallet-5</h5>
+              <input type="number" class="form-control item" id="staff-5" placeholder="Wallet-5">
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-6-name">Wallet-6</h5>
+              <input type="number" class="form-control item" id="staff-6" placeholder="Wallet-6">
+            </div>
+
+            <div class="form-group">
+              <h5 id="staff-7-name">Wallet-7</h5>
+              <input type="number" class="form-control item" id="staff-7" placeholder="Wallet-7">
+            </div>
+
+            <div class="form-group">
+                <button type="button" class="btn btn-block create-account" onclick="calculate()">Calculate</button>
+            </div>
+
+            <div class="form-group">
+              <button type="button" class="btn btn-block create-account" onclick="lineGraph()">Day Graph</button>
+            </div>
+
+            <div class="form-group">
+                <button type="button" class="btn btn-block create-account" onclick="graph()">Graph</button>
+            </div>
+
+        </form>
+        <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+        
+    </div>
+
+    <script type="text/javascript" src="./script.js"></script>
+    <script type="text/javascript" src="./Line_Chart.js"></script>
+    <script type="text/javascript" src="./day_date_graph.js"></script>
+
+</body>
+</html>
