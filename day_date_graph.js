@@ -7,7 +7,7 @@ function lineGraph(){
     data.forEach(entry => {
         const date = new Date(entry.date);
         dataPointsTL.push({ x: date, y: entry.turkish_lira });
-        dataPointsUSD.push({ x: date, y: entry.dolar*10 });
+       // dataPointsUSD.push({ x: date, y: entry.dolar*10 });
     });
 
     const chart = new CanvasJS.Chart("chartContainer", {
@@ -37,17 +37,19 @@ function lineGraph(){
             dataPoints: dataPointsTL,
             color: "#FF5733", // Renk seçimi
             lineThickness: 2 // Çizgi kalınlığı
-        },
-        {
-            type: "line",
-            name: "Dolar",
-            showInLegend: true,
-            markerSize: 5,
-            dataPoints: dataPointsUSD,
-            color: "#33C3FF", // Renk seçimi
-            lineThickness: 2 // Çizgi kalınlığı
-        }]
+        }
+       // {
+          //  type: "line",
+          //  name: "Dolar",
+          //  showInLegend: true,
+          //  markerSize: 5,
+          //  dataPoints: dataPointsUSD,
+           // color: "#33C3FF", // Renk seçimi
+           // lineThickness: 2 // Çizgi kalınlığı
+        //}
+          ]
     });
 
     chart.render();
+
 }
