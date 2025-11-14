@@ -34,7 +34,12 @@ function lineGraph() {
     const rect = container.getBoundingClientRect();
     const width = rect.width;
     const height = 370;
-    const margin = { top: 40, right: 40, bottom: 80, left: 60 };
+    const margin = {
+        top: 40,
+        right: 40,
+        bottom: 80,
+        left: 60
+    };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
@@ -45,9 +50,8 @@ function lineGraph() {
     const minValue = d3.min(data, d => d.turkish_lira);
     const maxValue = d3.max(data, d => d.turkish_lira);
 
-    // Aralık küçükse, alt ve üst boşluk ekleyerek daha net görün
-    const padding = (maxValue - minValue) * 0.2; // %20 padding
-    const yMin = Math.max(0, minValue - padding); // Negatif olmaz
+    const padding = (maxValue - minValue) * 0.2;
+    const yMin = Math.max(0, minValue - padding);
     const yMax = maxValue + padding;
 
     // X ve Y ölçekler
@@ -56,7 +60,7 @@ function lineGraph() {
         .range([0, plotWidth]);
 
     const y = d3.scaleLinear()
-        .domain([yMin, yMax]) // Dinamik aralık
+        .domain([yMin, yMax])
         .range([plotHeight, 0]);
 
     // SVG
@@ -69,11 +73,11 @@ function lineGraph() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Izgara çizgileri (arka plan)
+    // Izgara çizgileri
     svg.append("g")
         .attr("class", "grid")
-        .attr("stroke", "#e0e0e0")
-        .attr("stroke-opacity", 0.5)
+        .attr("stroke", "#eeeeee")
+        .attr("stroke-opacity", 1)
         .attr("stroke-width", 1)
         .call(d3.axisLeft(y)
             .ticks(6)
@@ -84,15 +88,17 @@ function lineGraph() {
     // X ekseni
     const xAxis = svg.append("g")
         .attr("transform", `translate(0,${plotHeight})`)
-        .call(d3.axisBottom(x).ticks(Math.min(5, data.length)));
+        .call(d3.axisBottom(x).ticks(Math.min(7, data.length)));
 
     xAxis.selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", "rotate(-45)")
-        .style("font-size", "12px")
-        .style("fill", "#555");
+        .style("font-size", "13px")
+        .style("fill", "#f2f2f2")
+        .style("font-weight", 500);
+
 
     xAxis.select(".domain").remove();
 
@@ -102,12 +108,13 @@ function lineGraph() {
             .ticks(6)
             .tickFormat(d => d.toLocaleString("tr-TR") + " ₺"))
         .selectAll("text")
-        .style("font-size", "12px")
-        .style("fill", "#555");
+        .style("font-size", "13px")
+        .style("fill", "#f2f2f2")
+        .style("font-weight", 500);
 
     svg.select(".domain").remove();
 
-    // Çizgi
+    // Çizgi (daha koyu mavi ve daha kalın)
     const line = d3.line()
         .x(d => x(d.date))
         .y(d => y(d.turkish_lira))
@@ -116,37 +123,37 @@ function lineGraph() {
     svg.append("path")
         .datum(data)
         .attr("fill", "none")
-        .attr("stroke", "#1a73e8")
+        .attr("stroke", "#1565c0")
         .attr("stroke-width", 3)
         .attr("d", line)
         .style("shape-rendering", "geometricPrecision");
 
-        
-    // Noktalar
+    // Noktalar (kontrast turuncu, daha belirgin)
     svg.selectAll(".dot")
         .data(data)
         .enter().append("circle")
         .attr("cx", d => x(d.date))
         .attr("cy", d => y(d.turkish_lira))
-        .attr("r", 5)
-        .attr("fill", "#1a73e8")
+        .attr("r", 4)
+        .attr("fill", "#ff7043")
         .attr("stroke", "#fff")
-        .attr("stroke-width", 2)
-        .style("filter", "drop-shadow(0 1px 2px rgba(0,0,0,0.2))");
+        .attr("stroke-width", 0)
+        .style("filter", "drop-shadow(0 2.5px 5px rgba(0,0,0,0.13))");
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("position", "absolute")
-        .style("background", "rgba(30, 30, 30, 0.95)")
+        .style("background", "#101924")
         .style("color", "#fff")
-        .style("padding", "10px 14px")
+        .style("padding", "10px 16px")
         .style("border-radius", "8px")
-        .style("font-size", "14px")
+        .style("font-size", "15px")
         .style("font-family", "Inter, sans-serif")
         .style("pointer-events", "none")
         .style("opacity", 0)
-        .style("box-shadow", "0 4px 12px rgba(0,0,0,0.15)");
+        .style("box-shadow", "0 6px 18px rgba(0,0,0,0.18)")
+        .style("z-index", "9999");
 
     // Fare etkileşimi
     svg.append("rect")
@@ -165,18 +172,16 @@ function lineGraph() {
             const d0 = data[i - 1];
             const d1 = data[i];
             let d = d0;
-
             if (d1 && (!d0 || Math.abs(date - d0.date) > Math.abs(date - d1.date))) {
                 d = d1;
             }
-
             tooltip
                 .html(`
-                    <b style="color:#a8d8ea">Tarih:</b> ${d.date.toLocaleDateString('tr-TR')}<br>
-                    <b style="color:#ffd966">Değer:</b> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
+                    <span style="color:#ffa726"><b>Tarih:</b></span> ${d.date.toLocaleDateString('tr-TR')}<br>
+                    <span style="color:#ffee58"><b>Değer:</b></span> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
                 `)
                 .style("left", (event.pageX + 12) + "px")
-                .style("top", (event.pageY - 32) + "px");
+                .style("top", (event.pageY - 36) + "px");
         });
 
     // Başlık
@@ -184,31 +189,49 @@ function lineGraph() {
         .attr("x", plotWidth / 2)
         .attr("y", -18)
         .attr("text-anchor", "middle")
-        .style("font-size", "16px")
+        .style("font-size", "17px")
         .style("font-weight", "700")
-        .style("fill", "#333")
+        .style("fill", "#fff") // <---- başlık çok açık beyaz
         .style("font-family", "Inter, sans-serif")
         .text("Günlük Türk Lirası Değeri");
+
+    // % DEĞİŞİM GÖSTERGESİ (BAŞLIĞIN ALTINDA)
+    const first = data[0];
+    const last = data[data.length - 1];
+    const change = ((last.turkish_lira - first.turkish_lira) / first.turkish_lira) * 100;
+    const changeText = change.toFixed(2).replace('.', ',') + "%";
+    const up = change >= 0;
+    const indicatorColor = up ? "#43a047" : "#e53935";
+    const arrow = up ? "▲" : "▼";
+
+    svg.append("text")
+        .attr("x", plotWidth / 2)
+        .attr("y", 2) // başlıktan hemen sonra gelsin (değeri istersen 4, 6 yapabilirsin)
+        .attr("text-anchor", "middle")
+        .style("font-size", "15px")
+        .style("font-family", "Inter, sans-serif")
+        .style("font-weight", "bold")
+        .style("fill", indicatorColor)
+        .text(`${arrow} ${changeText}`);
 
     // Eksen etiketleri
     svg.append("text")
         .attr("x", plotWidth / 2)
         .attr("y", plotHeight + 65)
         .attr("text-anchor", "middle")
-        .style("font-size", "13px")
-        .style("fill", "#666")
+        .style("font-size", "14px")
+        .style("fill", "#f2f2f2")
         .style("font-family", "Inter, sans-serif")
         .text("Tarih");
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("x", -plotHeight / 2)
-        .attr("y", -50)
+        .attr("y", -52)
         .attr("text-anchor", "middle")
-        .style("font-size", "13px")
-        .style("fill", "#666")
+        .style("font-size", "14px")
+        .style("fill", "#f2f2f2")
         .style("font-family", "Inter, sans-serif")
         .text("Türk Lirası (₺)");
-        
-}
 
+}
