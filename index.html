@@ -14,7 +14,8 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js""></script>
+    <!-- <script src="https://d3js.org/d3.v7.min.js""></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.js" integrity="sha512-iiZOijMkLFQSa43AyuzD6p176GJlnhWXEv7loEZFkCDpFQvZCijZLE6U8IRpAIb53KagIIwhSwHWTgsDlci/jw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -211,7 +212,7 @@
                                     <span class="material-symbols-outlined">bar_chart_4_bars</span>
                                     <span class="truncate">Daily Graph</span>
                                 </button>
-                                <button onclick="graph()"
+                                <button onclick="barGraph()"
                                 class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gray-200 dark:bg-[#283039] text-black dark:text-white text-base font-bold leading-normal tracking-[0.015em] grow gap-2">
                                 <span class="material-symbols-outlined">   pie_chart </span>
                                 <span>Distribution Graph</span>
@@ -246,5 +247,7 @@
     <script type="text/javascript" src="./script.js"></script>
     <script type="text/javascript" src="./Line_Chart.js"></script>
     <script type="text/javascript" src="./day_date_graph.js"></script>
+    <script type="text/javascript" src="./bar_graph.js"></script>
+
     <!-- <script type="text/javascript" src="./fetch_data.js"></script>
 </html> -->
