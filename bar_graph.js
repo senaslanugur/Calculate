@@ -35,10 +35,12 @@ function barGraph() {
 
     // Veri hazırlama
     const data = [];
+    let toplam = 0;
     for (let i = 1; i <= 7; i++) {
         const label = labelsObj['label_' + i];
         const val = valuesObj['staff_' + i];
         if (label && label.trim() && val !== undefined && val !== null && label !== "") {
+            toplam = toplam + val;
             data.push({ label, value: +val });
         }
     }
@@ -152,5 +154,5 @@ function barGraph() {
         .style("font-weight", "700")
         .style("fill", "#fff")
         .style("font-family", "Inter, sans-serif")
-        .text("Portföy Dağılımı (Bar Grafik)");
+        .text("Portföy Dağılımı - Toplam: " + toplam);
 }
