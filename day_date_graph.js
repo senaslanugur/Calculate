@@ -199,7 +199,7 @@ function lineGraph() {
     const first = data[0];
     const last = data[data.length - 1];
     const change = ((last.turkish_lira - first.turkish_lira) / first.turkish_lira) * 100;
-    const changeText = change.toFixed(2).replace('.', ',') + "%";
+    const changeText = change.toFixed(2).replace('.', ',') + "%" + "En Son Değer:" +  last.turkish_lira;
     const up = change >= 0;
     const indicatorColor = up ? "#43a047" : "#e53935";
     const arrow = up ? "▲" : "▼";
