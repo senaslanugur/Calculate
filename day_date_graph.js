@@ -213,7 +213,14 @@ function lineGraph() {
         .style("font-weight", "bold")
         .style("fill", indicatorColor)
         .text(`${arrow} ${changeText}`);
-    
+
+    if (up) {
+        kar_zarar.classList.remove("text-red-500")
+        kar_zarar.classList.add("text-green-500")
+    }else{
+        kar_zarar.classList.add("text-red-500")
+        kar_zarar.classList.remove("text-green-500")
+    }
     kar_zarar.innerHTML = arrow + changeText
 
     // Eksen etiketleri
