@@ -104,5 +104,8 @@ function get(){
   document.getElementById("staff-6-name").innerText = labels.label_6
   document.getElementById("staff-7-name").innerText = labels.label_7
 
+
+
+  
 }
 get()

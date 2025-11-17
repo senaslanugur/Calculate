@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+
+<html class="dark" lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Hisse Senedi Portföy Yönetimi</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec5b",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+        <!-- Top App Bar -->
+        <div
+            class="flex items-center p-4 pb-2 justify-between sticky top-0 bg-background-light dark:bg-background-dark z-10">
+            <div class="flex size-12 shrink-0 items-center justify-start">
+                <span class="material-symbols-outlined text-zinc-900 dark:text-white">menu</span>
+            </div>
+            <h1
+                class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+                Portföyüm</h1>
+            <div class="flex w-12 items-center justify-end">
+                <button
+                    class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-transparent text-zinc-900 dark:text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+            </div>
+        </div>
+        <!-- Stats Cards -->
+        <div class="flex flex-wrap gap-4 p-4">
+            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Varlık</p>
+                <p class="text-zinc-900 dark:text-white tracking-tight text-2xl font-bold leading-tight">₺150.450,75</p>
+            </div>
+            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Günlük Değişim</p>
+                <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight">+₺1.240,15</p>
+            </div>
+            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Kâr/Zarar</p>
+                <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight">+20.36%</p>
+            </div>
+        </div>
+        <!-- Segmented Buttons -->
+        <div class="flex px-4 py-3">
+            <div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-zinc-200/50 dark:bg-zinc-800/20 p-1">
+                <label
+                    class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-background-light dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-zinc-900 dark:has-[:checked]:text-white text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal transition-colors">
+                    <span class="truncate">Günlük</span>
+                    <input checked="" class="invisible w-0" name="period-toggle" type="radio" value="Günlük" />
+                </label>
+                <label
+                    class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-background-light dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-zinc-900 dark:has-[:checked]:text-white text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal transition-colors">
+                    <span class="truncate">Haftalık</span>
+                    <input class="invisible w-0" name="period-toggle" type="radio" value="Haftalık" />
+                </label>
+                <label
+                    class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-background-light dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-zinc-900 dark:has-[:checked]:text-white text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal transition-colors">
+                    <span class="truncate">Aylık</span>
+                    <input class="invisible w-0" name="period-toggle" type="radio" value="Aylık" />
+                </label>
+                <label
+                    class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-background-light dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-zinc-900 dark:has-[:checked]:text-white text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal transition-colors">
+                    <span class="truncate">Toplam</span>
+                    <input class="invisible w-0" name="period-toggle" type="radio" value="Toplam" />
+                </label>
+            </div>
+        </div>
+        <!-- Section Header: Varlık Dağılımı -->
+        <h2 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+            Varlık Dağılımı</h2>
+        <!-- Donut Chart -->
+        <div class="flex items-center justify-center p-4">
+            <div class="relative flex items-center justify-center w-52 h-52">
+                <svg id="donut-chart" class="w-full h-full transform -rotate-90" viewBox="0 0 36 36"></svg>
+                <div class="absolute flex flex-col items-center justify-center" id="donut-center">
+                    <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium">Toplam Varlık</p>
+                    <p id="donut-total" class="text-zinc-900 dark:text-white text-2xl font-bold tracking-tight">₺0</p>
+                </div>
+            </div>
+        </div>
+        <!-- Section Header: Varlıklarım -->
+        <h2 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+            Varlıklarım</h2>
+        <!-- Stock List -->
+        <div class="flex flex-col gap-3 px-4 pb-24">
+            <!-- Stock Item 1 -->
+            <div class="flex items-center gap-4 rounded-xl p-3 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 font-bold">
+                    THYAO</div>
+                <div class="flex-1">
+                    <p class="font-bold text-zinc-900 dark:text-white">Türk Hava Yolları</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">150 Adet</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-zinc-900 dark:text-white">₺53.250,00</p>
+                    <p class="text-sm font-medium text-green-500">+₺4.150 (+8.45%)</p>
+                </div>
+            </div>
+            <!-- Stock Item 2 -->
+            <div class="flex items-center gap-4 rounded-xl p-3 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/10 text-purple-500 font-bold">
+                    TUPRS</div>
+                <div class="flex-1">
+                    <p class="font-bold text-zinc-900 dark:text-white">Tüpraş</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">200 Adet</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-zinc-900 dark:text-white">₺37.800,00</p>
+                    <p class="text-sm font-medium text-red-500">-₺850 (-2.20%)</p>
+                </div>
+            </div>
+            <!-- Stock Item 3 -->
+            <div class="flex items-center gap-4 rounded-xl p-3 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-500 font-bold">
+                    FROTO</div>
+                <div class="flex-1">
+                    <p class="font-bold text-zinc-900 dark:text-white">Ford Otosan</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">50 Adet</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-zinc-900 dark:text-white">₺30.125,00</p>
+                    <p class="text-sm font-medium text-green-500">+₺1.980 (+7.04%)</p>
+                </div>
+            </div>
+            <!-- Stock Item 4 -->
+            <div class="flex items-center gap-4 rounded-xl p-3 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/10 text-orange-500 font-bold">
+                    BIMAS</div>
+                <div class="flex-1">
+                    <p class="font-bold text-zinc-900 dark:text-white">Bim Mağazalar</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">100 Adet</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-zinc-900 dark:text-white">₺15.125,00</p>
+                    <p class="text-sm font-medium text-green-500">+₺512 (+3.5%)</p>
+                </div>
+            </div>
+        </div>
+        <!-- Floating Action Button -->
+        <div class="fixed bottom-6 right-6">
+            <button
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-background-dark shadow-lg transition-transform hover:scale-105">
+                <span class="material-symbols-outlined !text-3xl">add</span>
+            </button>
+        </div>
+    </div>
+</body>
+<script>
+    const STAFF_COLORS = [
+        "text-blue-500",
+        "text-purple-500",
+        "text-yellow-500",
+        "text-orange-500",
+        "text-teal-500"
+    ];
+    const SVG_COLORS = [
+        "#3B82F6", // blue
+        "#8B5CF6", // purple
+        "#FACC15", // yellow
+        "#F97316", // orange
+        "#14B8A6"  // teal
+    ];
+
+    // Test için localStorage'da değer yoksa ekleyelim
+    if (!localStorage.getItem("values")) {
+        localStorage.setItem(
+            "values",
+            JSON.stringify({
+                "staff_1": 103.8,
+                "staff_2": 226.7,
+                "staff_3": 54.2,
+                "staff_4": 132.8,
+                "staff_5": -33.7,
+                "staff_6": 0,
+                "staff_7": 0
+            })
+        );
+    }
+    // Değerleri alma ve işle
+    const values = JSON.parse(localStorage.getItem("values") || "{}");
+    const staffEntries = Object.entries(values)
+        .filter(([key, val]) => key.startsWith('staff_') && parseFloat(val) > 0)
+        .map(([key, val]) => parseFloat(val));
+
+    const total = staffEntries.reduce((a, b) => a + b, 0);
+
+    // Donut için değerleri %'ye çeviriyoruz
+    let percentages = staffEntries.map(val => (val / total) * 100);
+
+    // Donut Chart SVG
+    let offset = 0;
+    let circles = "";
+    for (let i = 0; i < percentages.length; ++i) {
+        let dasharray = percentages[i].toFixed(2) + ", 100";
+        let dashoffset = -offset;
+        let color = SVG_COLORS[i % SVG_COLORS.length];
+        circles += `<circle
+            cx="18" cy="18" r="15.9155" fill="none"
+            stroke="${color}"
+            stroke-width="2.5"
+            stroke-dasharray="${dasharray}"
+            stroke-dashoffset="${dashoffset}"
+        ></circle>`;
+        offset += percentages[i];
+    }
+    // SVG'yi güncelle
+    document.getElementById("donut-chart").innerHTML = circles;
+
+    // Orta toplam (₺ işaretiyle ve K formatlaması ile)
+    function tlFormat(val) {
+        if (val > 9999) {
+            return "₺" + (val / 1000).toFixed(1) + "K";
+        }
+        return "₺" + val.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+    document.getElementById("donut-total").textContent = tlFormat(total);
+
+</script>
+
+</html>

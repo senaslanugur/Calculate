@@ -199,11 +199,11 @@ function lineGraph() {
     const first = data[0];
     const last = data[data.length - 1];
     const change = ((last.turkish_lira - first.turkish_lira) / first.turkish_lira) * 100;
-    const changeText = change.toFixed(2).replace('.', ',') + "%" + "En Son Değer:" +  last.turkish_lira;
+    const changeText = change.toFixed(2).replace('.', ',') + "%";
     const up = change >= 0;
     const indicatorColor = up ? "#43a047" : "#e53935";
     const arrow = up ? "▲" : "▼";
-
+    const kar_zarar = document.getElementById('kar_zarar')
     svg.append("text")
         .attr("x", plotWidth / 2)
         .attr("y", 2) // başlıktan hemen sonra gelsin (değeri istersen 4, 6 yapabilirsin)
@@ -213,6 +213,8 @@ function lineGraph() {
         .style("font-weight", "bold")
         .style("fill", indicatorColor)
         .text(`${arrow} ${changeText}`);
+    
+    kar_zarar.innerHTML = arrow + changeText
 
     // Eksen etiketleri
     svg.append("text")
