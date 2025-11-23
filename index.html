@@ -90,8 +90,8 @@
               </div>
             </div>
             <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
-                <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Kâr/Zarar</p>
-                <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight" id="kar_zarar">+20.36%</p>
+              <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Kâr/Zarar</p>
+              <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight" id="kar_zarar">+20.36%</p>
             </div>
             <div class="flex flex-col gap-4">
               <div
@@ -214,7 +214,7 @@
                 </div>
               </div>
             </div>
-            <div class="flex justify-center py-6">
+            <!-- <div class="flex justify-center py-6">
               <div class="flex flex-1 gap-4 flex-wrap px-4 py-3 max-w-[480px] justify-center">
                 <button onclick="calculate()"
                   class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] grow gap-2">
@@ -233,7 +233,7 @@
                 </button>
               </div>
 
-            </div>
+            </div> -->
             <!-- <div class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
                           <label for="item-name" class="text-base font-medium text-black dark:text-white">Karşılaştırma Ürünü Seçiniz</label>
                           <select id="item-name" class="rounded-md border-gray-300 bg-white py-2 text-sm text-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" onchange="fetchAveragePrice()">
@@ -258,6 +258,23 @@
       </div>
     </div>
   </div>
+  <div
+    class="sticky bottom-0 bg-white dark:bg-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)] rounded-t-2xl px-6 py-3">
+    <div class="flex justify-around items-start">
+      <a class="text-center text-teal-500" href="#donut-total" onclick="calculate()">
+        <span class="material-symbols-outlined text-3xl">calculate</span>
+        <span class="text-xs font-semibold block">Calculate</span>
+      </a>
+      <a class="text-center text-gray-500 dark:text-gray-400" href="#chartContainer" onclick="lineGraph()">
+        <span class="material-symbols-outlined text-3xl">finance_mode</span>
+        <span class="text-xs font-semibold block">Daily Graph</span>
+      </a>
+      <a class="text-center text-gray-500 dark:text-gray-400" href="#chartContainer" onclick="barGraph()">
+        <span class="material-symbols-outlined text-3xl">align_horizontal_center</span>
+        <span class="text-xs font-semibold block">Distribution Graph </span>
+      </a>
+    </div>
+  </div>
 </body>
 <script type="text/javascript" src="./script.js"></script>
 <script type="text/javascript" src="./Line_Chart.js"></script>
@@ -266,75 +283,75 @@
 
 <!-- <script type="text/javascript" src="./fetch_data.js"></script>-->
 <script>
-    const STAFF_COLORS = [
-        "#3B82F6", // blue
-        "#8B5CF6", // purple
-        "#FACC15", // yellow
-        "#F97316", // orange
-        "#14B8A6"  // teal
-    ];
-    const NEGATIVE_COLOR = "#EF4444"; // Kırmızı!
+  const STAFF_COLORS = [
+    "#3B82F6", // blue
+    "#8B5CF6", // purple
+    "#FACC15", // yellow
+    "#F97316", // orange
+    "#14B8A6"  // teal
+  ];
+  const NEGATIVE_COLOR = "#EF4444"; // Kırmızı!
 
-    // Test amaçlı localStorage yoksa ekleyelim
-    if (!localStorage.getItem("values")) {
-        localStorage.setItem(
-            "values",
-            JSON.stringify({
-                "staff_1": 103.8,
-                "staff_2": 226.7,
-                "staff_3": 54.2,
-                "staff_4": 132.8,
-                "staff_5": -33.7,
-                "staff_6": -10.2,
-                "staff_7": 0
-            })
-        );
-    }
+  // Test amaçlı localStorage yoksa ekleyelim
+  if (!localStorage.getItem("values")) {
+    localStorage.setItem(
+      "values",
+      JSON.stringify({
+        "staff_1": 103.8,
+        "staff_2": 226.7,
+        "staff_3": 54.2,
+        "staff_4": 132.8,
+        "staff_5": -33.7,
+        "staff_6": -10.2,
+        "staff_7": 0
+      })
+    );
+  }
 
-    // 1. Tüm staff_ değerlerini al
-    const values = JSON.parse(localStorage.getItem("values") || "{}");
-    const staffEntries = Object.entries(values).filter(([key, val]) => key.startsWith('staff_'));
-    // orijinal değerleri ve onların mutlak değer toplamını bul
-    const absSum = staffEntries.reduce((sum, [k,v]) => sum + Math.abs(parseFloat(v)), 0);
+  // 1. Tüm staff_ değerlerini al
+  const values = JSON.parse(localStorage.getItem("values") || "{}");
+  const staffEntries = Object.entries(values).filter(([key, val]) => key.startsWith('staff_'));
+  // orijinal değerleri ve onların mutlak değer toplamını bul
+  const absSum = staffEntries.reduce((sum, [k, v]) => sum + Math.abs(parseFloat(v)), 0);
 
-    // 2. Oranları hesapla ve svg donut chart yarat
-    let offset = 0;
-    let circles = "";
+  // 2. Oranları hesapla ve svg donut chart yarat
+  let offset = 0;
+  let circles = "";
 
-    for (let i = 0; i < staffEntries.length; ++i) {
-        const [k, v] = staffEntries[i];
-        const val = parseFloat(v);
+  for (let i = 0; i < staffEntries.length; ++i) {
+    const [k, v] = staffEntries[i];
+    const val = parseFloat(v);
 
-        // Tüm segment oranlarını mutlak değerle dağıtıyoruz
-        let percent = absSum === 0 ? 0 : ((Math.abs(val) / absSum) * 100);
-        let dasharray = percent.toFixed(2) + ", 100";
-        let dashoffset = -offset; // eksiyle başlamalı
-        let color = val >= 0
-            ? STAFF_COLORS[i % STAFF_COLORS.length]
-            : NEGATIVE_COLOR; // Negatif değerler kırmızı!
+    // Tüm segment oranlarını mutlak değerle dağıtıyoruz
+    let percent = absSum === 0 ? 0 : ((Math.abs(val) / absSum) * 100);
+    let dasharray = percent.toFixed(2) + ", 100";
+    let dashoffset = -offset; // eksiyle başlamalı
+    let color = val >= 0
+      ? STAFF_COLORS[i % STAFF_COLORS.length]
+      : NEGATIVE_COLOR; // Negatif değerler kırmızı!
 
-        if (percent > 0) {
-            circles += `<circle
+    if (percent > 0) {
+      circles += `<circle
                 cx="18" cy="18" r="15.9155" fill="none"
                 stroke="${color}"
                 stroke-width="2.5"
                 stroke-dasharray="${dasharray}"
                 stroke-dashoffset="${dashoffset}"
             ></circle>`;
-        }
-        offset += percent;
     }
-    document.getElementById("donut-chart").innerHTML = circles;
+    offset += percent;
+  }
+  document.getElementById("donut-chart").innerHTML = circles;
 
-    // 3. Orta toplam (TL)
-    function tlFormat(val) {
-        if (Math.abs(val) > 9999) {
-            return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
-        }
-        return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+  // 3. Orta toplam (TL)
+  function tlFormat(val) {
+    if (Math.abs(val) > 9999) {
+      return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
     }
-    const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
-    document.getElementById("donut-total").textContent = tlFormat(total);
+    return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+  }
+  const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
+  document.getElementById("donut-total").textContent = tlFormat(total);
 
 </script>
 
