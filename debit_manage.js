@@ -117,6 +117,7 @@
         document.getElementById("saveBtn").addEventListener("click", () => {
             saveToStorage();
             // alert("Tüm veriler ve toplam güncellendi!");
+            // calculate();
         });
 
         window.addEventListener("load", loadFromStorage);

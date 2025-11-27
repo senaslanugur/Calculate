@@ -47,7 +47,8 @@ function calculate(){
   }
 
 
-   old_amount = parseFloat(localStorage.getItem("all_amount"))
+   
+  old_amount = parseFloat(localStorage.getItem("all_amount"))
 
   localStorage.setItem("all_amount",all_amount)
 
@@ -72,14 +73,14 @@ function calculate(){
       if( old_amount < all_amount || old_amount == all_amount){
         Swal.fire({
           title: "Total Amount, increased",
-          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseInt(result.amount - total_borc),
+          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseFloat(result.amount),
           icon: "success",
           button: "Kapat",
         })
       } else {
         Swal.fire({
           title: "Total Amount, decreased",
-          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseInt(result.amount) + "<br><b>PrevAmount: </b>" + old_amount,
+          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseFloat(result.amount) + "<br><b>PrevAmount: </b>" + old_amount,
           icon: "warning",
           button: "Kapat",
         })

@@ -28,20 +28,30 @@ function barGraph() {
     try {
         labelsObj = JSON.parse(rawLabels);
         valuesObj = JSON.parse(rawValues);
-    } catch(e) {
+    } catch (e) {
         container.innerHTML = '<p style="color:#b71c1c;font-family:Inter,sans-serif;font-size:13px;">labels/values formatı hatalı.</p>';
         return;
     }
 
     // Veri hazırlama
+    const borc_bilgisi = "debit_total_percent";
+    const total_borc = localStorage.getItem(borc_bilgisi);
+    
+
     const data = [];
     let toplam = 0;
+    if (total_borc){
+        toplam = toplam - total_borc
+    }
     for (let i = 1; i <= 7; i++) {
         const label = labelsObj['label_' + i];
         const val = valuesObj['staff_' + i];
         if (label && label.trim() && val !== undefined && val !== null && label !== "") {
             toplam = toplam + val;
-            data.push({ label, value: +val });
+            data.push({
+                label,
+                value: +val
+            });
         }
     }
     if (data.length === 0) {
@@ -57,7 +67,12 @@ function barGraph() {
     const height = data.length * (barHeight + barPadding) + 48;
 
     // Daha sola yaklaşmak için margin.left küçültüldü
-    const margin = { top: 28, right: 18, bottom: 28, left: 95 };
+    const margin = {
+        top: 28,
+        right: 18,
+        bottom: 28,
+        left: 95
+    };
     const w = width - margin.left - margin.right;
     const h = height - margin.top - margin.bottom;
 
@@ -69,7 +84,7 @@ function barGraph() {
         .attr('preserveAspectRatio', 'xMinYMin meet')
         .style("display", "block")
         .style("max-width", "100%")
-        .style("height", height+"px")
+        .style("height", height + "px")
         .append("g")
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -86,51 +101,51 @@ function barGraph() {
         .attr("stroke-width", 1)
         .call(
             d3.axisBottom(x)
-              .tickSize(h)
-              .tickFormat("")
+            .tickSize(h)
+            .tickFormat("")
         )
         .attr("transform", `translate(0,0)`);
 
     // Barlar
     svg.selectAll('.bar')
-      .data(data)
-      .enter()
-      .append('rect')
-      .attr('class', 'bar')
-      .attr('y', d => y(d.label))
-      .attr('height', y.bandwidth())
-      .attr('x', d => x(Math.min(0, d.value)))
-      .attr('width', d => Math.abs(x(d.value) - x(0)))
-      .attr('fill', color)
-      .style("filter","drop-shadow(0 1px 4px rgba(0,0,0,0.09))");
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('y', d => y(d.label))
+        .attr('height', y.bandwidth())
+        .attr('x', d => x(Math.min(0, d.value)))
+        .attr('width', d => Math.abs(x(d.value) - x(0)))
+        .attr('fill', color)
+        .style("filter", "drop-shadow(0 1px 4px rgba(0,0,0,0.09))");
 
     // Label'lar (küçük font, en sola)
     svg.selectAll('.label')
-      .data(data)
-      .enter()
-      .append('text')
-      .attr('x', -12)
-      .attr('y', d => y(d.label) + y.bandwidth() / 2 + 3)
-      .attr('text-anchor', 'end')
-      .text(d => d.label)
-      .style('font-family', 'Inter,sans-serif')
-      .style('font-size', '10px')
-      .style('fill', '#f2f2f2')
-      .style('font-weight', 500);
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('x', -12)
+        .attr('y', d => y(d.label) + y.bandwidth() / 2 + 3)
+        .attr('text-anchor', 'end')
+        .text(d => d.label)
+        .style('font-family', 'Inter,sans-serif')
+        .style('font-size', '10px')
+        .style('fill', '#f2f2f2')
+        .style('font-weight', 500);
 
     // Bar değerleri (küçük font)
     svg.selectAll(".valLabel")
-      .data(data)
-      .enter()
-      .append("text")
-      .attr("x", d => d.value >= 0 ? x(d.value) + 7 : x(d.value) + 100)
-      .attr("y", d => y(d.label) + y.bandwidth() / 2 + 3)
-      .attr("text-anchor", d => d.value >= 0 ? "start" : "end")
-      .text(d => d.value.toLocaleString('tr-TR'))
-      .style("font-family", "Inter,sans-serif")
-      .style("font-size", "10px")
-      .style("font-weight", 500)
-      .style("fill", d => d.value >= 0 ? "#388e3c" : "#e53935");
+        .data(data)
+        .enter()
+        .append("text")
+        .attr("x", d => d.value >= 0 ? x(d.value) + 7 : x(d.value) + 100)
+        .attr("y", d => y(d.label) + y.bandwidth() / 2 + 3)
+        .attr("text-anchor", d => d.value >= 0 ? "start" : "end")
+        .text(d => d.value.toLocaleString('tr-TR'))
+        .style("font-family", "Inter,sans-serif")
+        .style("font-size", "10px")
+        .style("font-weight", 500)
+        .style("fill", d => d.value >= 0 ? "#388e3c" : "#e53935");
 
     // X Axis değeri
     svg.append('g')
