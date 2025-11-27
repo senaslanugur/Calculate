@@ -91,8 +91,14 @@
             </div>
             <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
               <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Kâr/Zarar</p>
-              <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight" id="kar_zarar">+20.36%</p>
+              <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight" id="kar_zarar">%0.00</p>
             </div>
+            <br>
+            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
+              <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Borç</p>
+              <p class="text-red-500 tracking-tight text-2xl font-bold leading-tight" id="toplam_borc">0</p>
+            </div>
+            <br>
             <div class="flex flex-col gap-4">
               <div
                 class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
@@ -271,7 +277,11 @@
       </a>
       <a class="text-center text-gray-500 dark:text-gray-400" href="#chartContainer" onclick="barGraph()">
         <span class="material-symbols-outlined text-3xl">align_horizontal_center</span>
-        <span class="text-xs font-semibold block">Distribution Graph </span>
+        <span class="text-xs font-semibold block">Distribution Graph</span>
+      </a>
+      <a class="text-center text-gray-500 dark:text-gray-400" href="./debit.html">
+        <span class="material-symbols-outlined text-3xl">money_range</span>
+        <span class="text-xs font-semibold block">Debt List</span>
       </a>
     </div>
   </div>
@@ -306,6 +316,13 @@
         "staff_7": 0
       })
     );
+  }
+
+  const savedTotal = localStorage.getItem("debit_total_percent");
+  if (savedTotal) {
+    const total = parseFloat(savedTotal);
+    const toplamborc = document.getElementById("toplam_borc");
+    toplamborc.textContent = total;
   }
 
   // 1. Tüm staff_ değerlerini al
@@ -351,7 +368,12 @@
     return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
   }
   const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
-  document.getElementById("donut-total").textContent = tlFormat(total);
+  if(savedTotal){
+    document.getElementById("donut-total").textContent = tlFormat(total-savedTotal);
+  }else{
+    document.getElementById("donut-total").textContent = tlFormat(total);
+  }
+
 
 </script>
 

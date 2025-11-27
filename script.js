@@ -38,10 +38,16 @@ function calculate(){
   const staff_6 = parseFloat(document.getElementById("staff-6").value);
   const staff_7 = parseFloat(document.getElementById("staff-7").value);
 
+  const borc_bilgisi = "debit_total_percent";
+  const total_borc = localStorage.getItem(borc_bilgisi);
 
-  const all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7
+  let all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7
+  if(total_borc){
+     all_amount = all_amount - total_borc
+  }
 
-  const old_amount = parseFloat(localStorage.getItem("all_amount"))
+
+   old_amount = parseFloat(localStorage.getItem("all_amount"))
 
   localStorage.setItem("all_amount",all_amount)
 
@@ -66,7 +72,7 @@ function calculate(){
       if( old_amount < all_amount || old_amount == all_amount){
         Swal.fire({
           title: "Total Amount, increased",
-          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseInt(result.amount),
+          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseInt(result.amount - total_borc),
           icon: "success",
           button: "Kapat",
         })
