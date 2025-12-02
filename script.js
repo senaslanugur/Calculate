@@ -114,4 +114,30 @@ function get(){
 
   
 }
+
+
+
+
+function get_all_info(){
+
+   const al_date = localStorage.getItem("day_data_set")
+
+        Swal.fire({
+          title: "Tüm Veriler Güncellemeyi Yapınız.",
+          html: '<textarea id="all_db" name="all_db" id="all_db" rows="4" cols="50"> '+
+                    al_date+
+                '</textarea>',
+          icon: "info",
+          button: "Kapat",
+        }).then((result) => {
+
+          const all_db = document.getElementById("all_db").value
+          localStorage.setItem("day_data_set",all_db)
+
+        })
+
+
+}
+
+
 get()
