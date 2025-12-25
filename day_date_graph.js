@@ -10,7 +10,6 @@ function lineGraph() {
         });
         return;
     }
-
     let day_data_set;
     try {
         day_data_set = JSON.parse(rawData);
@@ -29,6 +28,9 @@ function lineGraph() {
         date: new Date(d.date)
     }));
 
+    // Veriyi tarihe göre sırala (bisector için gerekli)
+    data.sort((a, b) => a.date - b.date);
+
     // Boyutlar
     const container = document.getElementById('chartContainer');
     const rect = container.getBoundingClientRect();
@@ -43,8 +45,35 @@ function lineGraph() {
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
-    // Temizle
+    // Temizle (önceki tooltipleri de kaldır)
     d3.select("#chartContainer").selectAll("*").remove();
+    d3.selectAll(".tooltip").remove();
+
+    // Nokta göster/gizle kontrolü (chartContainer içine)
+    const controlDiv = d3.select("#chartContainer")
+        .append("div")
+        .style("display", "flex")
+        .style("justify-content", "flex-end")
+        .style("align-items", "center")
+        .style("margin", "6px 0");
+
+    controlDiv.append("input")
+        .attr("type", "checkbox")
+        .attr("id", "toggleDots")
+        .property("checked", true) // başlangıçta noktalar görünür
+        .on("change", function () {
+            const show = d3.select(this).property("checked");
+            // chartContainer içindeki .dot sınıfına sahip tüm circle'ları göster/gizle
+            d3.select("#chartContainer").selectAll(".dot").style("display", show ? null : "none");
+        });
+
+    controlDiv.append("label")
+        .attr("for", "toggleDots")
+        .style("margin-left", "8px")
+        .style("color", "#f2f2f2")
+        .style("font-family", "Inter, sans-serif")
+        .style("font-size", "13px")
+        .text("Noktalar");
 
     // Y ekseni aralığını veriye göre akıllıca ayarla
     const minValue = d3.min(data, d => d.turkish_lira);
@@ -99,7 +128,6 @@ function lineGraph() {
         .style("fill", "#f2f2f2")
         .style("font-weight", 500);
 
-
     xAxis.select(".domain").remove();
 
     // Y ekseni (TL formatında)
@@ -128,10 +156,16 @@ function lineGraph() {
         .attr("d", line)
         .style("shape-rendering", "geometricPrecision");
 
-    // Noktalar (kontrast turuncu, daha belirgin)
+    // Maksimum değeri bul
+    const maxDatum = data.reduce((max, d) => (d.turkish_lira > max.turkish_lira ? d : max), data[0]);
+
+    // Noktalar (kontrast turuncu, daha belirgin) -- MAX olan hariç koyuyoruz
+    const normalDotsData = data.filter(d => d !== maxDatum);
+
     svg.selectAll(".dot")
-        .data(data)
+        .data(normalDotsData)
         .enter().append("circle")
+        .attr("class", "dot") // Noktalar için sınıf eklendi
         .attr("cx", d => x(d.date))
         .attr("cy", d => y(d.turkish_lira))
         .attr("r", 4)
@@ -140,7 +174,31 @@ function lineGraph() {
         .attr("stroke-width", 0)
         .style("filter", "drop-shadow(0 2.5px 5px rgba(0,0,0,0.13))");
 
-    // Tooltip
+    // Maksimum değer için kırmızı nokta (her zaman görünür)
+    if (maxDatum) {
+        svg.append("circle")
+            .attr("class", "max-dot")
+            .attr("cx", x(maxDatum.date))
+            .attr("cy", y(maxDatum.turkish_lira))
+            .attr("r", 6) // daha büyük
+            .attr("fill", "#e53935")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
+
+        // İsteğe bağlı: maksimum değerin yanına değer etiketi ekle
+        svg.append("text")
+            .attr("x", x(maxDatum.date))
+            .attr("y", y(maxDatum.turkish_lira) - 12)
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .style("fill", "#ffdddd")
+            .style("font-family", "Inter, sans-serif")
+            .style("font-weight", "600")
+            .text(maxDatum.turkish_lira.toLocaleString('tr-TR') + " ₺");
+    }
+
+    // Tooltip (var olanları temizlemiştik)
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("position", "absolute")
@@ -175,11 +233,12 @@ function lineGraph() {
             if (d1 && (!d0 || Math.abs(date - d0.date) > Math.abs(date - d1.date))) {
                 d = d1;
             }
+            if (!d) return;
             tooltip
                 .html(`
-                    <span style="color:#ffa726"><b>Tarih:</b></span> ${d.date.toLocaleDateString('tr-TR')}<br>
-                    <span style="color:#ffee58"><b>Değer:</b></span> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
-                `)
+            <span style="color:#ffa726"><b>Tarih:</b></span> ${d.date.toLocaleDateString('tr-TR')}<br>
+            <span style="color:#ffee58"><b>Değer:</b></span> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
+        `)
                 .style("left", (event.pageX + 12) + "px")
                 .style("top", (event.pageY - 36) + "px");
         });
@@ -191,7 +250,7 @@ function lineGraph() {
         .attr("text-anchor", "middle")
         .style("font-size", "17px")
         .style("font-weight", "700")
-        .style("fill", "#fff") // <---- başlık çok açık beyaz
+        .style("fill", "#fff")
         .style("font-family", "Inter, sans-serif")
         .text("Günlük Türk Lirası Değeri");
 
@@ -203,10 +262,10 @@ function lineGraph() {
     const up = change >= 0;
     const indicatorColor = up ? "#43a047" : "#e53935";
     const arrow = up ? "▲" : "▼";
-    const kar_zarar = document.getElementById('kar_zarar')
+    const kar_zarar = document.getElementById('kar_zarar');
     svg.append("text")
         .attr("x", plotWidth / 2)
-        .attr("y", 2) // başlıktan hemen sonra gelsin (değeri istersen 4, 6 yapabilirsin)
+        .attr("y", 2)
         .attr("text-anchor", "middle")
         .style("font-size", "15px")
         .style("font-family", "Inter, sans-serif")
@@ -214,14 +273,16 @@ function lineGraph() {
         .style("fill", indicatorColor)
         .text(`${arrow} ${changeText}`);
 
-    if (up) {
-        kar_zarar.classList.remove("text-red-500")
-        kar_zarar.classList.add("text-green-500")
-    }else{
-        kar_zarar.classList.add("text-red-500")
-        kar_zarar.classList.remove("text-green-500")
+    if (kar_zarar) {
+        if (up) {
+            kar_zarar.classList.remove("text-red-500");
+            kar_zarar.classList.add("text-green-500");
+        } else {
+            kar_zarar.classList.add("text-red-500");
+            kar_zarar.classList.remove("text-green-500");
+        }
+        kar_zarar.innerHTML = arrow + changeText;
     }
-    kar_zarar.innerHTML = arrow + changeText
 
     // Eksen etiketleri
     svg.append("text")
@@ -242,5 +303,4 @@ function lineGraph() {
         .style("fill", "#f2f2f2")
         .style("font-family", "Inter, sans-serif")
         .text("Türk Lirası (₺)");
-
 }
