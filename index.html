@@ -94,9 +94,15 @@
               <p class="text-green-500 tracking-tight text-2xl font-bold leading-tight" id="kar_zarar">%0.00</p>
             </div>
             <br>
-            <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
-              <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Borç</p>
-              <p class="text-red-500 tracking-tight text-2xl font-bold leading-tight" id="toplam_borc">0</p>
+            <div class="flex gap-4">
+              <div class="flex-1 flex min-w-[158px] flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Aylık Borç</p>
+                <p class="text-red-500 tracking-tight text-2xl font-bold leading-tight" id="toplam_borc">₺0</p>
+              </div>
+              <div class="flex-1 flex min-w-[158px] flex-col gap-2 rounded-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
+                <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Aylık Gider</p>
+                <p class="text-red-500 tracking-tight text-2xl font-bold leading-tight" id="toplam_harcama">₺0</p>
+              </div>
             </div>
             <br>
             <div class="flex flex-col gap-4">
@@ -283,10 +289,15 @@
         <span class="material-symbols-outlined text-3xl">money_range</span>
         <span class="text-xs font-semibold block">Debt List</span>
       </a>
-      <a class="text-center text-gray-500 dark:text-gray-400" href="./get_fon_info.html">
+      <a class="text-center text-gray-500 dark:text-gray-400" href="./expenses.html">
+        <span class="material-symbols-outlined text-3xl">payment_arrow_down</span>
+        <span class="text-xs font-semibold block">Expenses List</span>
+      </a>
+      <!-- <a class="text-center text-gray-500 dark:text-gray-400" href="./get_fon_info.html">
         <span class="material-symbols-outlined text-3xl">add_notes</span>
         <span class="text-xs font-semibold block">Fund List</span>
-      </a>
+      </a> -->
+
     </div>
   </div>
 </body>
@@ -374,9 +385,9 @@
     return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
   }
   const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
-  if(savedTotal){
-    document.getElementById("donut-total").textContent = tlFormat(total-savedTotal);
-  }else{
+  if (savedTotal) {
+    document.getElementById("donut-total").textContent = tlFormat(total - savedTotal);
+  } else {
     document.getElementById("donut-total").textContent = tlFormat(total);
   }
 

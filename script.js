@@ -141,3 +141,75 @@ function get_all_info(){
 
 
 get()
+
+// --- TL Formatlama Yardımcı Fonksiyonu ---
+// (Varsa mevcut tlFormat fonksiyonunu kullan)
+function tlFormat(val) {
+  if (val === null || val === undefined || isNaN(val)) return "₺0";
+
+  const num = Number(val);
+
+  // Büyük değerler için K formatı
+  if (Math.abs(num) > 9999) {
+    return (num < 0 ? "-₺" : "₺") + (Math.abs(num) / 1000).toFixed(1) + "K";
+  }
+
+  // Normal TL formatı
+  return (num < 0 ? "-₺" : "₺") +
+    Math.abs(num).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+}
+
+// --- LocalStorage'daki "harcamlar" içindeki ücretleri toplar ---
+function getToplamHarcamaFromStorage() {
+  try {
+    const raw = localStorage.getItem("harcamlar");
+    if (!raw) return 0;
+
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return 0;
+
+    return arr.reduce((acc, it) => {
+      // Esneklik için farklı field isimleri kontrol edilir
+      const v = parseFloat((it && (it.ucret ?? it.ucreti ?? it.amount)) ?? it);
+      return acc + (isNaN(v) ? 0 : v);
+    }, 0);
+  } catch (err) {
+    console.error("Harcama oku hatası:", err);
+    return 0;
+  }
+}
+
+// --- Sayfada ilgili alanları güncelle ---
+function updateBorrowAndExpenseDisplays() {
+  // Toplam Borç (mevcut kodda savedTotal varsa kullanılıyor)
+  const savedTotal = localStorage.getItem("debit_total_percent");
+  const toplamBorcEl = document.getElementById("toplam_borc");
+
+  if (toplamBorcEl) {
+    const borcVal = savedTotal ? parseFloat(savedTotal) : 0;
+    toplamBorcEl.textContent = tlFormat(isNaN(borcVal) ? 0 : borcVal);
+  }
+
+  // Toplam Harcama
+  const toplamHarcamaEl = document.getElementById("toplam_harcama");
+  if (toplamHarcamaEl) {
+    const toplamHarcama = getToplamHarcamaFromStorage();
+    toplamHarcamaEl.textContent = tlFormat(toplamHarcama);
+  }
+}
+
+// --- Sayfa hazır olduğunda güncelle ---
+document.addEventListener("DOMContentLoaded", () => {
+  updateBorrowAndExpenseDisplays();
+
+  // localStorage değişikliklerinde otomatik güncelleme (başka sekmede değişirse)
+  window.addEventListener("storage", (e) => {
+    if (e.key === "harcamlar" || e.key === "debit_total_percent") {
+      updateBorrowAndExpenseDisplays();
+    }
+  });
+});
+
+// --- Eğer script body sonunda çağrılıyorsa direkt çalıştır ---
+// (DOMContentLoaded şartına takılmaz)
+updateBorrowAndExpenseDisplays();
