@@ -124,7 +124,7 @@ function lineGraph() {
     // USD alanı farklı isimlerde olabilir; uygun alanı kontrol et
     function extractUsdValue(datum) {
         if (!datum) return null;
-        return datum.usd ?? datum.usd_value ?? datum.dollar ?? datum.usd_price ?? null;
+        return datum.usd ?? datum.usd_value ?? datum.dollar ?? datum.usd_price ?? datum.dolar ?? null;
     }
 
     // Seçim değiştiğinde göstergeyi güncelle ve grafikte vurgula
