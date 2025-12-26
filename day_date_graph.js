@@ -22,7 +22,6 @@ function lineGraph() {
         });
         return;
     }
-
     const data = day_data_set.map(d => ({
         ...d,
         date: new Date(d.date)
@@ -45,25 +44,26 @@ function lineGraph() {
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
-    // Temizle (önceki tooltipleri de kaldır)
+    // Temizle (önceki tooltipleri vs. kaldır)
     d3.select("#chartContainer").selectAll("*").remove();
     d3.selectAll(".tooltip").remove();
 
-    // Nokta göster/gizle kontrolü (chartContainer içine)
+    // Kontroller: nokta göster/gizle ve tarih seçimleri (sadece datepicker)
     const controlDiv = d3.select("#chartContainer")
         .append("div")
         .style("display", "flex")
         .style("justify-content", "flex-end")
         .style("align-items", "center")
-        .style("margin", "6px 0");
+        .style("margin", "6px 0")
+        .style("gap", "12px");
 
+    // Nokta toggle
     controlDiv.append("input")
         .attr("type", "checkbox")
         .attr("id", "toggleDots")
-        .property("checked", true) // başlangıçta noktalar görünür
+        .property("checked", true)
         .on("change", function () {
             const show = d3.select(this).property("checked");
-            // chartContainer içindeki .dot sınıfına sahip tüm circle'ları göster/gizle
             d3.select("#chartContainer").selectAll(".dot").style("display", show ? null : "none");
         });
 
@@ -75,6 +75,95 @@ function lineGraph() {
         .style("font-size", "13px")
         .text("Noktalar");
 
+    // Yardımcı: tarihi yyyy-mm-dd şeklinde döndürür (input[type=date] uyumlu)
+    function formatDateISO(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    function formatDateDisplay(d) {
+        return d.toLocaleDateString('tr-TR');
+    }
+
+    // Datepicker (input[type=date])
+    const datePicker = controlDiv.append("input")
+        .attr("type", "date")
+        .attr("id", "datePicker")
+        .style("padding", "6px 8px")
+        .style("border-radius", "6px")
+        .style("border", "1px solid rgba(255,255,255,0.12)")
+        .style("background", "#0b1116")
+        .style("color", "#fff");
+
+    // Display alanı: seçilen tarihin değerlerini gösterecek
+    const displayDiv = d3.select("#chartContainer")
+        .append("div")
+        .attr("id", "dateValueDisplay")
+        .style("margin-top", "6px")
+        .style("color", "#f2f2f2")
+        .style("font-family", "Inter, sans-serif")
+        .style("font-size", "14px")
+        .style("padding", "8px 12px")
+        .style("border-radius", "8px")
+        .style("background", "rgba(16,25,36,0.8)")
+        .style("display", "inline-block");
+
+    // Varsayılan olarak son tarihi seç
+    if (data.length > 0) {
+        const lastIso = formatDateISO(data[data.length - 1].date);
+        datePicker.property("value", lastIso);
+    }
+
+    // Seçilen tarihe göre veriyi bulan fonksiyon
+    function getDataByISO(isoStr) {
+        return data.find(dd => formatDateISO(dd.date) === isoStr);
+    }
+
+    // USD alanı farklı isimlerde olabilir; uygun alanı kontrol et
+    function extractUsdValue(datum) {
+        if (!datum) return null;
+        return datum.usd ?? datum.usd_value ?? datum.dollar ?? datum.usd_price ?? null;
+    }
+
+    // Seçim değiştiğinde göstergeyi güncelle ve grafikte vurgula
+    function showValuesForISO(isoStr, svg, x, y) {
+        const found = getDataByISO(isoStr);
+        if (!found) {
+            displayDiv.html(`<span style="color:#ffa726">Seçilen tarihte veri yok</span>`);
+            // vurguyu kaldır
+            d3.select("#chartContainer").selectAll(".selected-dot").remove();
+            return;
+        }
+        const tl = found.turkish_lira ?? found.tl ?? found.turkish ?? null;
+        const usd = extractUsdValue(found);
+
+        const tlText = tl != null ? (Number(tl).toLocaleString('tr-TR') + ' ₺') : 'TL bilgisi yok';
+        const usdText = usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : 'USD bilgisi yok';
+
+        displayDiv.html(`<b>${formatDateDisplay(found.date)}</b><br><span style="color:#ffee58">TL:</span> ${tlText} &nbsp; <span style="color:#90caf9">USD:</span> ${usdText}`);
+
+        // Grafikte vurgulama: önce kaldır, sonra ekle
+        d3.select("#chartContainer").selectAll(".selected-dot").remove();
+        const svgSelection = svg.append("g").attr("class", "selected-dot");
+        svgSelection.append("circle")
+            .attr("cx", x(found.date))
+            .attr("cy", y(found.turkish_lira))
+            .attr("r", 7)
+            .attr("fill", "none")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2)
+            .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
+        svgSelection.append("circle")
+            .attr("cx", x(found.date))
+            .attr("cy", y(found.turkish_lira))
+            .attr("r", 4)
+            .attr("fill", "#ffd54f")
+            .attr("stroke", "transparent");
+    }
+
+    // İlk gösterimi yap (grafik çizildikten sonra çağrılacak)
     // Y ekseni aralığını veriye göre akıllıca ayarla
     const minValue = d3.min(data, d => d.turkish_lira);
     const maxValue = d3.max(data, d => d.turkish_lira);
@@ -142,7 +231,7 @@ function lineGraph() {
 
     svg.select(".domain").remove();
 
-    // Çizgi (daha koyu mavi ve daha kalın)
+    // Çizgi
     const line = d3.line()
         .x(d => x(d.date))
         .y(d => y(d.turkish_lira))
@@ -159,13 +248,13 @@ function lineGraph() {
     // Maksimum değeri bul
     const maxDatum = data.reduce((max, d) => (d.turkish_lira > max.turkish_lira ? d : max), data[0]);
 
-    // Noktalar (kontrast turuncu, daha belirgin) -- MAX olan hariç koyuyoruz
+    // Noktalar (MAX hariç)
     const normalDotsData = data.filter(d => d !== maxDatum);
 
     svg.selectAll(".dot")
         .data(normalDotsData)
         .enter().append("circle")
-        .attr("class", "dot") // Noktalar için sınıf eklendi
+        .attr("class", "dot")
         .attr("cx", d => x(d.date))
         .attr("cy", d => y(d.turkish_lira))
         .attr("r", 4)
@@ -174,19 +263,18 @@ function lineGraph() {
         .attr("stroke-width", 0)
         .style("filter", "drop-shadow(0 2.5px 5px rgba(0,0,0,0.13))");
 
-    // Maksimum değer için kırmızı nokta (her zaman görünür)
+    // Maksimum nokta
     if (maxDatum) {
         svg.append("circle")
             .attr("class", "max-dot")
             .attr("cx", x(maxDatum.date))
             .attr("cy", y(maxDatum.turkish_lira))
-            .attr("r", 6) // daha büyük
+            .attr("r", 6)
             .attr("fill", "#e53935")
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5)
             .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
 
-        // İsteğe bağlı: maksimum değerin yanına değer etiketi ekle
         svg.append("text")
             .attr("x", x(maxDatum.date))
             .attr("y", y(maxDatum.turkish_lira) - 12)
@@ -198,7 +286,7 @@ function lineGraph() {
             .text(maxDatum.turkish_lira.toLocaleString('tr-TR') + " ₺");
     }
 
-    // Tooltip (var olanları temizlemiştik)
+    // Tooltip
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("position", "absolute")
@@ -236,9 +324,9 @@ function lineGraph() {
             if (!d) return;
             tooltip
                 .html(`
-            <span style="color:#ffa726"><b>Tarih:</b></span> ${d.date.toLocaleDateString('tr-TR')}<br>
-            <span style="color:#ffee58"><b>Değer:</b></span> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
-        `)
+        <span style="color:#ffa726"><b>Tarih:</b></span> ${d.date.toLocaleDateString('tr-TR')}<br>
+        <span style="color:#ffee58"><b>Değer:</b></span> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
+    `)
                 .style("left", (event.pageX + 12) + "px")
                 .style("top", (event.pageY - 36) + "px");
         });
@@ -254,7 +342,7 @@ function lineGraph() {
         .style("font-family", "Inter, sans-serif")
         .text("Günlük Türk Lirası Değeri");
 
-    // % DEĞİŞİM GÖSTERGESİ (BAŞLIĞIN ALTINDA)
+    // % DEĞİŞİM GÖSTERGESİ
     const first = data[0];
     const last = data[data.length - 1];
     const change = ((last.turkish_lira - first.turkish_lira) / first.turkish_lira) * 100;
@@ -303,4 +391,19 @@ function lineGraph() {
         .style("fill", "#f2f2f2")
         .style("font-family", "Inter, sans-serif")
         .text("Türk Lirası (₺)");
+
+    // Datepicker event: grafikteki svg ve ölçekler hazır olduğu için burada çağrılabilir
+    datePicker.on("change", function () {
+        const val = this.value;
+        if (!val) return;
+        showValuesForISO(val, svg, x, y);
+    });
+
+    // İlk gösterimi yap
+    if (data.length > 0) {
+        const initialISO = formatDateISO(data[data.length - 1].date);
+        showValuesForISO(initialISO, svg, x, y);
+    } else {
+        displayDiv.html('Veri yok');
+    }
 }
