@@ -387,17 +387,6 @@ function lineGraph() {
             const dailyColor = dailyUp ? "#43a047" : "#e53935";
             const dailyArrow = dailyUp ? "▲" : "▼";
 
-            // SVG üzerinde gösterge (kar_zarar'ın hemen yanına yerleştir)
-            svg.append("text")
-                .attr("x", plotWidth / 2 + 90) // konumu ihtiyaca göre ayarlayabilirsin
-                .attr("y", 2)
-                .attr("text-anchor", "middle")
-                .style("font-size", "15px")
-                .style("font-family", "Inter, sans-serif")
-                .style("font-weight", "bold")
-                .style("fill", dailyColor)
-                .text(`${dailyArrow} ${dailyText}`);
-
             // DOM elementini güncelle (varsa)
             if (gunlukElem) {
                 gunlukElem.classList.remove("text-green-500", "text-red-500");
@@ -409,16 +398,6 @@ function lineGraph() {
                 gunlukElem.innerHTML = `${dailyArrow}${dailyText}`;
             }
         } else {
-            // Veri yetersiz veya prev 0 ise gösterimi temizle/işaretle
-            svg.append("text")
-                .attr("x", plotWidth / 2 + 90)
-                .attr("y", 2)
-                .attr("text-anchor", "middle")
-                .style("font-size", "15px")
-                .style("font-family", "Inter, sans-serif")
-                .style("font-weight", "bold")
-                .style("fill", "#9e9e9e")
-                .text("—");
 
             if (gunlukElem) {
                 gunlukElem.classList.remove("text-green-500", "text-red-500");
