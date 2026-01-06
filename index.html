@@ -103,7 +103,8 @@
               </div>
               <div class="flex-1 flex flex-col gap-2 rounded-r-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
                 <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Günlük Kâr/Zarar</p>
-                <p id="gunluk_kar_zarar" class="text-green-500 tracking-tight text-2xl font-bold leading-tight">%0.00</p>
+                <p id="gunluk_kar_zarar" class="text-green-500 tracking-tight text-2xl font-bold leading-tight">%0.00
+                </p>
               </div>
             </div>
             <br>
@@ -255,7 +256,7 @@
         <span class="material-symbols-outlined text-3xl">calculate</span>
         <span class="text-xs font-semibold block">Calculate</span>
       </a>
-      <a class="text-center text-gray-500 dark:text-gray-400"onclick="lineGraph()">
+      <a class="text-center text-gray-500 dark:text-gray-400" onclick="lineGraph()">
         <span class="material-symbols-outlined text-3xl">finance_mode</span>
         <span class="text-xs font-semibold block">Daily Graph</span>
       </a>
@@ -271,11 +272,6 @@
         <span class="material-symbols-outlined text-3xl">payment_arrow_down</span>
         <span class="text-xs font-semibold block">Expenses List</span>
       </a>
-      <!-- <a class="text-center text-gray-500 dark:text-gray-400" href="./get_fon_info.html">
-        <span class="material-symbols-outlined text-3xl">add_notes</span>
-        <span class="text-xs font-semibold block">Fund List</span>
-      </a> -->
-
     </div>
   </div>
 </body>
@@ -283,6 +279,7 @@
 <script type="text/javascript" src="./Line_Chart.js"></script>
 <script type="text/javascript" src="./day_date_graph.js"></script>
 <script type="text/javascript" src="./bar_graph.js"></script>
+<script src="./edit_labels.js"></script>
 
 <!-- <script type="text/javascript" src="./fetch_data.js"></script>-->
 <script>
@@ -368,7 +365,6 @@
   } else {
     document.getElementById("donut-total").textContent = tlFormat(total);
   }
-
 
 </script>
 
