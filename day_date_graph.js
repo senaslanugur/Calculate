@@ -379,9 +379,13 @@ function lineGraph() {
         const todayVal = Number(last.turkish_lira);
 
         const gunlukElem = document.getElementById('gunluk_kar_zarar');
+        const gunlukElem_amount = document.getElementById('gunluk_kar_zarar_amount');
+
 
         if (!isNaN(prevVal) && prevVal !== 0 && !isNaN(todayVal)) {
             const dailyChange = ((todayVal - prevVal) / prevVal) * 100;
+            gunlukElem_amount.innerHTML = (todayVal - prevVal).toFixed(2).replace('.', ',') + '₺'
+            console.log(gunlukElem_amount)
             const dailyText = dailyChange.toFixed(2).replace('.', ',') + '%';
             const dailyUp = dailyChange >= 0;
             const dailyColor = dailyUp ? "#43a047" : "#e53935";
