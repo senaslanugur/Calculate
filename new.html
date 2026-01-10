@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>My Wallet</title>
+  <link rel="icon" type="image/x-icon" href="./icons.png">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+  <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+  <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.js"
+    integrity="sha512-iiZOijMkLFQSa43AyuzD6p176GJlnhWXEv7loEZFkCDpFQvZCijZLE6U8IRpAIb53KagIIwhSwHWTgsDlci/jw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#0F172A", // Deep Navy
+                        "surface-dark": "#1E293B",    // Slate 800
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                    },
+                },
+            },
+        };
+    </script>
+  <style type="text/tailwindcss">
+        @layer utilities {
+            .leather-texture {
+                background-image: url("https://www.transparenttextures.com/patterns/black-leather.png");
+                background-color: #242426;
+            }
+            .glass-pill {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-stack-container {
+            perspective: 1000px;
+        }
+        .wallet-pocket {
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+  <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div class="h-12 w-full"></div>
+    <main class="max-w-md mx-auto px-5 pb-32">
+        <header class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <span class="material-symbols-rounded text-primary">account_balance_wallet</span>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">Hesaplarım</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="location.href='./get_fon_info.html';"
+                    class="w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-dark flex items-center justify-center hover:opacity-80 transition-opacity">
+                    <span class="material-symbols-rounded text-slate-600 dark:text-slate-400">note_add</span>
+                </button>
+                <button onclick="get_all_info()"
+                    class="w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-dark flex items-center justify-center relative hover:opacity-80 transition-opacity">
+                    <span class="material-symbols-rounded text-slate-600 dark:text-slate-400">notifications</span>
+                    <span
+                        class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark"></span>
+                </button>
+                <div class="w-10 h-10 rounded-full border-2 border-primary/20 p-0.5" onclick="location.href='portfoy.html';">
+                    <img alt="User profile avatar" class="w-full h-full rounded-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnGmLXNw-4olCtMSbWRNDEIMjWi6OtMj_7PqaVrA2jB-5n71u25exWv_DafhUArxU4ROmmNQMWgDVFbdKyqK-rNS-mVzBxWTd1F3hwFaXFiZytRMsX09rRze3LN65LxmbIPuIgqR6009og0I1TWm_Ea0rltk3koWBGfVBadgk8BnYGiQHPMNnn73zIAYdvXzHYjC7nYOzKFRr8jNxiv7su6MDzaYLQF5_GAYIODzZynB2bB8RHiH91MoOyU22NpTK7vYPAyCkC6Xyj" />
+                </div>
+            </div>
+        </header>
+        <section class="mb-10 card-stack-container">
+            <div class="relative pt-12">
+                <div
+                    class="relative -mt-12 z-20 leather-texture wallet-pocket rounded-[2.5rem] p-6 pb-8 border-t border-white/10">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">tune</span>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">visibility_off</span>
+                        </div>
+                    </div>
+                    <div class="text-center mb-6">
+                        <h2 id="wallet-total" class="text-4xl font-bold text-white tracking-tight mb-2">₺0</h2>
+                        <div class="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
+                            <span class="material-symbols-rounded text-emerald-400 text-sm">trending_up</span>
+                            <span id="wallet-trend" class="text-emerald-400 text-xs font-bold">+0%</span>
+                            <span class="text-white/60 text-xs">geçen ay</span>
+                        </div>
+                    </div>
+                    <!-- <div class="flex items-center justify-center gap-3">
+                        <button
+                            class="glass-pill flex-1 py-3 px-4 rounded-full flex items-center justify-center gap-2 text-white hover:bg-white/20 transition-all">
+                            <span class="material-symbols-rounded text-sm">south_west</span>
+                            <span class="text-sm font-semibold">Gelir</span>
+                        </button>
+                        <div class="w-10 h-10 glass-pill rounded-full flex items-center justify-center text-white">
+                            <span class="material-symbols-rounded text-sm">sync_alt</span>
+                        </div>
+                        <button
+                            class="glass-pill flex-1 py-3 px-4 rounded-full flex items-center justify-center gap-2 text-white hover:bg-white/20 transition-all">
+                            <span class="material-symbols-rounded text-sm">north_east</span>
+                            <span class="text-sm font-semibold">Gider</span>
+                        </button>
+                    </div> -->
+                </div>
+            </div>
+        </section>
+        <section class="grid grid-cols-2 gap-4 mb-4">
+            <div
+                class="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50">
+                <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase">Toplam Kâr/Zarar
+                </h3>
+                <div class="flex items-center gap-1 text-emerald-500">
+                    <span class="material-symbols-rounded text-sm">arrow_drop_up</span>
+                    <span id="kar_zarar" class="text-xl font-bold">0%</span>
+                </div>
+                <div class="w-full h-1 bg-emerald-500/10 rounded-full mt-3 overflow-hidden">
+                    <div id="kar_bar" class="h-full bg-emerald-500 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+            <div
+                class="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50">
+                <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase">Günlük Kâr/Zarar
+                </h3>
+                <div class="flex items-center gap-1 text-rose-500">
+                    <span class="material-symbols-rounded text-sm">arrow_drop_down</span>
+                    <span id="gunluk_kar_zarar" class="text-xl font-bold">0%</span>
+                </div>
+                <p id="gunluk_kar_zarar_amount" class="text-[10px] text-slate-400 mt-2">₺0 Bugün</p>
+            </div>
+        </section>
+        <section class="grid grid-cols-2 gap-4 mb-8">
+            <div
+                class="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50">
+                <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase">Aylık Borç</h3>
+                <span id="toplam_borc" class="text-xl font-bold text-rose-500">₺0</span>
+                <p class="text-[10px] text-slate-400 mt-2">Gecikme Yok</p>
+            </div>
+            <div
+                class="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50">
+                <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase">Aylık Gider</h3>
+                <span id="toplam_harcama" class="text-xl font-bold text-slate-800 dark:text-slate-200">₺0</span>
+                <p class="text-[10px] text-slate-400 mt-2">Bütçe Altında</p>
+            </div>
+        </section>
+        <section>
+            <div class="flex items-center justify-between mb-4 px-1">
+                <h2 class="font-bold text-lg">Bankalarım</h2>
+                <button class="text-primary text-sm font-semibold">Tümünü Gör</button>
+            </div>
+            <div class="space-y-4">
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-primary">account_balance</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-1-name" class="font-bold text-sm">bank1</h4>
+                                <p class="text-xs text-slate-500">Vadesiz Hesap</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-1" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-emerald-500">account_balance</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-2-name" class="font-bold text-sm">bank2</h4>
+                                <p class="text-xs text-slate-500">Yatırım Hesabı</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-2" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-orange-400">savings</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-3-name" class="font-bold text-sm">bank3</h4>
+                                <p class="text-xs text-slate-500">Vadeli Mevduat</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-3" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-orange-400">savings</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-4-name" class="font-bold text-sm">bank4</h4>
+                                <p class="text-xs text-slate-500">Vadeli Mevduat</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-4" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-orange-400">savings</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-5-name" class="font-bold text-sm">bank5</h4>
+                                <p class="text-xs text-slate-500">Vadeli Mevduat</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-5" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-orange-400">savings</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-6-name" class="font-bold text-sm">bank6</h4>
+                                <p class="text-xs text-slate-500">Vadeli Mevduat</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-6" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-rounded text-orange-400">savings</span>
+                            </div>
+                            <div>
+                                <h4 id="staff-7-name" class="font-bold text-sm">bank7</h4>
+                                <p class="text-xs text-slate-500">Vadeli Mevduat</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <input class="w-32 rounded-md border-gray-300 bg-transparent py-2 px-2 text-sm text-black placeholder-gray-400 dark:border-gray-600 dark:bg-transparent dark:text-white dark:placeholder-gray-500 text-right" placeholder="0,00" type="number" id="staff-7" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="h-full bg-orange-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="mt-8 border-t border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+              <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+        </div>
+    </main>
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-6 py-4 pb-8 flex justify-between items-center z-50">
+        <button class="flex flex-col items-center gap-1 text-primary" onclick="calculate()">
+            <span class="material-symbols-rounded">calculate</span>
+            <span class="text-[10px] font-medium">Hesapla</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" onclick="lineGraph()">
+            <span class="material-symbols-rounded">finance_mode</span>
+            <span class="text-[10px] font-medium">Günlük Grafik</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" onclick="barGraph()">
+            <span class="material-symbols-rounded">pie_chart</span>
+            <span class="text-[10px] font-medium">Dağılım</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" onclick="location.href='./debit.html';">
+            <span class="material-symbols-rounded">payments</span>
+            <span class="text-[10px] font-medium">Borçlar</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" onclick="location.href='./expenses.html';">
+            <span class="material-symbols-rounded">receipt_long</span>
+            <span class="text-[10px] font-medium">Giderler</span>
+        </button>
+    </nav>
+
+</body>
+<script type="text/javascript" src="./script.js"></script>
+<script type="text/javascript" src="./Line_Chart.js"></script>
+<script type="text/javascript" src="./day_date_graph.js"></script>
+<script type="text/javascript" src="./bar_graph.js"></script>
+<script src="./edit_labels.js"></script>
+<script>
+  calculate()
+  lineGraph()
+  const STAFF_COLORS = [
+    "#3B82F6", // blue
+    "#10B981", // emerald
+    "#F59E0B", // orange
+    "#A78BFA", // purple
+    "#14B8A6"  // teal
+  ];
+  const NEGATIVE_COLOR = "#EF4444"; // red
+
+  if (!localStorage.getItem("values")) {
+    localStorage.setItem(
+      "values",
+      JSON.stringify({
+        "staff_1": 600.0,
+        "staff_2": 12.0,
+        "staff_3": 60.0,
+        "staff_4": 0.0,
+        "staff_5": 0.0,
+        "staff_6": 0.0,
+        "staff_7": 0.0
+      })
+    );
+  }
+
+  const savedTotal = localStorage.getItem("debit_total_percent");
+  if (savedTotal) {
+    const total = parseFloat(savedTotal);
+    document.getElementById("toplam_borc").textContent = tlFormat(total);
+  }
+
+  const values = JSON.parse(localStorage.getItem("values") || "{}");
+  const staffEntries = Object.entries(values).filter(([key, val]) => key.startsWith('staff_'));
+  const absSum = staffEntries.reduce((sum, [k, v]) => sum + Math.abs(parseFloat(v)), 0);
+
+  let offset = 0;
+
+  // Update cards
+  const cardMappings = [
+    { id: 'card2', name: 'İş', valueKey: 'staff_1', color: 'bg-blue-600' },
+    { id: 'card3', name: 'Kişisel', valueKey: 'staff_2', color: 'bg-orange-500' },
+    { id: 'card1', name: 'Birikim', valueKey: 'staff_3', color: 'bg-emerald-500' }
+  ];
+
+  cardMappings.forEach((mapping, index) => {
+    const card = document.getElementById(mapping.id);
+    if (card) {
+      const nameSpan = card.querySelector('span:first-child');
+      const amountSpan = card.querySelector('span:last-child');
+      nameSpan.textContent = mapping.name;
+      const val = parseFloat(values[mapping.valueKey]);
+      amountSpan.textContent = tlFormat(val);
+      card.classList.add(mapping.color);
+    }
+  });
+
+  // Update wallet total
+  const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
+  document.getElementById("wallet-total").textContent = tlFormat(savedTotal ? total - parseFloat(savedTotal) : total);
+
+  // For trend, assuming from kar_zarar, but since not calculated here, set placeholder or calculate if possible
+  // For now, set to a placeholder
+  document.getElementById("wallet-trend").textContent = '+1.8%';
+
+  function tlFormat(val) {
+    if (Math.abs(val) > 9999) {
+      return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
+    }
+    return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+  }
+
+  // Set progress bar width for banks
+  for (let i = 0; i < staffEntries.length; ++i) {
+    const [k, v] = staffEntries[i];
+    const val = parseFloat(v);
+
+    let percent = absSum === 0 ? 0 : ((Math.abs(val) / absSum) * 100);
+
+    // Set input value
+    const input = document.getElementById(k.replace('_', '-'));
+    if (input) {
+      input.value = val.toFixed(2);
+    }
+
+    // Set progress bar width
+    const bar = document.querySelector(`.space-y-4 > div:nth-child(${i+1}) > div:nth-child(2) > div`);
+    if (bar) {
+      bar.style.width = percent + '%';
+    }
+  }
+
+</script>
+
+</html>
