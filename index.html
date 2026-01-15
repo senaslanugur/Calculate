@@ -28,7 +28,15 @@
           colors: {
             "primary": "#137fec",
             "background-light": "#f6f7f8",
-            "background-dark": "#101922",
+            "background-dark": "#0b0f19",
+            "card-dark": "#1a2131",
+            "accent-blue": "#3b82f6",
+            "accent-purple": "#8b5cf6",
+            "accent-teal": "#00c49a",
+            "accent-yellow": "#eab308",
+            "loss-red": "#ff4d4d",
+            "text-light": "#f1f5f9",
+            "text-muted": "#94a3b8"
           },
           fontFamily: {
             "display": ["Inter", "sans-serif"]
@@ -96,6 +104,24 @@
                 </div>
               </div>
             </div>
+            <div class="bg-card-dark p-5 rounded-2xl shadow-lg border border-white/5">
+              <div class="flex justify-between items-end mb-3">
+                <div class="flex flex-col">
+                  <span class="text-[10px] font-bold text-text-muted uppercase tracking-widest">Hedef</span>
+                  <span class="text-lg font-bold text-white" id="total_hedef">₺1000</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-sm font-bold text-accent-teal" id="kalan_hedef_yuzde">68.7%</span>
+                </div>
+              </div>
+              <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  class="h-full bg-gradient-to-r from-accent-teal via-accent-blue to-accent-purple rounded-full shadow-[0_0_10px_rgba(0,196,154,0.3)]"
+                  style="width: 68.7%"></div>
+              </div>
+              <p class="text-[11px] text-text-muted mt-3 text-center">Hedefe ulaşmak için <span
+                  class="text-text-light font-medium" id="kalan_hedef_tl">₺313,4</span> kaldı</p>
+            </div>
             <div class="flex min-w-[158px] flex-1 gap-2 rounded-xl">
               <div class="flex-1 flex flex-col gap-2 rounded-l-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
                 <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Toplam Kâr/Zarar</p>
@@ -103,9 +129,9 @@
               </div>
               <div class="flex-1 flex flex-col gap-2 rounded-r-xl p-4 bg-zinc-200/50 dark:bg-zinc-800/20">
                 <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Günlük Kâr/Zarar</p>
-                <p  class="tracking-tight text-2xl font-bold leading-tight"> <span
-                    id="gunluk_kar_zarar" class="text-green-500"> %0.00 </span><br> <span
-                    id="gunluk_kar_zarar_amount" class="text-sm text-zinc-600 dark:text-zinc-400 ml-2">₺ 0.00</span> </p>
+                <p class="tracking-tight text-2xl font-bold leading-tight"> <span id="gunluk_kar_zarar"
+                    class="text-green-500"> %0.00 </span><br> <span id="gunluk_kar_zarar_amount"
+                    class="text-sm text-zinc-600 dark:text-zinc-400 ml-2">₺ 0.00</span> </p>
               </div>
             </div>
             <br>
@@ -367,6 +393,90 @@
     document.getElementById("donut-total").textContent = tlFormat(total);
   }
 
+// --- Başlangıç: Hedef/kalan hesaplaması ve progress güncelleme ---
+(function updateGoalProgress() {
+  // format fonksiyonu (sayısal değeri TL biçimine çeviren mevcut fonksiyonunuzla uyumlu)
+  function tlFormat(val) {
+    if (isNaN(val)) return "₺0";
+    if (Math.abs(val) > 9999) {
+      return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
+    }
+    return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+  }
+
+  // daha güvenli string -> number parser (₺, . ve , ve K kısaltmasını da ele alır)
+  function parseTL(str) {
+    if (str == null) return NaN;
+    let s = String(str).trim();
+    if (s === "") return NaN;
+
+    // Eğer "K" içeriyorsa örn "₺1.2K"
+    const kMatch = s.match(/-?[\d\.,]+K/i);
+    if (kMatch) {
+      let num = kMatch[0].replace(/K/i, '').replace(/₺/g, '').trim();
+      num = num.replace(/\./g, '').replace(',', '.'); // güvenli dönüştürme
+      return parseFloat(num) * 1000;
+    }
+
+    // Temizleme: para sembollerini vs kaldır
+    s = s.replace(/₺/g, '').replace(/\s/g, '');
+    // Eğer hem nokta hem virgül varsa (tr formatı: bin ayracı . , ondalık ,) noktaları kaldır, virgülü noktayla değiştir
+    if (s.indexOf('.') > -1 && s.indexOf(',') > -1) {
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else if (s.indexOf(',') > -1 && s.indexOf('.') === -1) {
+      s = s.replace(',', '.');
+    } else {
+      // sadece noktalar varsa (ör. 1000.50), bırak
+    }
+    // Son olarak sayısal olmayanları temizle
+    s = s.replace(/[^0-9\.\-]/g, '');
+    return parseFloat(s);
+  }
+
+  // DOM elemanları
+  const donutTotalEl = document.getElementById("donut-total");
+  const targetEl = document.getElementById("total_hedef");
+  const kalanTLel = document.getElementById("kalan_hedef_tl");
+  const kalanYuzdeEl = document.getElementById("kalan_hedef_yuzde");
+  // progress çubuğunun iç div'ini al (ilk bulunan .bg-gradient-to-r kullanıldı)
+  const progressInner = document.querySelector(".bg-gradient-to-r");
+
+  if (!donutTotalEl || !targetEl || !kalanTLel || !kalanYuzdeEl || !progressInner) {
+    // Gerekli elemanlardan biri yoksa çık
+    return;
+  }
+
+  // Mevcut toplam değeri (ekrana yazılan değerden ya da script'te hesaplanan total/savedTotal farkından alma)
+  // Eğer donutTotal zaten formatlanmış string ise parse et
+  let current = parseTL(donutTotalEl.textContent);
+
+  // Eğer current NaN ise (ör: script'ten variable 'total' kullanılabilir), deneyelim:
+  if (isNaN(current)) {
+    try {
+      // total ve savedTotal değişkenleri aynı scope'ta varsa kullan
+      if (typeof total !== "undefined") {
+        const saved = (typeof savedTotal !== "undefined" && savedTotal !== null) ? parseFloat(savedTotal) : 0;
+        current = isNaN(saved) ? total : (total - saved);
+      }
+    } catch (e) {
+      current = NaN;
+    }
+  }
+
+  const target = parseTL(targetEl.textContent);
+
+  // Hesaplamalar
+  const remaining = (isNaN(target) || isNaN(current)) ? NaN : (target - current);
+  const percentReached = (isNaN(target) || target === 0 || isNaN(current)) ? 0 : (current / target) * 100;
+  const percentForWidth = Math.max(0, Math.min(100, percentReached)); // görsel için 0-100 aralığı
+
+  // Güncellemeler
+  kalanTLel.textContent = isNaN(remaining) ? "₺0" : tlFormat(remaining);
+  kalanYuzdeEl.textContent = (isNaN(percentReached) ? 0 : percentReached).toFixed(1) + "%";
+  progressInner.style.width = percentForWidth.toFixed(1) + "%";
+
+})();
+ // --- Bitiş ---
 </script>
 
 </html>
