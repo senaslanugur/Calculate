@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
     rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script type="text/javascript"
     src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
@@ -55,6 +58,33 @@
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .donut-gradient {
+            background: conic-gradient(#3b82f6 0deg 90deg,
+                    #8b5cf6 90deg 160deg,
+                    #f97316 160deg 280deg,
+                    #10b981 280deg 360deg);
+        }
+
+        .progress-glow {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .nav-active {
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
   </style>
 </head>
 
@@ -148,7 +178,7 @@
             <br>
             <div class="flex flex-col gap-4">
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-1-name">Bank of America</p>
@@ -165,7 +195,7 @@
                 </div>
               </div>
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-2-name">Bank of America</p>
@@ -182,7 +212,7 @@
                 </div>
               </div>
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-3-name">Bank of America</p>
@@ -199,7 +229,7 @@
                 </div>
               </div>
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-4-name">Bank of America</p>
@@ -216,7 +246,7 @@
                 </div>
               </div>
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-5-name">Bank of America</p>
@@ -233,7 +263,7 @@
                 </div>
               </div>
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-6-name">Bank of America</p>
@@ -250,7 +280,7 @@
                 </div>
               </div>
               <div
-                class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-background-light p-4 dark:border-[#283039] dark:bg-background-dark">
+                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-7-name">Bank of America</p>
@@ -276,31 +306,31 @@
       </div>
     </div>
   </div>
-  <div
-    class="sticky bottom-0 bg-white dark:bg-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)] rounded-t-2xl px-6 py-3">
-    <div class="flex justify-around items-start">
-      <a class="text-center text-teal-500" href="#donut-total" onclick="calculate()">
-        <span class="material-symbols-outlined text-3xl">calculate</span>
-        <span class="text-xs font-semibold block">Calculate</span>
-      </a>
-      <a class="text-center text-gray-500 dark:text-gray-400" onclick="lineGraph()">
-        <span class="material-symbols-outlined text-3xl">finance_mode</span>
-        <span class="text-xs font-semibold block">Daily Graph</span>
-      </a>
-      <a class="text-center text-gray-500 dark:text-gray-400" href="#chartContainer" onclick="barGraph()">
-        <span class="material-symbols-outlined text-3xl">align_horizontal_center</span>
-        <span class="text-xs font-semibold block">Distribution Graph</span>
-      </a>
-      <a class="text-center text-gray-500 dark:text-gray-400" href="./debit.html">
-        <span class="material-symbols-outlined text-3xl">money_range</span>
-        <span class="text-xs font-semibold block">Debt List</span>
-      </a>
-      <a class="text-center text-gray-500 dark:text-gray-400" href="./expenses.html">
-        <span class="material-symbols-outlined text-3xl">payment_arrow_down</span>
-        <span class="text-xs font-semibold block">Expenses List</span>
-      </a>
-    </div>
-  </div>
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-card-dark/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-4 pb-8 pt-3 z-50">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <a class="flex flex-col items-center gap-1 nav-active transition-all" href="#donut-total" onclick="calculate()">
+                <span class="material-icons-round">calculate</span>
+                <span class="text-[10px] font-medium">Hesapla</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"  onclick="lineGraph()">
+                <span class="material-icons-round">analytics</span>
+                <span class="text-[10px] font-medium">Grafik</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all" href="#chartContainer" onclick="barGraph()">
+                <span class="material-icons-round">pie_chart</span>
+                <span class="text-[10px] font-medium">Dağılım</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"href="./debit.html">
+                <span class="material-icons-round">payments</span>
+                <span class="text-[10px] font-medium">Borçlar</span>
+            </a>
+            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"href="./expenses.html">
+                <span class="material-icons-round">receipt_long</span>
+                <span class="text-[10px] font-medium">Giderler</span>
+            </a>
+        </div>
+    </nav>
 </body>
 <script type="text/javascript" src="./script.js"></script>
 <script type="text/javascript" src="./Line_Chart.js"></script>
