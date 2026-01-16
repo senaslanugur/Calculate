@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Döviz Takibi MVP</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- 1. Global Design System (Tokens) --- */
+        :root {
+            --bg-color: #0B0E14;       /* Deep Night Blue */
+            --surface-color: #1B1F2A;  /* Dark Gunmetal */
+            --primary-cyan: #06B6D4;   /* TRY Accent */
+            --secondary-green: #10B981;/* USD Accent */
+            --text-high: #F8FAFC;      /* Off-white */
+            --text-low: #94A3B8;       /* Slate 400 */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-high);
+            font-family: var(--font-family);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent body scroll, layout handles it */
+        }
+
+        /* Mobile Container Simulation */
+        #app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 480px; /* Constraints for desktop viewing */
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- 2. Component Styles --- */
+
+        /* A. AppHeader */
+        .app-header {
+            padding: 24px 24px 16px 24px;
+        }
+        .title-text {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+        .subtitle-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-low);
+        }
+
+        /* B. DateRangeIndicator */
+        .date-range-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .date-range-pill {
+            background: rgba(27, 31, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-family: monospace; /* Technical feel */
+            color: var(--primary-cyan);
+            backdrop-filter: blur(10px);
+        }
+
+        /* C. ExchangeRateLineChart Wrapper */
+        .chart-wrapper {
+            flex: 1; /* Take available space */
+            position: relative;
+            width: 100%;
+            padding: 0 10px;
+            min-height: 250px;
+        }
+        /* Custom glow effect logic handled in JS config, 
+           but we add a subtle container glow here */
+        .chart-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(11, 14, 20, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* D. LatestValuesRow */
+        .latest-values-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 24px;
+            gap: 16px;
+        }
+
+        .value-card {
+            background-color: var(--surface-color);
+            flex: 1;
+            padding: 16px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+        .value-card:active {
+            transform: scale(0.98);
+        }
+
+        /* TRY Card Specifics */
+        .card-try {
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.05);
+        }
+        .label-try { color: var(--text-low); font-size: 12px; margin-bottom: 4px; }
+        .val-try { color: var(--text-high); font-size: 24px; font-weight: 700; }
+        
+        /* USD Card Specifics */
+        .card-usd {
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.05);
+        }
+        .label-usd { color: var(--text-low); font-size: 12px; margin-bottom: 4px; }
+        .val-usd { color: var(--text-high); font-size: 24px; font-weight: 700; }
+
+        .trend-icon { font-size: 12px; margin-left: 6px; vertical-align: middle; }
+        .trend-up { color: var(--secondary-green); }
+        .trend-down { color: #EF4444; }
+
+        /* E. DataMetaFooter */
+        .data-meta-footer {
+            text-align: center;
+            padding: 0 0 24px 0; /* Safe area bottom */
+            opacity: 0.5;
+        }
+        .meta-text {
+            font-size: 10px;
+            color: var(--text-low);
+            letter-spacing: 0.5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header class="app-header">
+            <div class="title-text">Döviz Takibi</div>
+            <div class="subtitle-text">TRY / USD Zaman Serisi</div>
+        </header>
+
+        <div class="date-range-container">
+            <div class="date-range-pill" id="date-range-text">Loading...</div>
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="financeChart"></canvas>
+        </div>
+
+        <div class="latest-values-row">
+            <div class="value-card card-try">
+                <span class="label-try">Son TRY</span>
+                <div class="val-try">
+                    <span id="try-value">--.--</span>
+                    <span id="try-trend" class="trend-icon"></span>
+                </div>
+            </div>
+
+            <div class="value-card card-usd">
+                <span class="label-usd">Son USD</span>
+                <div class="val-usd">
+                    <span id="usd-value">--.--</span>
+                    <span id="usd-trend" class="trend-icon"></span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="data-meta-footer">
+            <div class="meta-text" id="meta-text">Syncing data...</div>
+        </footer>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. LocalStorage'dan Veri Çekme
+    const rawData = localStorage.getItem('day_data_set');
+    
+    if (!rawData) {
+        console.error("Veri bulunamadı: 'day_data_set' boş.");
+        document.getElementById('meta-text').textContent = "Hata: Veri kaynağı bulunamadı.";
+        return;
+    }
+
+    // 2. JSON Ayrıştırma
+    let exchangeRates;
+    try {
+        exchangeRates = JSON.parse(rawData);
+    } catch (e) {
+        console.error("JSON ayrıştırma hatası:", e);
+        return;
+    }
+
+    // 3. UI Bileşenlerine Veri Bağlama (Data Binding)
+    const latest = exchangeRates[exchangeRates.length - 1];
+    const previous = exchangeRates[exchangeRates.length - 2] || latest;
+
+    // Tarih Aralığı Göstergesi
+    const firstDate = new Date(exchangeRates[0].date);
+    const lastDate = new Date(latest.date);
+    const formatDate = (d) => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+    document.getElementById('date-range-text').textContent = `${formatDate(firstDate)} – ${formatDate(lastDate)}`;
+
+    // TRY Kartı Güncelleme
+    document.getElementById('try-value').textContent = latest.turkish_lira.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+    updateTrendIcon('try-trend', latest.turkish_lira, previous.turkish_lira);
+
+    // USD Kartı Güncelleme
+    document.getElementById('usd-value').textContent = latest.dolar.toLocaleString('tr-TR', { minimumFractionDigits: 3 });
+    updateTrendIcon('usd-trend', latest.dolar, previous.dolar);
+
+    // Meta Veri (Footer)
+    document.getElementById('meta-text').textContent = `${exchangeRates.length} Veri Noktası • Son Güncelleme: ${latest.date}`;
+
+    // 4. Grafik Çizimi
+    renderFinanceChart(exchangeRates);
+});
+
+// Yardımcı Fonksiyon: Trend İkonu
+function updateTrendIcon(elementId, current, prev) {
+    const el = document.getElementById(elementId);
+    if (current >= prev) {
+        el.innerHTML = '&#9650;'; 
+        el.className = 'trend-icon trend-up';
+    } else {
+        el.innerHTML = '&#9660;'; 
+        el.className = 'trend-icon trend-down';
+    }
+}
+
+// Yardımcı Fonksiyon: Chart.js Entegrasyonu
+function renderFinanceChart(data) {
+    const ctx = document.getElementById('financeChart').getContext('2d');
+    
+    // Gradient Renkleri
+    const gradientTry = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientTry.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+    gradientTry.addColorStop(1, 'rgba(6, 182, 212, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.date),
+            datasets: [
+                {
+                    label: 'TRY',
+                    data: data.map(d => d.turkish_lira),
+                    borderColor: '#06B6D4',
+                    backgroundColor: gradientTry,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'USD',
+                    data: data.map(d => d.dolar),
+                    borderColor: '#10B981',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { type: 'linear', position: 'left', grid: { color: '#2D3748' } },
+                y1: { type: 'linear', position: 'right', grid: { display: false } },
+                x: { display: false }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+
+
+    </script>
+</body>
+</html>
+
