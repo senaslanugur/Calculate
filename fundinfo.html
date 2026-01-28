@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Fund Performance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom scrollbar hiding for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Sticky table head styles */
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Frozen first column */
+        tbody td:first-child,
+        thead th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background-color: inherit;
+        }
+
+        thead th:first-child {
+            z-index: 30;
+        }
+
+        /* Sort indicators */
+        .sort-indicator {
+            margin-left: 4px;
+            font-size: 0.75rem;
+        }
+
+        .sort-asc::after {
+            content: " ↑";
+            color: #137fec;
+        }
+
+        .sort-desc::after {
+            content: " ↓";
+            color: #137fec;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white overflow-hidden h-screen flex flex-col">
+    <!-- Top App Bar -->
+    <header class="shrink-0 bg-white dark:bg-[#1A2633] border-b border-[#e5e7eb] dark:border-[#2a3c4f]">
+        <div class="flex items-center p-4 justify-between h-16">
+            <div class="flex size-12 shrink-0 items-center justify-start text-[#111418] dark:text-white cursor-pointer">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+            </div>
+            <h2
+                class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+                Fund Performance
+            </h2>
+            <div class="flex w-12 items-center justify-end">
+                <button
+                    class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111418] dark:text-white">
+                    <span class="material-symbols-outlined text-2xl">tune</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- Filters & Search Container -->
+    <div class="shrink-0 bg-white dark:bg-[#1A2633] pb-4 shadow-sm z-10">
+        <!-- Search Bar -->
+        <div class="px-4 py-2">
+            <label class="flex flex-col h-11 w-full">
+                <div
+                    class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f2f4] dark:bg-[#23303e] border border-transparent focus-within:border-primary/50 transition-colors">
+                    <div class="text-[#617589] flex items-center justify-center pl-3 pr-2">
+                        <span class="material-symbols-outlined text-xl">search</span>
+                    </div>
+                    <input id="search-input"
+                        class="flex w-full min-w-0 flex-1 bg-transparent text-[#111418] dark:text-white focus:outline-0 placeholder:text-[#617589] text-base font-normal leading-normal"
+                        placeholder="Search by Name, Code or Type..." type="text" value="" />
+                </div>
+            </label>
+        </div>
+    </div>
+
+
+    <!-- Main Content Area with Table -->
+    <div class="flex-1 overflow-hidden relative w-full bg-background-light dark:bg-background-dark">
+        <!-- Table Scroll Container -->
+        <div class="h-full w-full overflow-auto">
+            <table id="fund-table" class="w-full min-w-[800px] border-collapse bg-white dark:bg-[#1A2633]">
+                <!-- Table Head -->
+                <thead class="bg-[#f8f9fa] dark:bg-[#15202b] shadow-sm">
+                    <tr>
+                        <th class="p-4 text-left text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[160px] bg-[#f8f9fa] dark:bg-[#15202b] border-b border-r border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="title">
+                            Fund Name
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_1m">
+                            1M Yield
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_3m">
+                            3M Yield
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_6m">
+                            6M Yield
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[120px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_ytd">
+                            YTD Perf
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_1y">
+                            1Y Yield
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_3y">
+                            3Y Yield
+                        </th>
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                            data-sort="yield_5y">
+                            5Y Yield
+                        </th>
+                    </tr>
+                </thead>
+                <!-- Table Body -->
+                <tbody id="fund-body" class="divide-y divide-[#e5e7eb] dark:divide-[#2a3c4f]">
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tbody = document.querySelector("tbody");
+            const searchInput = document.getElementById("search-input");
+            const topFundsContainer = document.createElement("div");
+            topFundsContainer.className = "px-4 py-3 bg-white dark:bg-[#1A2633] border-b border-[#e5e7eb] dark:border-[#2a3c4f] overflow-x-auto no-scrollbar";
+            topFundsContainer.innerHTML = `<div class="flex space-x-4 min-w-max"></div>`;
+
+        // Search container'ın hemen altına ekle
+        const searchContainer = document.querySelector(".shrink-0.bg-white");
+        searchContainer.parentNode.insertBefore(topFundsContainer, searchContainer.nextSibling);
+
+            let funds = [];
+            let currentSort = { column: null, direction: "asc" };
+
+            // API'den veri çek
+            fetch("https://api.fintables.com/funds/yield/?fund_type=mutual&filter=%5B%7B%22type%22%3A%22tefas%22%2C%22value%22%3A%221%22%7D%5D", {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    funds = data.results || [];
+
+                    if (funds.length === 0) {
+                        tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="p-8 text-center text-gray-500 dark:text-gray-400">
+                                Veri bulunamadı veya yüklenemedi.
+                            </td>
+                        </tr>`;
+                        return;
+                    }
+                    calculateTopFunds();
+                    renderTable(funds);
+                })
+                .catch(err => {
+                    console.error("Fon verileri çekilemedi:", err);
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-red-600 dark:text-red-400">
+                            Veri yüklenemedi: ${err.message}
+                        </td>
+                    </tr>`;
+                });
+
+            // Güvenli değer almak için yardımcı fonksiyon
+            const safeValue = (val, decimals = 2) => {
+                if (val == null) return null;
+                return parseFloat(val).toFixed(decimals);
+            };
+
+            // Renk kararını veren yardımcı fonksiyon
+            const getColorClass = (value) => {
+                if (value == null) return "text-gray-600 dark:text-gray-400";
+                if (value > 0) return "text-emerald-600 dark:text-emerald-400";
+                if (value < 0) return "text-rose-600 dark:text-rose-400";
+                return "text-gray-600 dark:text-gray-400";
+            };
+
+            // Arka plan rengi için yardımcı fonksiyon
+            const getBgPillClass = (value) => {
+                if (value == null) return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
+                if (value > 0) return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
+                if (value < 0) return "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400";
+                return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
+            };
+
+            // En iyi 5 fonu hesapla ve kartlara ekle
+            function calculateTopFunds() {
+                if (funds.length === 0) return;
+
+                // Tüm yield alanlarını topla (null olanları 0 kabul et)
+                const fundsWithScore = funds.map(fund => {
+                    const score = [
+                        fund.yield_1m, fund.yield_3m, fund.yield_6m, fund.yield_ytd,
+                        fund.yield_1y, fund.yield_3y, fund.yield_5y
+                    ].reduce((sum, val) => sum + (val != null ? parseFloat(val) : 0), 0);
+
+                    return { ...fund, score };
+                });
+
+                // Skora göre azalan sırala
+                fundsWithScore.sort((a, b) => b.score - a.score);
+
+                // En iyi 5 fonu al
+                const top5 = fundsWithScore.slice(0, 5);
+
+                // Kartları oluştur
+                const cardsContainer = topFundsContainer.querySelector(".flex");
+                cardsContainer.innerHTML = "";
+
+                top5.forEach(fund => {
+                    const card = document.createElement("div");
+                    card.className = "bg-white dark:bg-[#15202b] border border-[#e5e7eb] dark:border-[#2a3c4f] rounded-lg p-4 w-64 flex flex-col";
+
+                    const title = fund.title || "Bilinmeyen Fon";
+                    const code = fund.code || "—";
+                    const type = fund.type || "—";
+
+                    // Yield değerlerini göster
+                    const yield1m = safeValue(fund.yield_1m);
+                    const yield3m = safeValue(fund.yield_3m);
+                    const yield6m = safeValue(fund.yield_6m);
+                    const yieldYtd = safeValue(fund.yield_ytd);
+                    const yield1y = safeValue(fund.yield_1y);
+                    const yield3y = safeValue(fund.yield_3y);
+                    const yield5y = safeValue(fund.yield_5y);
+
+                    card.innerHTML = `
+                    <h3 class="text-sm font-bold text-[#111418] dark:text-white">${title}</h3>
+                    <span class="text-xs text-[#617589]">${code}</span>
+                    <span class="text-xs text-[#617589] italic">${type}</span>
+                    <div class="mt-2 space-y-1 text-xs">
+                        <div class="flex justify-between"><span>1M:</span><span class="${getColorClass(fund.yield_1m)}">${yield1m != null ? (fund.yield_1m >= 0 ? "+" : "") + yield1m + "%" : "—"}</span></div>
+                        <div class="flex justify-between"><span>3M:</span><span class="${getColorClass(fund.yield_3m)}">${yield3m != null ? (fund.yield_3m >= 0 ? "+" : "") + yield3m + "%" : "—"}</span></div>
+                        <div class="flex justify-between"><span>YTD:</span><span class="${getColorClass(fund.yield_ytd)}">${yieldYtd != null ? (fund.yield_ytd >= 0 ? "+" : "") + yieldYtd + "%" : "—"}</span></div>
+                    </div>
+                `;
+
+                    cardsContainer.appendChild(card);
+                });
+            }
+
+            // Tabloyu render et
+            function renderTable(data) {
+                tbody.innerHTML = "";
+
+                data.forEach(fund => {
+                    // YTD performans için badge oluştur
+                    const ytdValue = safeValue(fund.yield_ytd);
+                    const ytdBadge = ytdValue != null ? `
+                        <div class="inline-flex items-center justify-end px-2.5 py-0.5 rounded ${getBgPillClass(fund.yield_ytd)} text-sm font-bold">
+                            ${fund.yield_ytd >= 0 ? "+" : ""}${ytdValue}%
+                        </div>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    // 1M Yield
+                    const yield1mValue = safeValue(fund.yield_1m);
+                    const yield1mDisplay = yield1mValue != null ? `
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_1m)}">
+                            ${fund.yield_1m >= 0 ? "+" : ""}${yield1mValue}%
+                        </span>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    // 3M Yield
+                    const yield3mValue = safeValue(fund.yield_3m);
+                    const yield3mDisplay = yield3mValue != null ? `
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_3m)}">
+                            ${fund.yield_3m >= 0 ? "+" : ""}${yield3mValue}%
+                        </span>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    // 6M Yield
+                    const yield6mValue = safeValue(fund.yield_6m);
+                    const yield6mDisplay = yield6mValue != null ? `
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_6m)}">
+                            ${fund.yield_6m >= 0 ? "+" : ""}${yield6mValue}%
+                        </span>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    // 1Y Yield
+                    const yield1yValue = safeValue(fund.yield_1y);
+                    const yield1yDisplay = yield1yValue != null ? `
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_1y)}">
+                            ${fund.yield_1y >= 0 ? "+" : ""}${yield1yValue}%
+                        </span>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    // 3Y Yield
+                    const yield3yValue = safeValue(fund.yield_3y);
+                    const yield3yDisplay = yield3yValue != null ? `
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_3y)}">
+                            ${fund.yield_3y >= 0 ? "+" : ""}${yield3yValue}%
+                        </span>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    // 5Y Yield
+                    const yield5yValue = safeValue(fund.yield_5y);
+                    const yield5yDisplay = yield5yValue != null ? `
+                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_5y)}">
+                            ${fund.yield_5y >= 0 ? "+" : ""}${yield5yValue}%
+                        </span>
+                    ` : `<span class="text-gray-500">—</span>`;
+
+                    const row = `
+                        <tr class="group hover:bg-[#f8f9fa] dark:hover:bg-[#23303e] transition-colors cursor-pointer bg-white dark:bg-[#1A2633]">
+                            <td class="p-4 bg-white dark:bg-[#1A2633] group-hover:bg-[#f8f9fa] dark:group-hover:bg-[#23303e] border-r border-[#e5e7eb] dark:border-[#2a3c4f]">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-[#111418] dark:text-white">${fund.title || "Bilinmeyen Fon"}</span>
+                                    <span class="text-xs text-[#617589]">${fund.code || "—"}</span>
+                                    <span class="text-xs text-[#617589] italic">${fund.type || "—"}</span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-right">${yield1mDisplay}</td>
+                            <td class="p-4 text-right">${yield3mDisplay}</td>
+                            <td class="p-4 text-right">${yield6mDisplay}</td>
+                            <td class="p-4 text-right">${ytdBadge}</td>
+                            <td class="p-4 text-right">${yield1yDisplay}</td>
+                            <td class="p-4 text-right">${yield3yDisplay}</td>
+                            <td class="p-4 text-right">${yield5yDisplay}</td>
+                        </tr>
+                    `;
+
+                    tbody.insertAdjacentHTML("beforeend", row);
+                });
+            }
+
+            // Sıralama fonksiyonu
+            function sortTable(column) {
+                const direction = currentSort.column === column && currentSort.direction === "asc" ? "desc" : "asc";
+                currentSort = { column, direction };
+
+                // Sütun başlıklarını temizle
+                document.querySelectorAll(".sort-header").forEach(th => {
+                    th.classList.remove("sort-asc", "sort-desc");
+                });
+
+                // Aktif sütunu işaretle
+                const activeTh = document.querySelector(`[data-sort="${column}"]`);
+                if (activeTh) {
+                    activeTh.classList.add(direction === "asc" ? "sort-asc" : "sort-desc");
+                }
+
+                // Sırala
+                funds.sort((a, b) => {
+                    let valA = a[column];
+                    let valB = b[column];
+
+                    if (valA == null && valB == null) return 0;
+                    if (valA == null) return direction === "asc" ? 1 : -1;
+                    if (valB == null) return direction === "asc" ? -1 : 1;
+
+                    if (typeof valA === "string" && typeof valB === "string") {
+                        return direction === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    }
+
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+
+                    if (isNaN(valA) && isNaN(valB)) return 0;
+                    if (isNaN(valA)) return direction === "asc" ? 1 : -1;
+                    if (isNaN(valB)) return direction === "asc" ? -1 : 1;
+
+                    return direction === "asc" ? valA - valB : valB - valA;
+                });
+
+                renderTable(funds);
+                calculateTopFunds();
+            }
+
+            // Sıralama dinleyicileri ekle
+            document.querySelectorAll(".sort-header").forEach(th => {
+                th.addEventListener("click", () => {
+                    const column = th.getAttribute("data-sort");
+                    sortTable(column);
+                });
+            });
+
+            // Arama fonksiyonu (title, code, type alanlarını kapsayacak şekilde güncellendi)
+            searchInput.addEventListener("input", () => {
+                const query = searchInput.value.toLowerCase().trim();
+                if (!query) {
+                    renderTable(funds);
+                    return;
+                }
+
+                const filtered = funds.filter(fund => {
+                    const title = (fund.title || "").toLowerCase();
+                    const code = (fund.code || "").toLowerCase();
+                    const type = (fund.type || "").toLowerCase(); // Yeni eklenen alan
+                    return title.includes(query) || code.includes(query) || type.includes(query);
+                });
+
+                renderTable(filtered);
+            });
+        });
+    </script>
+
+</body>
+
+</html>
