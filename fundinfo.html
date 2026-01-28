@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="dark" lang="en">
 
 <head>
     <meta charset="utf-8" />
@@ -10,24 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#137fec",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#101922",
-                    },
-                    fontFamily: {
-                        "display": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
+    <script
+        id="tailwind-config"> tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922", }, fontFamily: { "display": ["Manrope", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, }, }, } </script>
     <style>
         /* Custom scrollbar hiding for horizontal scroll areas */
         .no-scrollbar::-webkit-scrollbar {
@@ -87,86 +71,74 @@
 <body
     class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white overflow-hidden h-screen flex flex-col">
     <!-- Top App Bar -->
-    <header class="shrink-0 bg-white dark:bg-[#1A2633] border-b border-[#e5e7eb] dark:border-[#2a3c4f]">
+    <header class="shrink-0 bg-white dark:bg-[#0F1720] border-b border-[#e5e7eb] dark:border-[#243241]">
         <div class="flex items-center p-4 justify-between h-16">
             <div class="flex size-12 shrink-0 items-center justify-start text-[#111418] dark:text-white cursor-pointer">
-                <span class="material-symbols-outlined text-2xl">arrow_back</span>
-            </div>
+                <span class="material-symbols-outlined text-2xl">arrow_back</span> </div>
             <h2
                 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-                Fund Performance
-            </h2>
-            <div class="flex w-12 items-center justify-end">
-                <button
-                    class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111418] dark:text-white">
-                    <span class="material-symbols-outlined text-2xl">tune</span>
-                </button>
-            </div>
+                Fund Performance </h2>
+            <div class="flex w-12 items-center justify-end"> <button id="theme-toggle"
+                    class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111418] dark:text-white"
+                    aria-label="Toggle theme"> <span id="theme-icon"
+                        class="material-symbols-outlined text-2xl">light_mode</span> </button> </div>
         </div>
-    </header>
-    <!-- Filters & Search Container -->
-    <div class="shrink-0 bg-white dark:bg-[#1A2633] pb-4 shadow-sm z-10">
-        <!-- Search Bar -->
-        <div class="px-4 py-2">
-            <label class="flex flex-col h-11 w-full">
+    </header> <!-- Filters & Search Container -->
+    <div class="shrink-0 bg-white dark:bg-[#0b1720] pb-4 shadow-sm z-10"> <!-- Search Bar -->
+        <div class="px-4 py-2"> <label class="flex flex-col h-11 w-full">
                 <div
-                    class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f2f4] dark:bg-[#23303e] border border-transparent focus-within:border-primary/50 transition-colors">
-                    <div class="text-[#617589] flex items-center justify-center pl-3 pr-2">
-                        <span class="material-symbols-outlined text-xl">search</span>
-                    </div>
-                    <input id="search-input"
-                        class="flex w-full min-w-0 flex-1 bg-transparent text-[#111418] dark:text-white focus:outline-0 placeholder:text-[#617589] text-base font-normal leading-normal"
+                    class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f2f4] dark:bg-[#15202b] border border-transparent focus-within:border-primary/50 transition-colors">
+                    <div class="text-[#617589] dark:text-[#9fb0c6] flex items-center justify-center pl-3 pr-2"> <span
+                            class="material-symbols-outlined text-xl">search</span> </div> <input id="search-input"
+                        class="flex w-full min-w-0 flex-1 bg-transparent text-[#111418] dark:text-white focus:outline-0 placeholder:text-[#617589] dark:placeholder:text-[#9fb0c6] text-base font-normal leading-normal"
                         placeholder="Search by Name, Code or Type..." type="text" value="" />
                 </div>
-            </label>
-        </div>
+            </label> </div>
     </div>
-
-
     <!-- Main Content Area with Table -->
     <div class="flex-1 overflow-hidden relative w-full bg-background-light dark:bg-background-dark">
         <!-- Table Scroll Container -->
         <div class="h-full w-full overflow-auto">
-            <table id="fund-table" class="w-full min-w-[800px] border-collapse bg-white dark:bg-[#1A2633]">
+            <table id="fund-table" class="w-full min-w-[800px] border-collapse bg-white dark:bg-[#071019]">
                 <!-- Table Head -->
-                <thead class="bg-[#f8f9fa] dark:bg-[#15202b] shadow-sm">
+                <thead class="bg-[#f8f9fa] dark:bg-[#071827] shadow-sm">
                     <tr>
-                        <th class="p-4 text-left text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[160px] bg-[#f8f9fa] dark:bg-[#15202b] border-b border-r border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-left text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[160px] bg-[#f8f9fa] dark:bg-[#071827] border-b border-r border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="title">
                             Fund Name
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_1m">
                             1M Yield
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_3m">
                             3M Yield
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_6m">
                             6M Yield
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[120px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[120px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_ytd">
                             YTD Perf
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_1y">
                             1Y Yield
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_3y">
                             3Y Yield
                         </th>
-                        <th class="p-4 text-right text-xs font-bold text-[#617589] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#2a3c4f] sort-header"
+                        <th class="p-4 text-right text-xs font-bold text-[#617589] dark:text-[#94a6bc] uppercase tracking-wider min-w-[100px] border-b border-[#e5e7eb] dark:border-[#1f3342] sort-header"
                             data-sort="yield_5y">
                             5Y Yield
                         </th>
                     </tr>
                 </thead>
                 <!-- Table Body -->
-                <tbody id="fund-body" class="divide-y divide-[#e5e7eb] dark:divide-[#2a3c4f]">
+                <tbody id="fund-body" class="divide-y divide-[#e5e7eb] dark:divide-[#162530]">
                     <!-- Rows will be dynamically inserted here -->
                 </tbody>
             </table>
@@ -174,16 +146,47 @@
     </div>
 
     <script>
+            // İlk yüklemede localStorage'daki tercihe göre tema ayarla (varsayılan dark)
+            (function () {
+                const stored = localStorage.getItem('theme');
+                if (stored === 'light') {
+                    document.documentElement.classList.remove('dark');
+                } else {
+                    // stored === 'dark' veya hiç yoksa dark aktif
+                    document.documentElement.classList.add('dark');
+                }
+                // ikon ayarla
+                const icon = document.getElementById('theme-icon');
+                if (icon) {
+                    icon.textContent = document.documentElement.classList.contains('dark') ? 'dark_mode' : 'light_mode';
+                }
+            })();
+    </script>
+
+    <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Tema toggle butonu
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    if (themeIcon) themeIcon.textContent = isDark ? 'dark_mode' : 'light_mode';
+                });
+            }
+
             const tbody = document.querySelector("tbody");
             const searchInput = document.getElementById("search-input");
             const topFundsContainer = document.createElement("div");
-            topFundsContainer.className = "px-4 py-3 bg-white dark:bg-[#1A2633] border-b border-[#e5e7eb] dark:border-[#2a3c4f] overflow-x-auto no-scrollbar";
+            topFundsContainer.className = "px-4 py-3 bg-white dark:bg-[#071827] border-b border-[#e5e7eb] dark:border-[#243241] overflow-x-auto no-scrollbar";
             topFundsContainer.innerHTML = `<div class="flex space-x-4 min-w-max"></div>`;
 
-        // Search container'ın hemen altına ekle
-        const searchContainer = document.querySelector(".shrink-0.bg-white");
-        searchContainer.parentNode.insertBefore(topFundsContainer, searchContainer.nextSibling);
+            // Search container'ın hemen altına ekle
+            const searchContainer = document.querySelector(".shrink-0.bg-white");
+            if (searchContainer && searchContainer.parentNode) {
+                searchContainer.parentNode.insertBefore(topFundsContainer, searchContainer.nextSibling);
+            }
 
             let funds = [];
             let currentSort = { column: null, direction: "asc" };
@@ -206,11 +209,11 @@
 
                     if (funds.length === 0) {
                         tbody.innerHTML = `
-                        <tr>
-                            <td colspan="8" class="p-8 text-center text-gray-500 dark:text-gray-400">
-                                Veri bulunamadı veya yüklenemedi.
-                            </td>
-                        </tr>`;
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-gray-500 dark:text-gray-400">
+                            Veri bulunamadı veya yüklenemedi.
+                        </td>
+                    </tr>`;
                         return;
                     }
                     calculateTopFunds();
@@ -219,11 +222,11 @@
                 .catch(err => {
                     console.error("Fon verileri çekilemedi:", err);
                     tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="p-8 text-center text-red-600 dark:text-red-400">
-                            Veri yüklenemedi: ${err.message}
-                        </td>
-                    </tr>`;
+                <tr>
+                    <td colspan="8" class="p-8 text-center text-red-600 dark:text-red-400">
+                        Veri yüklenemedi: ${err.message}
+                    </td>
+                </tr>`;
                 });
 
             // Güvenli değer almak için yardımcı fonksiyon
@@ -234,18 +237,18 @@
 
             // Renk kararını veren yardımcı fonksiyon
             const getColorClass = (value) => {
-                if (value == null) return "text-gray-600 dark:text-gray-400";
-                if (value > 0) return "text-emerald-600 dark:text-emerald-400";
-                if (value < 0) return "text-rose-600 dark:text-rose-400";
-                return "text-gray-600 dark:text-gray-400";
+                if (value == null) return "text-gray-400 dark:text-gray-400";
+                if (value > 0) return "text-emerald-500 dark:text-emerald-400";
+                if (value < 0) return "text-rose-500 dark:text-rose-400";
+                return "text-gray-400 dark:text-gray-400";
             };
 
             // Arka plan rengi için yardımcı fonksiyon
             const getBgPillClass = (value) => {
-                if (value == null) return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
-                if (value > 0) return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
-                if (value < 0) return "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400";
-                return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
+                if (value == null) return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300";
+                if (value > 0) return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300";
+                if (value < 0) return "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300";
+                return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300";
             };
 
             // En iyi 5 fonu hesapla ve kartlara ekle
@@ -274,7 +277,7 @@
 
                 top5.forEach(fund => {
                     const card = document.createElement("div");
-                    card.className = "bg-white dark:bg-[#15202b] border border-[#e5e7eb] dark:border-[#2a3c4f] rounded-lg p-4 w-64 flex flex-col";
+                    card.className = "bg-white dark:bg-[#061223] border border-[#e5e7eb] dark:border-[#1b2a36] rounded-lg p-4 w-64 flex flex-col";
 
                     const title = fund.title || "Bilinmeyen Fon";
                     const code = fund.code || "—";
@@ -290,15 +293,15 @@
                     const yield5y = safeValue(fund.yield_5y);
 
                     card.innerHTML = `
-                    <h3 class="text-sm font-bold text-[#111418] dark:text-white">${title}</h3>
-                    <span class="text-xs text-[#617589]">${code}</span>
-                    <span class="text-xs text-[#617589] italic">${type}</span>
-                    <div class="mt-2 space-y-1 text-xs">
-                        <div class="flex justify-between"><span>1M:</span><span class="${getColorClass(fund.yield_1m)}">${yield1m != null ? (fund.yield_1m >= 0 ? "+" : "") + yield1m + "%" : "—"}</span></div>
-                        <div class="flex justify-between"><span>3M:</span><span class="${getColorClass(fund.yield_3m)}">${yield3m != null ? (fund.yield_3m >= 0 ? "+" : "") + yield3m + "%" : "—"}</span></div>
-                        <div class="flex justify-between"><span>YTD:</span><span class="${getColorClass(fund.yield_ytd)}">${yieldYtd != null ? (fund.yield_ytd >= 0 ? "+" : "") + yieldYtd + "%" : "—"}</span></div>
-                    </div>
-                `;
+                <h3 class="text-sm font-bold text-[#111418] dark:text-white">${title}</h3>
+                <span class="text-xs text-[#617589] dark:text-[#9fb0c6]">${code}</span>
+                <span class="text-xs text-[#617589] dark:text-[#9fb0c6] italic">${type}</span>
+                <div class="mt-2 space-y-1 text-xs">
+                    <div class="flex justify-between"><span>1M:</span><span class="${getColorClass(fund.yield_1m)}">${yield1m != null ? (fund.yield_1m >= 0 ? "+" : "") + yield1m + "%" : "—"}</span></div>
+                    <div class="flex justify-between"><span>3M:</span><span class="${getColorClass(fund.yield_3m)}">${yield3m != null ? (fund.yield_3m >= 0 ? "+" : "") + yield3m + "%" : "—"}</span></div>
+                    <div class="flex justify-between"><span>YTD:</span><span class="${getColorClass(fund.yield_ytd)}">${yieldYtd != null ? (fund.yield_ytd >= 0 ? "+" : "") + yieldYtd + "%" : "—"}</span></div>
+                </div>
+            `;
 
                     cardsContainer.appendChild(card);
                 });
@@ -312,77 +315,77 @@
                     // YTD performans için badge oluştur
                     const ytdValue = safeValue(fund.yield_ytd);
                     const ytdBadge = ytdValue != null ? `
-                        <div class="inline-flex items-center justify-end px-2.5 py-0.5 rounded ${getBgPillClass(fund.yield_ytd)} text-sm font-bold">
-                            ${fund.yield_ytd >= 0 ? "+" : ""}${ytdValue}%
-                        </div>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <div class="inline-flex items-center justify-end px-2.5 py-0.5 rounded ${getBgPillClass(fund.yield_ytd)} text-sm font-bold">
+                        ${fund.yield_ytd >= 0 ? "+" : ""}${ytdValue}%
+                    </div>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     // 1M Yield
                     const yield1mValue = safeValue(fund.yield_1m);
                     const yield1mDisplay = yield1mValue != null ? `
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_1m)}">
-                            ${fund.yield_1m >= 0 ? "+" : ""}${yield1mValue}%
-                        </span>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_1m)}">
+                        ${fund.yield_1m >= 0 ? "+" : ""}${yield1mValue}%
+                    </span>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     // 3M Yield
                     const yield3mValue = safeValue(fund.yield_3m);
                     const yield3mDisplay = yield3mValue != null ? `
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_3m)}">
-                            ${fund.yield_3m >= 0 ? "+" : ""}${yield3mValue}%
-                        </span>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_3m)}">
+                        ${fund.yield_3m >= 0 ? "+" : ""}${yield3mValue}%
+                    </span>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     // 6M Yield
                     const yield6mValue = safeValue(fund.yield_6m);
                     const yield6mDisplay = yield6mValue != null ? `
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_6m)}">
-                            ${fund.yield_6m >= 0 ? "+" : ""}${yield6mValue}%
-                        </span>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_6m)}">
+                        ${fund.yield_6m >= 0 ? "+" : ""}${yield6mValue}%
+                    </span>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     // 1Y Yield
                     const yield1yValue = safeValue(fund.yield_1y);
                     const yield1yDisplay = yield1yValue != null ? `
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_1y)}">
-                            ${fund.yield_1y >= 0 ? "+" : ""}${yield1yValue}%
-                        </span>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_1y)}">
+                        ${fund.yield_1y >= 0 ? "+" : ""}${yield1yValue}%
+                    </span>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     // 3Y Yield
                     const yield3yValue = safeValue(fund.yield_3y);
                     const yield3yDisplay = yield3yValue != null ? `
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_3y)}">
-                            ${fund.yield_3y >= 0 ? "+" : ""}${yield3yValue}%
-                        </span>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_3y)}">
+                        ${fund.yield_3y >= 0 ? "+" : ""}${yield3yValue}%
+                    </span>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     // 5Y Yield
                     const yield5yValue = safeValue(fund.yield_5y);
                     const yield5yDisplay = yield5yValue != null ? `
-                        <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_5y)}">
-                            ${fund.yield_5y >= 0 ? "+" : ""}${yield5yValue}%
-                        </span>
-                    ` : `<span class="text-gray-500">—</span>`;
+                    <span class="inline-flex items-center gap-1 text-sm font-semibold ${getColorClass(fund.yield_5y)}">
+                        ${fund.yield_5y >= 0 ? "+" : ""}${yield5yValue}%
+                    </span>
+                ` : `<span class="text-gray-500 dark:text-gray-400">—</span>`;
 
                     const row = `
-                        <tr class="group hover:bg-[#f8f9fa] dark:hover:bg-[#23303e] transition-colors cursor-pointer bg-white dark:bg-[#1A2633]">
-                            <td class="p-4 bg-white dark:bg-[#1A2633] group-hover:bg-[#f8f9fa] dark:group-hover:bg-[#23303e] border-r border-[#e5e7eb] dark:border-[#2a3c4f]">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-[#111418] dark:text-white">${fund.title || "Bilinmeyen Fon"}</span>
-                                    <span class="text-xs text-[#617589]">${fund.code || "—"}</span>
-                                    <span class="text-xs text-[#617589] italic">${fund.type || "—"}</span>
-                                </div>
-                            </td>
-                            <td class="p-4 text-right">${yield1mDisplay}</td>
-                            <td class="p-4 text-right">${yield3mDisplay}</td>
-                            <td class="p-4 text-right">${yield6mDisplay}</td>
-                            <td class="p-4 text-right">${ytdBadge}</td>
-                            <td class="p-4 text-right">${yield1yDisplay}</td>
-                            <td class="p-4 text-right">${yield3yDisplay}</td>
-                            <td class="p-4 text-right">${yield5yDisplay}</td>
-                        </tr>
-                    `;
+                    <tr class="group hover:bg-[#0b2230] dark:hover:bg-[#0b2230] transition-colors cursor-pointer bg-white dark:bg-transparent">
+                        <td class="p-4 bg-white dark:bg-transparent group-hover:bg-[#071827] dark:group-hover:bg-[#071827] border-r border-[#e5e7eb] dark:border-[#162530]">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-[#111418] dark:text-white">${fund.title || "Bilinmeyen Fon"}</span>
+                                <span class="text-xs text-[#617589] dark:text-[#9fb0c6]">${fund.code || "—"}</span>
+                                <span class="text-xs text-[#617589] dark:text-[#9fb0c6] italic">${fund.type || "—"}</span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-right">${yield1mDisplay}</td>
+                        <td class="p-4 text-right">${yield3mDisplay}</td>
+                        <td class="p-4 text-right">${yield6mDisplay}</td>
+                        <td class="p-4 text-right">${ytdBadge}</td>
+                        <td class="p-4 text-right">${yield1yDisplay}</td>
+                        <td class="p-4 text-right">${yield3yDisplay}</td>
+                        <td class="p-4 text-right">${yield5yDisplay}</td>
+                    </tr>
+                `;
 
                     tbody.insertAdjacentHTML("beforeend", row);
                 });
@@ -458,7 +461,6 @@
             });
         });
     </script>
-
 </body>
 
 </html>
