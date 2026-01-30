@@ -11,9 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
     rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script type="text/javascript"
     src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
@@ -58,33 +58,33 @@
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
 
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        .donut-gradient {
-            background: conic-gradient(#3b82f6 0deg 90deg,
-                    #8b5cf6 90deg 160deg,
-                    #f97316 160deg 280deg,
-                    #10b981 280deg 360deg);
-        }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
 
-        .progress-glow {
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-        }
+    .donut-gradient {
+      background: conic-gradient(#3b82f6 0deg 90deg,
+          #8b5cf6 90deg 160deg,
+          #f97316 160deg 280deg,
+          #10b981 280deg 360deg);
+    }
 
-        .nav-active {
-            color: #10b981;
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-        }
+    .progress-glow {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
 
+    .nav-active {
+      color: #10b981;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
   </style>
 </head>
 
@@ -116,6 +116,12 @@
                 class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-gray-200 dark:bg-[#283039] text-black dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0">
                 <span class="material-symbols-outlined">
                   notifications
+                </span>
+              </button>
+              <button onclick="showPortfolioSlider()"
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-accent-teal text-white gap-2 text-sm font-bold shadow-lg hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined">
+                  account_balance_wallet
                 </span>
               </button>
               <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
@@ -177,8 +183,7 @@
             </div>
             <br>
             <div class="flex flex-col gap-4">
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-1-name">Bank of America</p>
@@ -194,8 +199,7 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-2-name">Bank of America</p>
@@ -211,8 +215,7 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-3-name">Bank of America</p>
@@ -228,8 +231,7 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-4-name">Bank of America</p>
@@ -245,8 +247,7 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-5-name">Bank of America</p>
@@ -262,8 +263,7 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-6-name">Bank of America</p>
@@ -279,8 +279,7 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="glass-card p-5 rounded-3xl border-l-4 border-primary">
+              <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
                   <p class="line-clamp-1 text-base font-medium leading-normal text-black dark:text-white"
                     id="staff-7-name">Bank of America</p>
@@ -306,31 +305,34 @@
       </div>
     </div>
   </div>
-    <nav
-        class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-card-dark/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-4 pb-8 pt-3 z-50">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <a class="flex flex-col items-center gap-1 nav-active transition-all" href="#donut-total" onclick="calculate()">
-                <span class="material-icons-round">calculate</span>
-                <span class="text-[10px] font-medium">Hesapla</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"  onclick="lineGraph()">
-                <span class="material-icons-round">analytics</span>
-                <span class="text-[10px] font-medium">Grafik</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all" href="#chartContainer" onclick="barGraph()">
-                <span class="material-icons-round">pie_chart</span>
-                <span class="text-[10px] font-medium">Dağılım</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"href="./debit.html">
-                <span class="material-icons-round">payments</span>
-                <span class="text-[10px] font-medium">Borçlar</span>
-            </a>
-            <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"href="./expenses.html">
-                <span class="material-icons-round">receipt_long</span>
-                <span class="text-[10px] font-medium">Giderler</span>
-            </a>
-        </div>
-    </nav>
+  <nav
+    class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-card-dark/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-4 pb-8 pt-3 z-50">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <a class="flex flex-col items-center gap-1 nav-active transition-all" href="#donut-total" onclick="calculate()">
+        <span class="material-icons-round">calculate</span>
+        <span class="text-[10px] font-medium">Hesapla</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"
+        onclick="lineGraph()">
+        <span class="material-icons-round">analytics</span>
+        <span class="text-[10px] font-medium">Grafik</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"
+        href="#chartContainer" onclick="barGraph()">
+        <span class="material-icons-round">pie_chart</span>
+        <span class="text-[10px] font-medium">Dağılım</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all" href="./debit.html">
+        <span class="material-icons-round">payments</span>
+        <span class="text-[10px] font-medium">Borçlar</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"
+        href="./expenses.html">
+        <span class="material-icons-round">receipt_long</span>
+        <span class="text-[10px] font-medium">Giderler</span>
+      </a>
+    </div>
+  </nav>
 </body>
 <script type="text/javascript" src="./script.js"></script>
 <script type="text/javascript" src="./Line_Chart.js"></script>
@@ -423,90 +425,91 @@
     document.getElementById("donut-total").textContent = tlFormat(total);
   }
 
-// --- Başlangıç: Hedef/kalan hesaplaması ve progress güncelleme ---
-(function updateGoalProgress() {
-  // format fonksiyonu (sayısal değeri TL biçimine çeviren mevcut fonksiyonunuzla uyumlu)
-  function tlFormat(val) {
-    if (isNaN(val)) return "₺0";
-    if (Math.abs(val) > 9999) {
-      return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
-    }
-    return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
-  }
-
-  // daha güvenli string -> number parser (₺, . ve , ve K kısaltmasını da ele alır)
-  function parseTL(str) {
-    if (str == null) return NaN;
-    let s = String(str).trim();
-    if (s === "") return NaN;
-
-    // Eğer "K" içeriyorsa örn "₺1.2K"
-    const kMatch = s.match(/-?[\d\.,]+K/i);
-    if (kMatch) {
-      let num = kMatch[0].replace(/K/i, '').replace(/₺/g, '').trim();
-      num = num.replace(/\./g, '').replace(',', '.'); // güvenli dönüştürme
-      return parseFloat(num) * 1000;
-    }
-
-    // Temizleme: para sembollerini vs kaldır
-    s = s.replace(/₺/g, '').replace(/\s/g, '');
-    // Eğer hem nokta hem virgül varsa (tr formatı: bin ayracı . , ondalık ,) noktaları kaldır, virgülü noktayla değiştir
-    if (s.indexOf('.') > -1 && s.indexOf(',') > -1) {
-      s = s.replace(/\./g, '').replace(',', '.');
-    } else if (s.indexOf(',') > -1 && s.indexOf('.') === -1) {
-      s = s.replace(',', '.');
-    } else {
-      // sadece noktalar varsa (ör. 1000.50), bırak
-    }
-    // Son olarak sayısal olmayanları temizle
-    s = s.replace(/[^0-9\.\-]/g, '');
-    return parseFloat(s);
-  }
-
-  // DOM elemanları
-  const donutTotalEl = document.getElementById("donut-total");
-  const targetEl = document.getElementById("total_hedef");
-  const kalanTLel = document.getElementById("kalan_hedef_tl");
-  const kalanYuzdeEl = document.getElementById("kalan_hedef_yuzde");
-  // progress çubuğunun iç div'ini al (ilk bulunan .bg-gradient-to-r kullanıldı)
-  const progressInner = document.querySelector(".bg-gradient-to-r");
-
-  if (!donutTotalEl || !targetEl || !kalanTLel || !kalanYuzdeEl || !progressInner) {
-    // Gerekli elemanlardan biri yoksa çık
-    return;
-  }
-
-  // Mevcut toplam değeri (ekrana yazılan değerden ya da script'te hesaplanan total/savedTotal farkından alma)
-  // Eğer donutTotal zaten formatlanmış string ise parse et
-  let current = parseTL(donutTotalEl.textContent);
-
-  // Eğer current NaN ise (ör: script'ten variable 'total' kullanılabilir), deneyelim:
-  if (isNaN(current)) {
-    try {
-      // total ve savedTotal değişkenleri aynı scope'ta varsa kullan
-      if (typeof total !== "undefined") {
-        const saved = (typeof savedTotal !== "undefined" && savedTotal !== null) ? parseFloat(savedTotal) : 0;
-        current = isNaN(saved) ? total : (total - saved);
+  // --- Başlangıç: Hedef/kalan hesaplaması ve progress güncelleme ---
+  (function updateGoalProgress() {
+    // format fonksiyonu (sayısal değeri TL biçimine çeviren mevcut fonksiyonunuzla uyumlu)
+    function tlFormat(val) {
+      if (isNaN(val)) return "₺0";
+      if (Math.abs(val) > 9999) {
+        return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
       }
-    } catch (e) {
-      current = NaN;
+      return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
     }
-  }
 
-  const target = parseTL(targetEl.textContent);
+    // daha güvenli string -> number parser (₺, . ve , ve K kısaltmasını da ele alır)
+    function parseTL(str) {
+      if (str == null) return NaN;
+      let s = String(str).trim();
+      if (s === "") return NaN;
 
-  // Hesaplamalar
-  const remaining = (isNaN(target) || isNaN(current)) ? NaN : (target - current);
-  const percentReached = (isNaN(target) || target === 0 || isNaN(current)) ? 0 : (current / target) * 100;
-  const percentForWidth = Math.max(0, Math.min(100, percentReached)); // görsel için 0-100 aralığı
+      // Eğer "K" içeriyorsa örn "₺1.2K"
+      const kMatch = s.match(/-?[\d\.,]+K/i);
+      if (kMatch) {
+        let num = kMatch[0].replace(/K/i, '').replace(/₺/g, '').trim();
+        num = num.replace(/\./g, '').replace(',', '.'); // güvenli dönüştürme
+        return parseFloat(num) * 1000;
+      }
 
-  // Güncellemeler
-  kalanTLel.textContent = isNaN(remaining) ? "₺0" : tlFormat(remaining);
-  kalanYuzdeEl.textContent = (isNaN(percentReached) ? 0 : percentReached).toFixed(1) + "%";
-  progressInner.style.width = percentForWidth.toFixed(1) + "%";
+      // Temizleme: para sembollerini vs kaldır
+      s = s.replace(/₺/g, '').replace(/\s/g, '');
+      // Eğer hem nokta hem virgül varsa (tr formatı: bin ayracı . , ondalık ,) noktaları kaldır, virgülü noktayla değiştir
+      if (s.indexOf('.') > -1 && s.indexOf(',') > -1) {
+        s = s.replace(/\./g, '').replace(',', '.');
+      } else if (s.indexOf(',') > -1 && s.indexOf('.') === -1) {
+        s = s.replace(',', '.');
+      } else {
+        // sadece noktalar varsa (ör. 1000.50), bırak
+      }
+      // Son olarak sayısal olmayanları temizle
+      s = s.replace(/[^0-9\.\-]/g, '');
+      return parseFloat(s);
+    }
 
-})();
- // --- Bitiş ---
+    // DOM elemanları
+    const donutTotalEl = document.getElementById("donut-total");
+    const targetEl = document.getElementById("total_hedef");
+    const kalanTLel = document.getElementById("kalan_hedef_tl");
+    const kalanYuzdeEl = document.getElementById("kalan_hedef_yuzde");
+    // progress çubuğunun iç div'ini al (ilk bulunan .bg-gradient-to-r kullanıldı)
+    const progressInner = document.querySelector(".bg-gradient-to-r");
+
+    if (!donutTotalEl || !targetEl || !kalanTLel || !kalanYuzdeEl || !progressInner) {
+      // Gerekli elemanlardan biri yoksa çık
+      return;
+    }
+
+    // Mevcut toplam değeri (ekrana yazılan değerden ya da script'te hesaplanan total/savedTotal farkından alma)
+    // Eğer donutTotal zaten formatlanmış string ise parse et
+    let current = parseTL(donutTotalEl.textContent);
+
+    // Eğer current NaN ise (ör: script'ten variable 'total' kullanılabilir), deneyelim:
+    if (isNaN(current)) {
+      try {
+        // total ve savedTotal değişkenleri aynı scope'ta varsa kullan
+        if (typeof total !== "undefined") {
+          const saved = (typeof savedTotal !== "undefined" && savedTotal !== null) ? parseFloat(savedTotal) : 0;
+          current = isNaN(saved) ? total : (total - saved);
+        }
+      } catch (e) {
+        current = NaN;
+      }
+    }
+
+    const target = parseTL(targetEl.textContent);
+
+    // Hesaplamalar
+    const remaining = (isNaN(target) || isNaN(current)) ? NaN : (target - current);
+    const percentReached = (isNaN(target) || target === 0 || isNaN(current)) ? 0 : (current / target) * 100;
+    const percentForWidth = Math.max(0, Math.min(100, percentReached)); // görsel için 0-100 aralığı
+
+    // Güncellemeler
+    kalanTLel.textContent = isNaN(remaining) ? "₺0" : tlFormat(remaining);
+    kalanYuzdeEl.textContent = (isNaN(percentReached) ? 0 : percentReached).toFixed(1) + "%";
+    progressInner.style.width = percentForWidth.toFixed(1) + "%";
+
+  })();
+  // --- Bitiş ---
+
 </script>
 
 </html>

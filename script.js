@@ -213,3 +213,99 @@ document.addEventListener("DOMContentLoaded", () => {
 // --- Eğer script body sonunda çağrılıyorsa direkt çalıştır ---
 // (DOMContentLoaded şartına takılmaz)
 updateBorrowAndExpenseDisplays();
+
+async function showPortfolioSlider() {
+    const fonBilgisi = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
+    const symbols = Object.keys(fonBilgisi);
+
+    if (symbols.length === 0) {
+        Swal.fire('Bilgi', 'Görüntülenecek fon bulunamadı.', 'info');
+        return;
+    }
+
+    // Yükleniyor bildirimi
+    Swal.fire({
+        title: 'Portföy Hazırlanıyor...',
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    let cardsHtml = '';
+    const now = Math.floor(Date.now() / 1000);
+
+    for (const symbol of symbols) {
+        try {
+            const url = `https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=1734210000&to=${now}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data && data.o && data.o.length > 0) {
+                const lastPrice = data.o[data.o.length - 1];
+                const prevPrice = data.o[data.o.length - 2] || lastPrice;
+                const change = (((lastPrice - prevPrice) / prevPrice) * 100).toFixed(2);
+                const amount = fonBilgisi[symbol];
+                const totalValue = (lastPrice * amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                
+                // Tarih formatlama
+                let updateDate = '';
+                if (data.t && data.t.length > 0) {
+                    const lastT = data.t[data.t.length - 1];
+                    const dateObj = new Date(lastT * 1000);
+                    updateDate = dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
+                }
+
+                const colorClass = change >= 0 ? 'text-accent-teal' : 'text-loss-red';
+                const arrow = change >= 0 ? '▲' : '▼';
+
+                cardsHtml += `
+                    <div class="p-5 bg-card-dark rounded-3xl border border-white/5 text-left min-w-[280px] m-2 shadow-2xl flex-shrink-0">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-extrabold text-white tracking-tight">${symbol}</h3>
+                                <p class="text-[10px] text-text-muted font-medium uppercase mt-1">Varlık Detayı</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="${colorClass} font-bold text-sm flex items-center justify-end gap-1">
+                                    <span>${arrow} %${Math.abs(change)}</span>
+                                </div>
+                                <div class="text-[10px] text-text-muted mt-0.5 font-normal tracking-wide">
+                                    Son: ${updateDate}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/5">
+                            <div>
+                                <p class="text-text-muted text-[10px] uppercase font-bold tracking-widest">Adet</p>
+                                <p class="text-white text-lg font-semibold">${amount.toLocaleString('tr-TR')}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-text-muted text-[10px] uppercase font-bold tracking-widest">Toplam</p>
+                                <p class="text-white text-lg font-bold">₺${totalValue}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error(`${symbol} verisi alınamadı:`, error);
+        }
+    }
+
+    Swal.fire({
+        title: '<span class="text-text-light font-bold">Portföy Dağılımı</span>',
+        background: '#0b0f19', // index.html background-dark rengi
+        html: `
+            <div id="slider-container" class="flex overflow-x-auto pb-6 pt-2 no-scrollbar" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+                ${cardsHtml}
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: 'auto',
+        padding: '1.5rem',
+        customClass: {
+            popup: 'rounded-[2rem] border border-white/10 shadow-3xl'
+        }
+    });
+}
+
+
