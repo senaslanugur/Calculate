@@ -214,18 +214,20 @@ document.addEventListener("DOMContentLoaded", () => {
 // (DOMContentLoaded şartına takılmaz)
 updateBorrowAndExpenseDisplays();
 
-// Global değişkenler (Geçişleri yönetmek için)
+// Verileri globalde tutarak anlık güncellemeleri yönetiyoruz
 let currentPortfolioData = [];
 let portfolioGrandTotal = 0;
 
+// Ana Fonksiyon: Pop-up'ı başlatır
 async function showPortfolioSlider() {
+    await refreshPortfolioData(); // Önce verileri çek
+    renderPortfolioContent('slider'); // Varsayılan olarak slider ile aç
+}
+
+// Verileri LocalStorage'dan alıp API'den güncel fiyatları çeken fonksiyon
+async function refreshPortfolioData() {
     const fonBilgisi = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
     const symbols = Object.keys(fonBilgisi);
-
-    if (symbols.length === 0) {
-        Swal.fire({ title: 'Hata', text: 'Fon bulunamadı.', icon: 'error', background: '#0b0f19', color: '#fff' });
-        return;
-    }
 
     Swal.fire({
         title: 'Veriler Güncelleniyor...',
@@ -238,7 +240,6 @@ async function showPortfolioSlider() {
     portfolioGrandTotal = 0;
     const now = Math.floor(Date.now() / 1000);
 
-    // Veri toplama aşaması
     for (const symbol of symbols) {
         try {
             const url = `https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=1734210000&to=${now}`;
@@ -266,57 +267,81 @@ async function showPortfolioSlider() {
             }
         } catch (e) { console.error(e); }
     }
-
-    renderPortfolioContent('slider'); // İlk açılış slider olsun
 }
 
+// Görünümü (Slider veya Tablo) ekrana basan fonksiyon
 function renderPortfolioContent(viewType) {
     const formattedTotal = portfolioGrandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
-    
     let contentHtml = '';
 
     if (viewType === 'slider') {
+        // Slider HTML yapısı (Öncekiyle aynı)
         let cardsHtml = currentPortfolioData.map(item => {
             const colorClass = item.change >= 0 ? 'text-accent-teal' : 'text-loss-red';
-            const arrow = item.change >= 0 ? '▲' : '▼';
             return `
                 <div class="p-5 bg-card-dark rounded-3xl border border-white/5 text-left min-w-[260px] m-2 shadow-2xl flex-shrink-0">
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-xl font-black text-white">${item.symbol}</h3>
                         <div class="text-right">
-                            <span class="${colorClass} font-bold text-sm">${arrow} %${Math.abs(item.change)}</span>
-                            <p class="text-[10px] text-text-muted">Son: ${item.updateDate}</p>
+                            <span class="${colorClass} font-bold text-sm">%${item.change}</span>
                         </div>
                     </div>
                     <div class="mt-4 pt-4 border-t border-white/5 flex justify-between">
-                        <div><p class="text-text-muted text-[10px] font-bold">ADET</p><p class="text-white">${item.amount}</p></div>
-                        <div class="text-right"><p class="text-text-muted text-[10px] font-bold">DEĞER</p><p class="text-white font-bold">₺${item.totalVal.toLocaleString('tr-TR')}</p></div>
+                        <div><p class="text-text-muted text-[10px] font-bold uppercase">Adet</p><p class="text-white">${item.amount}</p></div>
+                        <div class="text-right"><p class="text-text-muted text-[10px] font-bold uppercase">Değer</p><p class="text-white font-bold">₺${item.totalVal.toLocaleString('tr-TR')}</p></div>
                     </div>
                 </div>`;
         }).join('');
 
         contentHtml = `
             <div id="slider-container" class="flex overflow-x-auto pb-4 no-scrollbar" style="scroll-snap-type: x mandatory;">${cardsHtml}</div>
-            <button onclick="renderPortfolioContent('table')" class="mt-4 px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full text-xs font-bold transition-all border border-white/10">📊 Tablo Görünümüne Geç</button>
+            <button onclick="renderPortfolioContent('table')" class="mt-4 px-6 py-2 bg-accent-teal/10 hover:bg-accent-teal/20 text-accent-teal rounded-full text-[11px] font-bold transition-all border border-accent-teal/20 tracking-widest uppercase">⚙️ Portföy Yönetimi</button>
         `;
     } else {
+        // TABLO GÖRÜNÜMÜ - Yenilenmiş Input ve Sembol Buton Yapısı
         let rowsHtml = currentPortfolioData.map(item => `
             <tr class="border-b border-white/5 text-xs">
-                <td class="py-3 font-bold text-white text-left">${item.symbol}</td>
-                <td class="py-3 text-right">${item.amount}</td>
+                <td class="py-3 font-bold text-white text-left tracking-tight">${item.symbol}</td>
+                <td class="py-3 text-right">
+                    <input type="number" value="${item.amount}" onchange="updateAmount('${item.symbol}', this.value)" 
+                        class="bg-white/5 border border-white/10 rounded-lg w-20 text-right text-white text-xs px-2 py-1 focus:ring-1 focus:ring-accent-teal outline-none transition-all">
+                </td>
                 <td class="py-3 text-right font-bold text-accent-teal">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</td>
-                <td class="py-3 text-right ${item.change >= 0 ? 'text-accent-teal' : 'text-loss-red'}">%${item.change}</td>
+                <td class="py-3 text-right">
+                    <button onclick="deleteSymbol('${item.symbol}')" class="text-loss-red/60 hover:text-loss-red transition-colors pt-1">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                </td>
             </tr>
         `).join('');
 
         contentHtml = `
-            <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+            <div class="max-h-[250px] overflow-y-auto pr-2 no-scrollbar mb-4">
                 <table class="w-full text-text-muted">
-                    <thead><tr class="text-[10px] uppercase tracking-widest border-b border-white/10"><th class="pb-2 text-left">Fon</th><th class="pb-2 text-right">Adet</th><th class="pb-2 text-right">Toplam</th><th class="pb-2 text-right">Değişim</th></tr></thead>
+                    <thead>
+                        <tr class="text-[9px] uppercase tracking-[0.2em] border-b border-white/10 opacity-50">
+                            <th class="pb-3 text-left">Fon</th>
+                            <th class="pb-3 text-right">Adet</th>
+                            <th class="pb-3 text-right">Değer</th>
+                            <th class="pb-3 text-right"></th>
+                        </tr>
+                    </thead>
                     <tbody>${rowsHtml}</tbody>
                 </table>
             </div>
-            <button onclick="renderPortfolioContent('slider')" class="mt-6 px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full text-xs font-bold transition-all border border-white/10">🎴 Kart Görünümüne Geç</button>
+
+            <div class="bg-white/[0.03] p-2 rounded-2xl flex gap-2 items-center mb-6 border border-white/5 shadow-inner">
+                <input id="newSymbol" type="text" placeholder="SEM" class="bg-transparent border-none text-white text-xs w-16 focus:ring-0 uppercase font-bold placeholder:text-white/20 px-3">
+                <div class="w-[1px] h-4 bg-white/10"></div>
+                <input id="newAmount" type="number" placeholder="Adet Girin" class="bg-transparent border-none text-white text-xs w-full focus:ring-0 placeholder:text-white/20 px-2">
+                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-8 w-8 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20">
+                    <span class="material-symbols-outlined font-bold text-[20px]">add</span>
+                </button>
+            </div>
+
+            <button onclick="renderPortfolioContent('slider')" class="mt-2 text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">
+                ← Kart Görünümüne Dön
+            </button>
         `;
     }
 
@@ -324,16 +349,15 @@ function renderPortfolioContent(viewType) {
         background: '#0b0f19',
         showConfirmButton: false,
         showCloseButton: true,
-        width: 'auto',
-        customClass: { popup: 'rounded-[2rem] border border-white/10' },
+        width: '400px',
+        customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl' },
         html: `
-            <div class="text-center mb-6">
-                <p class="text-text-muted text-xs font-bold tracking-widest uppercase mb-1">Toplam Portföy</p>
-                <h2 class="text-4xl font-black text-white">₺${formattedTotal}</h2>
+            <div class="text-center mb-8 pt-4">
+                <p class="text-text-muted text-[10px] font-bold tracking-[0.3em] uppercase mb-2 opacity-60">Toplam Portföy</p>
+                <h2 class="text-4xl font-black text-white tracking-tighter italic">₺${formattedTotal}</h2>
             </div>
             ${contentHtml}
         `
     });
 }
-
 
