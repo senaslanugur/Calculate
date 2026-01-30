@@ -1,218 +1,135 @@
-// harcamalar.js
-(function () {
-    const STORAGE_KEY = "harcamlar";
+// test.js - Modernize Edilmiş Gider Yönetimi
+const STORAGE_KEY = "harcamlar";
 
-    // DOM hazır olunca başlat
-    function init() {
-        const rowsContainer = document.getElementById("rowsContainer");
-        const addRowBtn = document.getElementById("addRowBtn");
-        const karZararEl = document.getElementById("kar_zarar");
+function getHarcamalar() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+}
 
-        if (!rowsContainer || !addRowBtn || !karZararEl) {
-            console.error("harcamalar.js: Gerekli elementler bulunamadı. IDs: rowsContainer, addRowBtn, kar_zarar");
-            return;
+function setHarcamalar(arr) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    const toplamHarcamaEl = document.getElementById("toplam_harcama");
+    if (toplamHarcamaEl) {
+        const sum = arr.reduce((acc, it) => acc + (parseFloat(it.ucret) || 0), 0);
+        toplamHarcamaEl.textContent = "₺" + sum.toLocaleString("tr-TR", { minimumFractionDigits: 2 });
+    }
+}
+
+function openExpensesPopup() {
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    Swal.fire({
+        title: '<span style="font-family: \'Inter\', sans-serif; font-weight: 800; letter-spacing: -0.02em;">GİDER YÖNETİMİ</span>',
+        html: `
+            <div class="text-left font-display">
+                <div id="swal-rows-container" class="flex flex-col gap-3 max-h-[350px] overflow-y-auto mb-6 pr-2 custom-scrollbar">
+                    </div>
+                <button id="swal-add-btn" class="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-accent-blue text-white font-bold shadow-lg shadow-blue-500/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">add_circle</span> Yeni Gider Ekle
+                </button>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: '450px',
+        padding: '2rem',
+        background: isDark ? '#1a2131' : '#f8fafc', // index.html: card-dark rengi
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        customClass: {
+            popup: 'rounded-3xl border border-white/10 shadow-2xl',
+            closeButton: 'hover:text-loss-red transition-colors'
+        },
+        didOpen: () => {
+            renderSwalList();
+            document.getElementById('swal-add-btn').addEventListener('click', showAddInputs);
         }
+    });
+}
 
-        function getHarcamalar() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                return raw ? JSON.parse(raw) : [];
-            } catch (err) {
-                console.error("harcamalar.js: localStorage parse hatası:", err, "Raw:", localStorage.getItem(STORAGE_KEY));
-                // bozuk veri varsa temizle ve boş dizi döndür
-                localStorage.removeItem(STORAGE_KEY);
-                return [];
-            }
-        }
+function renderSwalList() {
+    const container = document.getElementById('swal-rows-container');
+    const list = getHarcamalar();
+    container.innerHTML = "";
 
-        function setHarcamalar(arr) {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-            } catch (err) {
-                console.error("harcamalar.js: localStorage set hatası:", err);
-            }
-        }
-
-        function formatNumber(n) {
-            return Number(n || 0).toLocaleString("tr-TR", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-
-        function updateTotal() {
-            const list = getHarcamalar();
-            const sum = list.reduce((acc, it) => acc + (parseFloat(it.ucret) || 0), 0);
-            karZararEl.textContent = formatNumber(sum);
-        }
-
-        function createDisplayRow(item, index) {
-            const row = document.createElement("div");
-            row.className = "flex items-center justify-between gap-2 rounded-xl p-3 bg-white/60 dark:bg-zinc-800/60";
-
-            const left = document.createElement("div");
-            left.className = "flex flex-col";
-            const det = document.createElement("div");
-            det.className = "text-sm font-medium text-slate-700 dark:text-slate-200";
-            det.textContent = item.detay || "(Açıklama yok)";
-            const idx = document.createElement("div");
-            idx.className = "text-xs text-zinc-500 dark:text-zinc-400";
-            idx.textContent = `#${index + 1}`;
-            left.appendChild(det);
-            left.appendChild(idx);
-
-            const right = document.createElement("div");
-            right.className = "flex items-center gap-2";
-
-            const price = document.createElement("div");
-            price.className = "text-sm font-bold text-red-500";
-            price.textContent = formatNumber(item.ucret);
-
-            const delBtn = document.createElement("button");
-            delBtn.type = "button";
-            delBtn.className = "p-2 rounded-md text-zinc-500 hover:text-red-500";
-            delBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
-            delBtn.addEventListener("click", () => {
-                const list = getHarcamalar();
-                list.splice(index, 1);
-                setHarcamalar(list);
-                renderList();
-            });
-
-            right.appendChild(price);
-            right.appendChild(delBtn);
-
-            row.appendChild(left);
-            row.appendChild(right);
-            return row;
-        }
-
-        function createEditorRow() {
-            const row = document.createElement("div");
-            row.className = "flex flex-col gap-2 rounded-xl p-3 bg-white/60 dark:bg-zinc-800/60";
-
-            const inputs = document.createElement("div");
-            inputs.className = "flex gap-2 w-full";
-
-            const detayInput = document.createElement("input");
-            detayInput.type = "text";
-            detayInput.placeholder = "Harcama detayı";
-            detayInput.className = "flex-1 rounded-md border px-3 py-2 text-sm outline-none dark:bg-zinc-900 dark:border-zinc-700";
-
-            const ucretInput = document.createElement("input");
-            ucretInput.type = "number";
-            ucretInput.step = "0.01";
-            ucretInput.min = "0";
-            ucretInput.placeholder = "0.00";
-            ucretInput.className = "w-36 rounded-md border px-3 py-2 text-sm outline-none dark:bg-zinc-900 dark:border-zinc-700";
-            ucretInput.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") save();
-            });
-
-            inputs.appendChild(detayInput);
-            inputs.appendChild(ucretInput);
-
-            const actions = document.createElement("div");
-            actions.className = "flex gap-2";
-
-            const saveBtn = document.createElement("button");
-            saveBtn.type = "button";
-            saveBtn.className = "rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white";
-            saveBtn.textContent = "Kaydet";
-
-            const cancelBtn = document.createElement("button");
-            cancelBtn.type = "button";
-            cancelBtn.className = "rounded-lg border px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300";
-            cancelBtn.textContent = "İptal";
-
-            actions.appendChild(saveBtn);
-            actions.appendChild(cancelBtn);
-
-            row.appendChild(inputs);
-            row.appendChild(actions);
-
-            function save() {
-                const detay = detayInput.value.trim();
-                const ucretRaw = ucretInput.value.trim();
-                const ucret = parseFloat(ucretRaw);
-                if (!detay) {
-                    if (window.Swal) Swal.fire({
-                        icon: "warning",
-                        text: "Lütfen harcama detayı girin."
-                    });
-                    else alert("Lütfen harcama detayı girin.");
-                    return;
-                }
-                if (!ucretRaw || isNaN(ucret)) {
-                    if (window.Swal) Swal.fire({
-                        icon: "warning",
-                        text: "Lütfen geçerli bir tutar girin."
-                    });
-                    else alert("Lütfen geçerli bir tutar girin.");
-                    return;
-                }
-                const list = getHarcamalar();
-                list.push({
-                    detay,
-                    ucret: Number(ucret.toFixed(2))
-                });
-                setHarcamalar(list);
-                renderList();
-            }
-
-            saveBtn.addEventListener("click", save);
-            cancelBtn.addEventListener("click", () => {
-                renderList();
-            });
-
-            setTimeout(() => detayInput.focus(), 50);
-
-            return row;
-        }
-
-        function renderList() {
-            const list = getHarcamalar();
-            rowsContainer.innerHTML = "";
-            if (list.length === 0) {
-                const empty = document.createElement("div");
-                empty.className = "text-sm text-zinc-500 dark:text-zinc-400";
-                empty.textContent = "Henüz harcama eklenmemiş.";
-                rowsContainer.appendChild(empty);
-            } else {
-                list.forEach((it, idx) => {
-                    rowsContainer.appendChild(createDisplayRow(it, idx));
-                });
-            }
-            updateTotal();
-            console.log("harcamalar.js: renderList çalıştı. Eleman sayısı:", list.length);
-        }
-
-        addRowBtn.addEventListener("click", () => {
-            const existingEditor = rowsContainer.querySelector(".editor-active");
-            if (existingEditor) return;
-            const editor = createEditorRow();
-            rowsContainer.prepend(editor);
-            editor.classList.add("editor-active");
-        });
-
-        // İlk render
-        renderList();
-
-        // debug için expose et (İsteğe bağlı)
-        window._harcamalar_debug = {
-            getHarcamalar,
-            setHarcamalar,
-            renderList,
-            clearAll: function () {
-                localStorage.removeItem(STORAGE_KEY);
-                renderList();
-            }
-        };
+    if (list.length === 0) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-10 opacity-40">
+                <span class="material-symbols-outlined text-5xl mb-2">receipt_long</span>
+                <p class="text-sm font-medium">Henüz bir harcama yok</p>
+            </div>`;
+        return;
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
-    } else {
-        init();
+    list.forEach((item, index) => {
+        const row = document.createElement('div');
+        // index.html'deki glass-card yapısına benzer stil
+        row.className = "flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-sm hover:border-white/20 transition-all";
+        row.innerHTML = `
+            <div class="flex flex-col gap-1">
+                <span class="text-sm font-bold tracking-tight">${item.detay.toUpperCase()}</span>
+                <span class="text-xs font-medium text-loss-red">₺${item.ucret.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <button onclick="deleteGider(${index})" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-500/10 text-zinc-500 hover:text-loss-red transition-all">
+                <span class="material-symbols-outlined text-xl">delete_sweep</span>
+            </button>
+        `;
+        container.appendChild(row);
+    });
+}
+
+async function showAddInputs() {
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    const { value: formValues } = await Swal.fire({
+        title: 'YENİ KAYIT',
+        background: isDark ? '#0b0f19' : '#ffffff', // index.html: background-dark rengi
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        html: `
+            <div class="flex flex-col gap-4 p-2">
+                <div class="text-left">
+                    <label class="text-[10px] font-bold text-muted uppercase ml-1">Harcama Detayı</label>
+                    <input id="swal-input-detay" class="w-full mt-1 bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all" placeholder="Örn: Market Faturası">
+                </div>
+                <div class="text-left">
+                    <label class="text-[10px] font-bold text-muted uppercase ml-1">Tutar (₺)</label>
+                    <input id="swal-input-ucret" type="number" step="0.01" class="w-full mt-1 bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:border-primary outline-none transition-all" placeholder="0.00">
+                </div>
+            </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'KAYDET',
+        cancelButtonText: 'İPTAL',
+        confirmButtonColor: '#137fec', // primary rengi
+        customClass: {
+            popup: 'rounded-3xl border border-white/10',
+            confirmButton: 'rounded-xl px-8 py-3 font-bold',
+            cancelButton: 'rounded-xl px-8 py-3 font-medium'
+        },
+        preConfirm: () => {
+            const detay = document.getElementById('swal-input-detay').value;
+            const ucret = document.getElementById('swal-input-ucret').value;
+            if (!detay || !ucret) {
+                Swal.showValidationMessage('Eksik bilgi girdiniz!');
+                return false;
+            }
+            return { detay: detay, ucret: parseFloat(ucret) };
+        }
+    });
+
+    if (formValues) {
+        const list = getHarcamalar();
+        list.push(formValues);
+        setHarcamalar(list);
+        openExpensesPopup(); 
     }
-})();
+}
+
+window.deleteGider = function(index) {
+    const list = getHarcamalar();
+    list.splice(index, 1);
+    setHarcamalar(list);
+    renderSwalList();
+};
+
+
