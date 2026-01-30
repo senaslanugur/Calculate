@@ -214,24 +214,31 @@ document.addEventListener("DOMContentLoaded", () => {
 // (DOMContentLoaded şartına takılmaz)
 updateBorrowAndExpenseDisplays();
 
+// Global değişkenler (Geçişleri yönetmek için)
+let currentPortfolioData = [];
+let portfolioGrandTotal = 0;
+
 async function showPortfolioSlider() {
     const fonBilgisi = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
     const symbols = Object.keys(fonBilgisi);
 
     if (symbols.length === 0) {
-        Swal.fire('Bilgi', 'Görüntülenecek fon bulunamadı.', 'info');
+        Swal.fire({ title: 'Hata', text: 'Fon bulunamadı.', icon: 'error', background: '#0b0f19', color: '#fff' });
         return;
     }
 
-    // Yükleniyor bildirimi
     Swal.fire({
-        title: 'Portföy Hazırlanıyor...',
+        title: 'Veriler Güncelleniyor...',
+        background: '#0b0f19',
+        color: '#fff',
         didOpen: () => { Swal.showLoading(); }
     });
 
-    let cardsHtml = '';
+    currentPortfolioData = [];
+    portfolioGrandTotal = 0;
     const now = Math.floor(Date.now() / 1000);
 
+    // Veri toplama aşaması
     for (const symbol of symbols) {
         try {
             const url = `https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=1734210000&to=${now}`;
@@ -239,72 +246,93 @@ async function showPortfolioSlider() {
             const data = await response.json();
 
             if (data && data.o && data.o.length > 0) {
-                const lastPrice = data.o[data.o.length - 1];
-                const prevPrice = data.o[data.o.length - 2] || lastPrice;
+                const lastPrice = parseFloat(data.o[data.o.length - 1]);
+                const prevPrice = parseFloat(data.o[data.o.length - 2]) || lastPrice;
                 const change = (((lastPrice - prevPrice) / prevPrice) * 100).toFixed(2);
-                const amount = fonBilgisi[symbol];
-                const totalValue = (lastPrice * amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                const amount = parseFloat(fonBilgisi[symbol]);
+                const totalVal = lastPrice * amount;
                 
-                // Tarih formatlama
-                let updateDate = '';
-                if (data.t && data.t.length > 0) {
-                    const lastT = data.t[data.t.length - 1];
-                    const dateObj = new Date(lastT * 1000);
+                portfolioGrandTotal += totalVal;
+
+                let updateDate = '---';
+                if (data.t) {
+                    const dateObj = new Date(data.t[data.t.length - 1] * 1000);
                     updateDate = dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
                 }
 
-                const colorClass = change >= 0 ? 'text-accent-teal' : 'text-loss-red';
-                const arrow = change >= 0 ? '▲' : '▼';
+                currentPortfolioData.push({
+                    symbol, amount, lastPrice, change, totalVal, updateDate
+                });
+            }
+        } catch (e) { console.error(e); }
+    }
 
-                cardsHtml += `
-                    <div class="p-5 bg-card-dark rounded-3xl border border-white/5 text-left min-w-[280px] m-2 shadow-2xl flex-shrink-0">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-xl font-extrabold text-white tracking-tight">${symbol}</h3>
-                                <p class="text-[10px] text-text-muted font-medium uppercase mt-1">Varlık Detayı</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="${colorClass} font-bold text-sm flex items-center justify-end gap-1">
-                                    <span>${arrow} %${Math.abs(change)}</span>
-                                </div>
-                                <div class="text-[10px] text-text-muted mt-0.5 font-normal tracking-wide">
-                                    Son: ${updateDate}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-white/5">
-                            <div>
-                                <p class="text-text-muted text-[10px] uppercase font-bold tracking-widest">Adet</p>
-                                <p class="text-white text-lg font-semibold">${amount.toLocaleString('tr-TR')}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-text-muted text-[10px] uppercase font-bold tracking-widest">Toplam</p>
-                                <p class="text-white text-lg font-bold">₺${totalValue}</p>
-                            </div>
+    renderPortfolioContent('slider'); // İlk açılış slider olsun
+}
+
+function renderPortfolioContent(viewType) {
+    const formattedTotal = portfolioGrandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+    
+    let contentHtml = '';
+
+    if (viewType === 'slider') {
+        let cardsHtml = currentPortfolioData.map(item => {
+            const colorClass = item.change >= 0 ? 'text-accent-teal' : 'text-loss-red';
+            const arrow = item.change >= 0 ? '▲' : '▼';
+            return `
+                <div class="p-5 bg-card-dark rounded-3xl border border-white/5 text-left min-w-[260px] m-2 shadow-2xl flex-shrink-0">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-black text-white">${item.symbol}</h3>
+                        <div class="text-right">
+                            <span class="${colorClass} font-bold text-sm">${arrow} %${Math.abs(item.change)}</span>
+                            <p class="text-[10px] text-text-muted">Son: ${item.updateDate}</p>
                         </div>
                     </div>
-                `;
-            }
-        } catch (error) {
-            console.error(`${symbol} verisi alınamadı:`, error);
-        }
+                    <div class="mt-4 pt-4 border-t border-white/5 flex justify-between">
+                        <div><p class="text-text-muted text-[10px] font-bold">ADET</p><p class="text-white">${item.amount}</p></div>
+                        <div class="text-right"><p class="text-text-muted text-[10px] font-bold">DEĞER</p><p class="text-white font-bold">₺${item.totalVal.toLocaleString('tr-TR')}</p></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        contentHtml = `
+            <div id="slider-container" class="flex overflow-x-auto pb-4 no-scrollbar" style="scroll-snap-type: x mandatory;">${cardsHtml}</div>
+            <button onclick="renderPortfolioContent('table')" class="mt-4 px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full text-xs font-bold transition-all border border-white/10">📊 Tablo Görünümüne Geç</button>
+        `;
+    } else {
+        let rowsHtml = currentPortfolioData.map(item => `
+            <tr class="border-b border-white/5 text-xs">
+                <td class="py-3 font-bold text-white text-left">${item.symbol}</td>
+                <td class="py-3 text-right">${item.amount}</td>
+                <td class="py-3 text-right font-bold text-accent-teal">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</td>
+                <td class="py-3 text-right ${item.change >= 0 ? 'text-accent-teal' : 'text-loss-red'}">%${item.change}</td>
+            </tr>
+        `).join('');
+
+        contentHtml = `
+            <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                <table class="w-full text-text-muted">
+                    <thead><tr class="text-[10px] uppercase tracking-widest border-b border-white/10"><th class="pb-2 text-left">Fon</th><th class="pb-2 text-right">Adet</th><th class="pb-2 text-right">Toplam</th><th class="pb-2 text-right">Değişim</th></tr></thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </div>
+            <button onclick="renderPortfolioContent('slider')" class="mt-6 px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full text-xs font-bold transition-all border border-white/10">🎴 Kart Görünümüne Geç</button>
+        `;
     }
 
     Swal.fire({
-        title: '<span class="text-text-light font-bold">Portföy Dağılımı</span>',
-        background: '#0b0f19', // index.html background-dark rengi
-        html: `
-            <div id="slider-container" class="flex overflow-x-auto pb-6 pt-2 no-scrollbar" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-                ${cardsHtml}
-            </div>
-        `,
+        background: '#0b0f19',
         showConfirmButton: false,
         showCloseButton: true,
         width: 'auto',
-        padding: '1.5rem',
-        customClass: {
-            popup: 'rounded-[2rem] border border-white/10 shadow-3xl'
-        }
+        customClass: { popup: 'rounded-[2rem] border border-white/10' },
+        html: `
+            <div class="text-center mb-6">
+                <p class="text-text-muted text-xs font-bold tracking-widest uppercase mb-1">Toplam Portföy</p>
+                <h2 class="text-4xl font-black text-white">₺${formattedTotal}</h2>
+            </div>
+            ${contentHtml}
+        `
     });
 }
 
