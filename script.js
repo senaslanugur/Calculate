@@ -214,27 +214,35 @@ document.addEventListener("DOMContentLoaded", () => {
 // (DOMContentLoaded şartına takılmaz)
 updateBorrowAndExpenseDisplays();
 
-// Verileri globalde tutarak anlık güncellemeleri yönetiyoruz
+// Verileri globalde tutuyoruz
 let currentPortfolioData = [];
 let portfolioGrandTotal = 0;
+let isRefreshing = false; // Animasyon kontrolü için
 
-// Ana Fonksiyon: Pop-up'ı başlatır
 async function showPortfolioSlider() {
-    await refreshPortfolioData(); // Önce verileri çek
-    renderPortfolioContent('slider'); // Varsayılan olarak slider ile aç
+    if (currentPortfolioData.length === 0) {
+        await refreshPortfolioData();
+    }
+    renderPortfolioContent('slider');
 }
 
-// Verileri LocalStorage'dan alıp API'den güncel fiyatları çeken fonksiyon
+// Verileri yenileyen ana tetikleyici
+async function triggerRefresh(viewType) {
+    if (isRefreshing) return;
+    isRefreshing = true;
+    
+    // İkonun dönmesi için UI'ı anlık güncelle
+    renderPortfolioContent(viewType); 
+
+    await refreshPortfolioData();
+    
+    isRefreshing = false;
+    renderPortfolioContent(viewType);
+}
+
 async function refreshPortfolioData() {
     const fonBilgisi = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
     const symbols = Object.keys(fonBilgisi);
-
-    Swal.fire({
-        title: 'Veriler Güncelleniyor...',
-        background: '#0b0f19',
-        color: '#fff',
-        didOpen: () => { Swal.showLoading(); }
-    });
 
     currentPortfolioData = [];
     portfolioGrandTotal = 0;
@@ -254,37 +262,46 @@ async function refreshPortfolioData() {
                 const totalVal = lastPrice * amount;
                 
                 portfolioGrandTotal += totalVal;
-
+                
                 let updateDate = '---';
                 if (data.t) {
                     const dateObj = new Date(data.t[data.t.length - 1] * 1000);
                     updateDate = dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
                 }
 
-                currentPortfolioData.push({
-                    symbol, amount, lastPrice, change, totalVal, updateDate
-                });
+                currentPortfolioData.push({ symbol, amount, lastPrice, change, totalVal, updateDate });
             }
         } catch (e) { console.error(e); }
     }
 }
 
-// Görünümü (Slider veya Tablo) ekrana basan fonksiyon
 function renderPortfolioContent(viewType) {
     const formattedTotal = portfolioGrandTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+    const spinClass = isRefreshing ? 'animate-spin' : '';
+    
     let contentHtml = '';
 
+    // Görünüm Başlığı ve Yenile Butonu (Ortak Kısım)
+    const headerHtml = `
+        <div class="text-center mb-8 pt-4 relative">
+            <p class="text-text-muted text-[10px] font-bold tracking-[0.3em] uppercase mb-2 opacity-60">Toplam Portföy</p>
+            <div class="flex items-center justify-center gap-3">
+                <h2 class="text-4xl font-black text-white tracking-tighter italic">₺${formattedTotal}</h2>
+                <button onclick="triggerRefresh('${viewType}')" class="text-accent-teal hover:text-white transition-colors">
+                    <span class="material-symbols-outlined font-bold text-[24px] ${spinClass}">refresh</span>
+                </button>
+            </div>
+        </div>
+    `;
+
     if (viewType === 'slider') {
-        // Slider HTML yapısı (Öncekiyle aynı)
         let cardsHtml = currentPortfolioData.map(item => {
             const colorClass = item.change >= 0 ? 'text-accent-teal' : 'text-loss-red';
             return `
                 <div class="p-5 bg-card-dark rounded-3xl border border-white/5 text-left min-w-[260px] m-2 shadow-2xl flex-shrink-0">
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-xl font-black text-white">${item.symbol}</h3>
-                        <div class="text-right">
-                            <span class="${colorClass} font-bold text-sm">%${item.change}</span>
-                        </div>
+                        <span class="${colorClass} font-bold text-sm">%${item.change}</span>
                     </div>
                     <div class="mt-4 pt-4 border-t border-white/5 flex justify-between">
                         <div><p class="text-text-muted text-[10px] font-bold uppercase">Adet</p><p class="text-white">${item.amount}</p></div>
@@ -298,19 +315,16 @@ function renderPortfolioContent(viewType) {
             <button onclick="renderPortfolioContent('table')" class="mt-4 px-6 py-2 bg-accent-teal/10 hover:bg-accent-teal/20 text-accent-teal rounded-full text-[11px] font-bold transition-all border border-accent-teal/20 tracking-widest uppercase">⚙️ Portföy Yönetimi</button>
         `;
     } else {
-        // TABLO GÖRÜNÜMÜ - Yenilenmiş Input ve Sembol Buton Yapısı
         let rowsHtml = currentPortfolioData.map(item => `
             <tr class="border-b border-white/5 text-xs">
                 <td class="py-3 font-bold text-white text-left tracking-tight">${item.symbol}</td>
                 <td class="py-3 text-right">
                     <input type="number" value="${item.amount}" onchange="updateAmount('${item.symbol}', this.value)" 
-                        class="bg-white/5 border border-white/10 rounded-lg w-20 text-right text-white text-xs px-2 py-1 focus:ring-1 focus:ring-accent-teal outline-none transition-all">
+                        class="bg-white/5 border border-white/10 rounded-lg w-20 text-right text-white text-xs px-2 py-1 outline-none">
                 </td>
-                <td class="py-3 text-right font-bold text-accent-teal">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</td>
+                <td class="py-3 text-right font-bold text-accent-teal font-mono">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</td>
                 <td class="py-3 text-right">
-                    <button onclick="deleteSymbol('${item.symbol}')" class="text-loss-red/60 hover:text-loss-red transition-colors pt-1">
-                        <span class="material-symbols-outlined text-[18px]">delete</span>
-                    </button>
+                    <button onclick="deleteSymbol('${item.symbol}')" class="text-loss-red/60 hover:text-loss-red transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
                 </td>
             </tr>
         `).join('');
@@ -318,30 +332,17 @@ function renderPortfolioContent(viewType) {
         contentHtml = `
             <div class="max-h-[250px] overflow-y-auto pr-2 no-scrollbar mb-4">
                 <table class="w-full text-text-muted">
-                    <thead>
-                        <tr class="text-[9px] uppercase tracking-[0.2em] border-b border-white/10 opacity-50">
-                            <th class="pb-3 text-left">Fon</th>
-                            <th class="pb-3 text-right">Adet</th>
-                            <th class="pb-3 text-right">Değer</th>
-                            <th class="pb-3 text-right"></th>
-                        </tr>
-                    </thead>
+                    <thead><tr class="text-[9px] uppercase tracking-[0.2em] border-b border-white/10 opacity-50"><th class="pb-3 text-left">Fon</th><th class="pb-3 text-right">Adet</th><th class="pb-3 text-right">Değer</th><th class="pb-3 text-right"></th></tr></thead>
                     <tbody>${rowsHtml}</tbody>
                 </table>
             </div>
-
             <div class="bg-white/[0.03] p-2 rounded-2xl flex gap-2 items-center mb-6 border border-white/5 shadow-inner">
-                <input id="newSymbol" type="text" placeholder="SEM" class="bg-transparent border-none text-white text-xs w-16 focus:ring-0 uppercase font-bold placeholder:text-white/20 px-3">
+                <input id="newSymbol" type="text" placeholder="SEM" class="bg-transparent border-none text-white text-xs w-16 focus:ring-0 uppercase font-bold px-3">
                 <div class="w-[1px] h-4 bg-white/10"></div>
-                <input id="newAmount" type="number" placeholder="Adet Girin" class="bg-transparent border-none text-white text-xs w-full focus:ring-0 placeholder:text-white/20 px-2">
-                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-8 w-8 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20">
-                    <span class="material-symbols-outlined font-bold text-[20px]">add</span>
-                </button>
+                <input id="newAmount" type="number" placeholder="Adet Girin" class="bg-transparent border-none text-white text-xs w-full focus:ring-0 px-2">
+                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-8 w-8 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20"><span class="material-symbols-outlined font-bold text-[20px]">add</span></button>
             </div>
-
-            <button onclick="renderPortfolioContent('slider')" class="mt-2 text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">
-                ← Kart Görünümüne Dön
-            </button>
+            <button onclick="renderPortfolioContent('slider')" class="mt-2 text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">← Kart Görünümüne Dön</button>
         `;
     }
 
@@ -351,13 +352,33 @@ function renderPortfolioContent(viewType) {
         showCloseButton: true,
         width: '400px',
         customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl' },
-        html: `
-            <div class="text-center mb-8 pt-4">
-                <p class="text-text-muted text-[10px] font-bold tracking-[0.3em] uppercase mb-2 opacity-60">Toplam Portföy</p>
-                <h2 class="text-4xl font-black text-white tracking-tighter italic">₺${formattedTotal}</h2>
-            </div>
-            ${contentHtml}
-        `
+        html: headerHtml + contentHtml
     });
 }
+
+// Veri Yönetim Fonksiyonları
+function updateAmount(symbol, newAmount) {
+    let fonBilgisi = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
+    fonBilgisi[symbol] = parseFloat(newAmount);
+    localStorage.setItem('fon_bilgisi', JSON.stringify(fonBilgisi));
+    triggerRefresh('table');
+}
+
+function deleteSymbol(symbol) {
+    let fonBilgisi = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
+    delete fonBilgisi[symbol];
+    localStorage.setItem('fon_bilgisi', JSON.stringify(fonBilgisi));
+    triggerRefresh('table');
+}
+
+function addNewSymbol() {
+    const s = document.getElementById('newSymbol').value.toUpperCase();
+    const a = document.getElementById('newAmount').value;
+    if (!s || !a) return;
+    let fb = JSON.parse(localStorage.getItem('fon_bilgisi') || '{}');
+    fb[s] = parseFloat(a);
+    localStorage.setItem('fon_bilgisi', JSON.stringify(fb));
+    triggerRefresh('table');
+}
+
 
