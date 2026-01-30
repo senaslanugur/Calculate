@@ -1,123 +1,108 @@
-        const STORAGE_KEY = "debit";
-        const STORAGE_TOTAL_KEY = "debit_total_percent";
-        const rowsContainer = document.getElementById("rowsContainer");
-        const karZararEl = document.getElementById("kar_zarar");
+function openDebitPopup() {
+    const STORAGE_KEY = "debit";
+    const STORAGE_TOTAL_KEY = "debit_total_percent";
 
-        // Toplamı hesapla ve ekrana yaz
-        function updateTotal() {
-            const amounts = Array.from(rowsContainer.querySelectorAll("input[type=number]"))
-                .map(input => parseFloat(input.value) || 0);
-
-            const total = amounts.reduce((sum, val) => sum + val, 0);
-            const percentStr = total.toFixed(2);
-
-            // Renk: pozitif yeşil, negatif kırmızı
-            if (total > 0) {
-                karZararEl.textContent = percentStr;
-                karZararEl.className = "text-2xl font-bold tracking-tight leading-tight text-red-500";
-            } else if (total < 0) {
-                karZararEl.textContent = percentStr.replace("-", "−"); // güzel tire
-                karZararEl.className = "text-2xl font-bold tracking-tight leading-tight text-red-500";
-            } else {
-                karZararEl.textContent = "0.00";
-                karZararEl.className = "text-2xl font-bold tracking-tight leading-tight text-slate-500 dark:text-slate-400";
-            }
-
-            // Toplam yüzdeyi de kaydet (isteğe bağlı)
-            localStorage.setItem(STORAGE_TOTAL_KEY, total.toFixed(2));
-        }
-
-        function saveToStorage() {
-            const data = Array.from(rowsContainer.children).map(row => ({
-                aciklama: row.querySelector("input[type=text]").value.trim(),
-                miktar: row.querySelector("input[type=number]").value.trim()
-            })).filter(item => item.aciklama || item.miktar);
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            updateTotal(); // Her kaydetmede toplam güncellensin
-        }
-
-        function createRow(data = { aciklama: "", miktar: "" }) {
-            const div = document.createElement("div");
-            div.className = "flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm dark:bg-slate-800/50";
-
-            div.innerHTML = `
-      <div class="flex-1">
-        <input class="w-full border-0 bg-transparent p-1 text-base placeholder:text-slate-500 focus:ring-0 dark:text-white"
-               placeholder="Açıklama Girin (örn: Fatura)" type="text" value="${data.aciklama || ''}">
-      </div>
-      <div class="w-px self-stretch bg-slate-200 dark:bg-slate-700"></div>
-      
-      <div class="w-28 flex justify-end">
-        <input class="w-20 border-0 bg-transparent px-2 py-1 text-right text-base tabular-nums focus:ring-0 dark:text-white
-                       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                       flex items-center justify-center"
-               style="height: 38px; line-height: 38px;"
-               placeholder="0" type="number" step="0.01" value="${data.miktar || ''}">
-      </div>
-
-      <button class="deleteBtn flex h-9 w-9 items-center justify-center rounded-md text-red-500 hover:bg-red-500/10">
-        <span class="material-symbols-outlined text-xl">delete</span>
-      </button>
+    // Popup içeriği (HTML yapısı)
+    const popupHtml = `
+        <div class="text-left font-display">
+            <div id="swalRowsContainer" class="flex flex-col gap-3 max-h-[50vh] overflow-y-auto p-2">
+                </div>
+            <div class="mt-4 p-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <button id="swalAddRow" class="flex items-center gap-1 text-sm font-bold text-accent-blue">
+                    <span class="material-icons-round text-lg">add_circle</span> Satır Ekle
+                </button>
+                <div class="text-right">
+                    <span class="text-xs text-text-muted uppercase">Toplam Borç:</span>
+                    <div id="swalTotal" class="text-xl font-bold text-red-500">₺0.00</div>
+                </div>
+            </div>
+        </div>
     `;
 
-            const inputs = div.querySelectorAll("input");
-            inputs.forEach(input => {
-                input.addEventListener("input", () => {
-                    saveToStorage();
+    Swal.fire({
+        title: 'Borç Yönetimi',
+        html: popupHtml,
+        width: '500px',
+        showConfirmButton: true,
+        confirmButtonText: 'Kapat ve Kaydet',
+        confirmButtonColor: '#137fec',
+        background: document.documentElement.classList.contains('dark') ? '#1a2131' : '#fff',
+        color: document.documentElement.classList.contains('dark') ? '#fff' : '#000',
+        didOpen: () => {
+            const container = document.getElementById('swalRowsContainer');
+            const totalEl = document.getElementById('swalTotal');
+
+            // --- Yardımcı Fonksiyonlar ---
+            const calculateTotal = () => {
+                const rows = container.querySelectorAll('.debit-row');
+                let total = 0;
+                rows.forEach(row => {
+                    const val = parseFloat(row.querySelector('.amount-input').value) || 0;
+                    total += val;
                 });
+                totalEl.textContent = '₺' + total.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                localStorage.setItem(STORAGE_TOTAL_KEY, total.toFixed(2));
+                
+                // Ana sayfadaki borç değerini de anlık güncelle
+                const mainDebitEl = document.getElementById("toplam_borc");
+                if(mainDebitEl) mainDebitEl.textContent = '₺' + total.toLocaleString('tr-TR');
+            };
+
+            const saveData = () => {
+                const rows = container.querySelectorAll('.debit-row');
+                const data = Array.from(rows).map(row => ({
+                    aciklama: row.querySelector('.desc-input').value.trim(),
+                    miktar: row.querySelector('.amount-input').value.trim()
+                })).filter(item => item.aciklama || item.miktar);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                calculateTotal();
+            };
+
+            const createRow = (data = { aciklama: "", miktar: "" }) => {
+                const div = document.createElement("div");
+                div.className = "debit-row flex items-center gap-2 bg-gray-100 dark:bg-slate-800 p-2 rounded-lg";
+                div.innerHTML = `
+                    <input type="text" placeholder="Fatura, Kira vb." 
+                        class="desc-input flex-1 bg-transparent border-none text-sm focus:ring-0 dark:text-white" 
+                        value="${data.aciklama}">
+                    <input type="number" placeholder="0" 
+                        class="amount-input w-24 bg-transparent border-none text-right text-sm font-bold focus:ring-0 dark:text-white" 
+                        value="${data.miktar}">
+                    <button class="delete-row text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 p-1 rounded">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                `;
+
+                // Event Listeners
+                div.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', saveData);
+                });
+                div.querySelector('.delete-row').addEventListener('click', () => {
+                    div.remove();
+                    saveData();
+                });
+
+                return div;
+            };
+
+            // --- İlk Yükleme ---
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            if (saved.length > 0) {
+                saved.forEach(item => container.appendChild(createRow(item)));
+            } else {
+                container.appendChild(createRow());
+            }
+
+            document.getElementById('swalAddRow').addEventListener('click', () => {
+                container.appendChild(createRow());
+                container.scrollTop = container.scrollHeight;
             });
 
-            div.querySelector(".deleteBtn").addEventListener("click", () => {
-                div.remove();
-                saveToStorage();
-            });
-
-            return div;
+            calculateTotal();
         }
+    }).then(() => {
+        // Popup kapandığında ana sayfadaki donut chart ve diğer verileri tazele
+        if (typeof calculate === "function") calculate();
+    });
+}
 
-        function loadFromStorage() {
-            rowsContainer.innerHTML = "";
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                try {
-                    const items = JSON.parse(saved);
-                    items.forEach(item => {
-                        if (item.aciklama || item.miktar) {
-                            rowsContainer.appendChild(createRow(item));
-                        }
-                    });
-                } catch (e) {
-                    console.error("Veri bozuk", e);
-                }
-            }
-
-            if (rowsContainer.children.length === 0) {
-                rowsContainer.appendChild(createRow());
-            }
-
-            // Önceki toplamı geri yükle (isteğe bağlı)
-            const savedTotal = localStorage.getItem(STORAGE_TOTAL_KEY);
-            if (savedTotal) {
-                const total = parseFloat(savedTotal);
-                karZararEl.textContent = total >= 0 ? "+" + total.toFixed(2) + "%" : total.toFixed(2) + "%";
-                karZararEl.className = total > 0 ? "text-2xl font-bold tracking-tight leading-tight text-green-500" :
-                    total < 0 ? "text-2xl font-bold tracking-tight leading-tight text-red-500" :
-                        "text-2xl font-bold tracking-tight leading-tight text-slate-500 dark:text-slate-400";
-            }
-
-            updateTotal(); // En güncel hali göster
-        }
-
-        document.getElementById("addRowBtn").addEventListener("click", () => {
-            rowsContainer.appendChild(createRow());
-            saveToStorage();
-        });
-
-        document.getElementById("saveBtn").addEventListener("click", () => {
-            saveToStorage();
-            // alert("Tüm veriler ve toplam güncellendi!");
-            // calculate();
-        });
-
-        window.addEventListener("load", loadFromStorage);

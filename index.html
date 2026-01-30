@@ -172,7 +172,7 @@
             </div>
             <br>
             <div class="flex gap-4">
-              <div class="flex-1 flex min-w-[158px] flex-col gap-2 rounded-l-xl p-4 bg-card-dark">
+              <div class="flex-1 flex min-w-[158px] flex-col gap-2 rounded-l-xl p-4 bg-card-dark" onclick="openDebitPopup()">
                 <p class="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-normal">Aylık Borç</p>
                 <p class="text-red-500 tracking-tight text-2xl font-bold leading-tight" id="toplam_borc">₺0</p>
               </div>
@@ -322,10 +322,12 @@
         <span class="material-icons-round">pie_chart</span>
         <span class="text-[10px] font-medium">Dağılım</span>
       </a>
-      <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all" href="./debit.html">
+      <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all cursor-pointer"
+       onclick="showPortfolioSlider()">
         <span class="material-icons-round">payments</span>
-        <span class="text-[10px] font-medium">Borçlar</span>
+        <span class="text-[10px] font-medium">Fonlar</span>
       </a>
+
       <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all"
         href="./expenses.html">
         <span class="material-icons-round">receipt_long</span>
@@ -338,6 +340,7 @@
 <script type="text/javascript" src="./Line_Chart.js"></script>
 <script type="text/javascript" src="./day_date_graph.js"></script>
 <script type="text/javascript" src="./bar_graph.js"></script>
+<script src="./debit_manage.js"></script>
 <script src="./edit_labels.js"></script>
 
 <!-- <script type="text/javascript" src="./fetch_data.js"></script>-->
