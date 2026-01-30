@@ -314,37 +314,69 @@ function renderPortfolioContent(viewType) {
             <div id="slider-container" class="flex overflow-x-auto pb-4 no-scrollbar" style="scroll-snap-type: x mandatory;">${cardsHtml}</div>
             <button onclick="renderPortfolioContent('table')" class="mt-4 px-6 py-2 bg-accent-teal/10 hover:bg-accent-teal/20 text-accent-teal rounded-full text-[11px] font-bold transition-all border border-accent-teal/20 tracking-widest uppercase">⚙️ Portföy Yönetimi</button>
         `;
-    } else {
-        let rowsHtml = currentPortfolioData.map(item => `
-            <tr class="border-b border-white/5 text-xs">
-                <td class="py-3 font-bold text-white text-left tracking-tight">${item.symbol}</td>
-                <td class="py-3 text-right">
-                    <input type="number" value="${item.amount}" onchange="updateAmount('${item.symbol}', this.value)" 
-                        class="bg-white/5 border border-white/10 rounded-lg w-20 text-right text-white text-xs px-2 py-1 outline-none">
-                </td>
-                <td class="py-3 text-right font-bold text-accent-teal font-mono">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</td>
-                <td class="py-3 text-right">
-                    <button onclick="deleteSymbol('${item.symbol}')" class="text-loss-red/60 hover:text-loss-red transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                </td>
-            </tr>
-        `).join('');
+   } else {
+        // TABLO GÖRÜNÜMÜ - % Değişim Kolonu Eklendi
+        let rowsHtml = currentPortfolioData.map(item => {
+            const colorClass = item.change >= 0 ? 'text-accent-teal' : 'text-loss-red';
+            const arrow = item.change >= 0 ? '▲' : '▼';
+            
+            return `
+                <tr class="border-b border-white/5 text-xs">
+                    <td class="py-3 font-bold text-white text-left tracking-tight">
+                        ${item.symbol}
+                        <div class="text-[9px] opacity-40 font-normal mt-0.5">${item.updateDate}</div>
+                    </td>
+                    <td class="py-3 text-right">
+                        <input type="number" value="${item.amount}" onchange="updateAmount('${item.symbol}', this.value)" 
+                            class="bg-white/5 border border-white/10 rounded-lg w-16 text-right text-white text-[11px] px-2 py-1 outline-none focus:border-accent-teal/50 transition-all">
+                    </td>
+                    <td class="py-3 text-right">
+                        <div class="font-bold text-white text-[11px]">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
+                        <div class="${colorClass} text-[10px] font-medium flex items-center justify-end gap-0.5">
+                            ${arrow} %${Math.abs(item.change)}
+                        </div>
+                    </td>
+                    <td class="py-3 text-right">
+                        <button onclick="deleteSymbol('${item.symbol}')" class="text-loss-red/40 hover:text-loss-red transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
         contentHtml = `
-            <div class="max-h-[250px] overflow-y-auto pr-2 no-scrollbar mb-4">
+            <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar mb-4">
                 <table class="w-full text-text-muted">
-                    <thead><tr class="text-[9px] uppercase tracking-[0.2em] border-b border-white/10 opacity-50"><th class="pb-3 text-left">Fon</th><th class="pb-3 text-right">Adet</th><th class="pb-3 text-right">Değer</th><th class="pb-3 text-right"></th></tr></thead>
-                    <tbody>${rowsHtml}</tbody>
+                    <thead>
+                        <tr class="text-[9px] uppercase tracking-[0.2em] border-b border-white/10 opacity-50">
+                            <th class="pb-3 text-left">Fon / Tarih</th>
+                            <th class="pb-3 text-right">Adet</th>
+                            <th class="pb-3 text-right">Değer & Değişim</th>
+                            <th class="pb-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/[0.02]">
+                        ${rowsHtml}
+                    </tbody>
                 </table>
             </div>
+
             <div class="bg-white/[0.03] p-2 rounded-2xl flex gap-2 items-center mb-6 border border-white/5 shadow-inner">
                 <input id="newSymbol" type="text" placeholder="SEM" class="bg-transparent border-none text-white text-xs w-16 focus:ring-0 uppercase font-bold px-3">
                 <div class="w-[1px] h-4 bg-white/10"></div>
                 <input id="newAmount" type="number" placeholder="Adet Girin" class="bg-transparent border-none text-white text-xs w-full focus:ring-0 px-2">
-                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-8 w-8 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20"><span class="material-symbols-outlined font-bold text-[20px]">add</span></button>
+                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-8 w-8 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20">
+                    <span class="material-symbols-outlined font-bold text-[20px]">add</span>
+                </button>
             </div>
-            <button onclick="renderPortfolioContent('slider')" class="mt-2 text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">← Kart Görünümüne Dön</button>
+
+            <button onclick="renderPortfolioContent('slider')" class="mt-2 text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">
+                ← Kart Görünümüne Dön
+            </button>
         `;
     }
+
 
     Swal.fire({
         background: '#0b0f19',
