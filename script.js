@@ -28,68 +28,92 @@ function addDayDate(tl, usd) {
 
 
 
-function calculate(){
-
-  const staff_1 = parseFloat(document.getElementById("staff-1").value);
-  const staff_2 = parseFloat(document.getElementById("staff-2").value);
-  const staff_3 = parseFloat(document.getElementById("staff-3").value);
-  const staff_4 = parseFloat(document.getElementById("staff-4").value);
-  const staff_5 = parseFloat(document.getElementById("staff-5").value);
-  const staff_6 = parseFloat(document.getElementById("staff-6").value);
-  const staff_7 = parseFloat(document.getElementById("staff-7").value);
+function calculate() {
+  const staff_1 = parseFloat(document.getElementById("staff-1").value) || 0;
+  const staff_2 = parseFloat(document.getElementById("staff-2").value) || 0;
+  const staff_3 = parseFloat(document.getElementById("staff-3").value) || 0;
+  const staff_4 = parseFloat(document.getElementById("staff-4").value) || 0;
+  const staff_5 = parseFloat(document.getElementById("staff-5").value) || 0;
+  const staff_6 = parseFloat(document.getElementById("staff-6").value) || 0;
+  const staff_7 = parseFloat(document.getElementById("staff-7").value) || 0;
 
   const borc_bilgisi = "debit_total_percent";
-  const total_borc = localStorage.getItem(borc_bilgisi);
+  const total_borc = parseFloat(localStorage.getItem(borc_bilgisi)) || 0;
 
-  let all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7
-  if(total_borc){
-     all_amount = all_amount - total_borc
-  }
+  let all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7;
+  all_amount = all_amount - total_borc;
 
-
-   
-  old_amount = parseFloat(localStorage.getItem("all_amount"))
-
-  localStorage.setItem("all_amount",all_amount)
+  const old_amount = parseFloat(localStorage.getItem("all_amount")) || 0;
+  localStorage.setItem("all_amount", all_amount);
 
   const values = {
-   "staff_1":staff_1,
-   "staff_2":staff_2,
-   "staff_3":staff_3,
-   "staff_4":staff_4,
-   "staff_5":staff_5,
-   "staff_6":staff_6,
-   "staff_7":staff_7,
+    "staff_1": staff_1, "staff_2": staff_2, "staff_3": staff_3,
+    "staff_4": staff_4, "staff_5": staff_5, "staff_6": staff_6, "staff_7": staff_7,
+  };
 
-  }
+  localStorage.setItem("values", JSON.stringify(values));
 
-  localStorage.setItem("values",JSON.stringify(values))
+  const url = `https://api.frankfurter.app/latest?amount=${all_amount}&from=TRY&to=USD`;
+  const isDark = document.documentElement.classList.contains('dark');
 
-  console.log(values)
-  const url = "https://api.frankfurter.app/latest?amount="+all_amount+"&from=TRY&to=USD"
+  $.ajax({
+    url: url,
+    async: false,
+    success: function(result) {
+      const isIncreased = all_amount >= old_amount;
+      const diff = all_amount - old_amount;
 
-  $.ajax({url: url, async:false, success: function(result){
+      Swal.fire({
+        title: `<span style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.02em;">
+                  ${isIncreased ? 'VARLIKLAR ARTTI' : 'VARLIKLAR AZALDI'}
+                </span>`,
+        html: `
+          <div class="flex flex-col gap-4 p-2 font-display">
+            <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <p class="text-[10px] font-bold text-muted uppercase tracking-widest mb-1 text-center">Güncel Toplam (TRY)</p>
+              <p class="text-3xl font-black text-white text-center">₺${parseFloat(result.amount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
+            </div>
 
-      if( old_amount < all_amount || old_amount == all_amount){
-        Swal.fire({
-          title: "Total Amount, increased",
-          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseFloat(result.amount),
-          icon: "success",
-          button: "Kapat",
-        })
-      } else {
-        Swal.fire({
-          title: "Total Amount, decreased",
-          html: "<b>USD: </b>"+ result.rates.USD + "<br><b>TRY: </b>" +  parseFloat(result.amount) + "<br><b>PrevAmount: </b>" + old_amount,
-          icon: "warning",
-          button: "Kapat",
-        })
-      }
-      addDayDate(result.amount, result.rates.USD)
-  }});
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
+                <p class="text-[9px] font-bold text-muted uppercase mb-1">Dolar Karşılığı</p>
+                <p class="text-sm font-bold text-accent-blue">$${result.rates.USD.toFixed(2)}</p>
+              </div>
+              <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
+                <p class="text-[9px] font-bold text-muted uppercase mb-1">Değişim</p>
+                <p class="text-sm font-bold ${isIncreased ? 'text-accent-teal' : 'text-loss-red'}">
+                  ${isIncreased ? '+' : ''}₺${diff.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+            </div>
 
-  get()
+            ${!isIncreased ? `
+            <div class="text-[11px] text-text-muted text-center mt-2 italic">
+              Önceki miktar: ₺${old_amount.toLocaleString("tr-TR")}
+            </div>` : ''}
+          </div>
+        `,
+        icon: isIncreased ? "success" : "warning",
+        iconColor: isIncreased ? "#00c49a" : "#ff4d4d",
+        background: isDark ? '#1a2131' : '#f8fafc',
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        confirmButtonText: 'TAMAM',
+        confirmButtonColor: '#137fec',
+        customClass: {
+          popup: 'rounded-3xl border border-white/10 shadow-2xl',
+          confirmButton: 'rounded-xl px-10 py-3 font-bold tracking-wide'
+        }
+      });
+
+      addDayDate(result.amount, result.rates.USD);
+    }
+  });
+
+  get();
 }
+
+
+
 
 function get(){
   var values = JSON.parse(localStorage.getItem("values"))
