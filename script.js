@@ -111,6 +111,7 @@ function calculate() {
 
   get();
   donut_and_init()
+  lineGraph()
 }
 
 
