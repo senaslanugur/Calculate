@@ -37,9 +37,45 @@ function calculate() {
   const staff_6 = parseFloat(document.getElementById("staff-6").value) || 0;
   const staff_7 = parseFloat(document.getElementById("staff-7").value) || 0;
 
+  // --- BORÇ KONTROL MANTIĞI ---
+  const rawDebits = localStorage.getItem("debit");
+  let todayDebtInfo = "";
+  let todayTotalDebt = 0;
+
+  if (rawDebits) {
+    const debits = JSON.parse(rawDebits);
+    const today = new Date();
+    const d = today.getDate();
+    const m = today.getMonth() + 1;
+    const y = today.getFullYear();
+
+    debits.forEach(item => {
+      if (item.aciklama && item.aciklama.includes("-")) {
+        const datePart = item.aciklama.split("-")[1].trim();
+        const [bd, bm, by] = datePart.split('.').map(num => parseInt(num));
+        if (bd === d && bm === m && by === y) {
+          todayTotalDebt += parseFloat(item.miktar || 0);
+        }
+      }
+    });
+  }
+
+  if (todayTotalDebt > 0) {
+    todayDebtInfo = `
+      <div class="mt-3 p-3 bg-loss-red/10 border border-loss-red/20 rounded-xl animate-pulse">
+        <p class="text-[10px] font-bold text-loss-red uppercase tracking-widest mb-1">⚠️ BUGÜN ÖDEME VAR</p>
+        <p class="text-sm font-black text-loss-red">₺${todayTotalDebt.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
+      </div>`;
+  } else {
+    todayDebtInfo = `
+      <div class="mt-3 p-2 bg-accent-teal/10 border border-accent-teal/20 rounded-xl">
+        <p class="text-[9px] font-bold text-accent-teal uppercase tracking-widest">✅ BUGÜN ÖDEME YOK</p>
+      </div>`;
+  }
+  // --- BORÇ KONTROL BİTİŞ ---
+
   const borc_bilgisi = "debit_total_percent";
   const total_borc = parseFloat(localStorage.getItem(borc_bilgisi)) || 0;
-
   let all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7;
   all_amount = all_amount - total_borc;
 
@@ -50,7 +86,6 @@ function calculate() {
     "staff_1": staff_1, "staff_2": staff_2, "staff_3": staff_3,
     "staff_4": staff_4, "staff_5": staff_5, "staff_6": staff_6, "staff_7": staff_7,
   };
-
   localStorage.setItem("values", JSON.stringify(values));
 
   const url = `https://api.frankfurter.app/latest?amount=${all_amount}&from=TRY&to=USD`;
@@ -62,7 +97,6 @@ function calculate() {
     success: function(result) {
       const isIncreased = all_amount >= old_amount;
       const diff = all_amount - old_amount;
-
       Swal.fire({
         title: `<span style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.02em;">
                   ${isIncreased ? 'VARLIKLAR ARTTI' : 'VARLIKLAR AZALDI'}
@@ -73,7 +107,6 @@ function calculate() {
               <p class="text-[10px] font-bold text-muted uppercase tracking-widest mb-1 text-center">Güncel Toplam (TRY)</p>
               <p class="text-3xl font-black text-white text-center">₺${parseFloat(result.amount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
             </div>
-
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
                 <p class="text-[9px] font-bold text-muted uppercase mb-1">Dolar Karşılığı</p>
@@ -86,8 +119,7 @@ function calculate() {
                 </p>
               </div>
             </div>
-
-            ${!isIncreased ? `
+            ${todayDebtInfo} ${!isIncreased ? `
             <div class="text-[11px] text-text-muted text-center mt-2 italic">
               Önceki miktar: ₺${old_amount.toLocaleString("tr-TR")}
             </div>` : ''}
@@ -104,15 +136,16 @@ function calculate() {
           confirmButton: 'rounded-xl px-10 py-3 font-bold tracking-wide'
         }
       });
-
       addDayDate(result.amount, result.rates.USD);
     }
   });
-
   get();
-  donut_and_init()
-  lineGraph()
+  donut_and_init();
+  lineGraph();
 }
+
+
+
 
 
 
@@ -226,7 +259,6 @@ function updateBorrowAndExpenseDisplays() {
 
 // --- Sayfa hazır olduğunda güncelle ---
 document.addEventListener("DOMContentLoaded", () => {
-  checkTodayDebts();
   updateBorrowAndExpenseDisplays();
   
 
@@ -609,59 +641,5 @@ function donut_and_init(){
   })();
   // --- Bitiş ---
 }
-
-
-// --- Borç Kontrol Fonksiyonu ---
-function checkTodayDebts() {
-  try {
-    const rawDebits = localStorage.getItem("debit");
-    if (!rawDebits) return;
-
-    // Veriyi parse et
-    const debits = JSON.parse(rawDebits);
-    if (!Array.isArray(debits)) return;
-
-    const today = new Date();
-    const day = today.getDate(); // 3
-    const month = today.getMonth() + 1; // 2
-    const year = today.getFullYear(); // 2026
-
-    let todayTotal = 0;
-    let hasDebtToday = false;
-
-    debits.forEach(item => {
-      if (item.aciklama && item.aciklama.includes("-")) {
-        // Açıklamayı böl ve tarih kısmını al
-        const parts = item.aciklama.split("-");
-        const datePart = parts[1].trim(); // "3.02.2026"
-
-        // Borç tarihindeki gün, ay ve yılı ayırıyoruz
-        const [d, m, y] = datePart.split('.').map(num => parseInt(num));
-
-        // Bugünün değerleriyle karşılaştır (Sayısal olarak karşılaştırmak 03 ile 3 farkını ortadan kaldırır)
-        if (d === day && m === month && y === year) {
-          hasDebtToday = true;
-          todayTotal += parseFloat(item.miktar || 0);
-        }
-      }
-    });
-
-    if (hasDebtToday) {
-      const isDark = document.documentElement.classList.contains('dark');
-      Swal.fire({
-        title: 'Borcunuz Var!',
-        html: `Bugün ödenmesi gereken toplam miktar: <br><b style="font-size: 1.5rem; color: #ff4d4d;">₺${todayTotal.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</b>`,
-        icon: 'warning',
-        confirmButtonText: 'TAMAM',
-        confirmButtonColor: '#137fec',
-        background: isDark ? '#1a2131' : '#f8fafc',
-        color: isDark ? '#f1f5f9' : '#1e293b'
-      });
-    }
-  } catch (err) {
-    console.error("Borç kontrol hatası:", err);
-  }
-}
-
 
 
