@@ -226,7 +226,9 @@ function updateBorrowAndExpenseDisplays() {
 
 // --- Sayfa hazır olduğunda güncelle ---
 document.addEventListener("DOMContentLoaded", () => {
+  checkTodayDebts();
   updateBorrowAndExpenseDisplays();
+  
 
   // localStorage değişikliklerinde otomatik güncelleme (başka sekmede değişirse)
   window.addEventListener("storage", (e) => {
@@ -607,3 +609,59 @@ function donut_and_init(){
   })();
   // --- Bitiş ---
 }
+
+
+// --- Borç Kontrol Fonksiyonu ---
+function checkTodayDebts() {
+  try {
+    const rawDebits = localStorage.getItem("debit");
+    if (!rawDebits) return;
+
+    // Veriyi parse et
+    const debits = JSON.parse(rawDebits);
+    if (!Array.isArray(debits)) return;
+
+    const today = new Date();
+    const day = today.getDate(); // 3
+    const month = today.getMonth() + 1; // 2
+    const year = today.getFullYear(); // 2026
+
+    let todayTotal = 0;
+    let hasDebtToday = false;
+
+    debits.forEach(item => {
+      if (item.aciklama && item.aciklama.includes("-")) {
+        // Açıklamayı böl ve tarih kısmını al
+        const parts = item.aciklama.split("-");
+        const datePart = parts[1].trim(); // "3.02.2026"
+
+        // Borç tarihindeki gün, ay ve yılı ayırıyoruz
+        const [d, m, y] = datePart.split('.').map(num => parseInt(num));
+
+        // Bugünün değerleriyle karşılaştır (Sayısal olarak karşılaştırmak 03 ile 3 farkını ortadan kaldırır)
+        if (d === day && m === month && y === year) {
+          hasDebtToday = true;
+          todayTotal += parseFloat(item.miktar || 0);
+        }
+      }
+    });
+
+    if (hasDebtToday) {
+      const isDark = document.documentElement.classList.contains('dark');
+      Swal.fire({
+        title: 'Borcunuz Var!',
+        html: `Bugün ödenmesi gereken toplam miktar: <br><b style="font-size: 1.5rem; color: #ff4d4d;">₺${todayTotal.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</b>`,
+        icon: 'warning',
+        confirmButtonText: 'TAMAM',
+        confirmButtonColor: '#137fec',
+        background: isDark ? '#1a2131' : '#f8fafc',
+        color: isDark ? '#f1f5f9' : '#1e293b'
+      });
+    }
+  } catch (err) {
+    console.error("Borç kontrol hatası:", err);
+  }
+}
+
+
+
