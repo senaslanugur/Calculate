@@ -227,30 +227,6 @@ function get(){
 }
 
 
-
-
-function get_all_info(){
-
-   const al_date = localStorage.getItem("day_data_set")
-
-        Swal.fire({
-          title: "Tüm Veriler Güncellemeyi Yapınız.",
-          html: '<textarea id="all_db" name="all_db" id="all_db" rows="4" cols="50"> '+
-                    al_date+
-                '</textarea>',
-          icon: "info",
-          button: "Kapat",
-        }).then((result) => {
-
-          const all_db = document.getElementById("all_db").value
-          localStorage.setItem("day_data_set",all_db)
-
-        })
-
-
-}
-
-
 get()
 
 // --- TL Formatlama Yardımcı Fonksiyonu ---
@@ -1070,6 +1046,104 @@ function copyToClipboard() {
     const btn = event.target;
     btn.innerText = "KOPYALANDI!";
     setTimeout(() => { btn.innerText = "KOPYALA"; }, 2000);
+}
+
+///// checklisttt
+async function showChecklist() {
+    const isDark = document.documentElement.classList.contains('dark');
+    let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+
+    const renderList = () => {
+        if (checklist.length === 0) {
+            return `<div class="py-10 text-center opacity-30 text-xs italic">Henüz bir not eklenmedi.</div>`;
+        }
+        return checklist.map((item, index) => `
+            <div class="flex items-center justify-between p-3 mb-2 bg-white/5 border border-white/5 rounded-2xl transition-all ${item.completed ? 'opacity-50' : ''}">
+                <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleCheckItem(${index})">
+                    <span class="material-symbols-outlined text-[20px] ${item.completed ? 'text-accent-teal' : 'text-muted'}">
+                        ${item.completed ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span class="text-[12px] font-medium ${item.completed ? 'line-through text-muted' : 'text-white'}">
+                        ${item.text}
+                    </span>
+                </div>
+                <div class="flex gap-2 ml-2">
+                    <button onclick="editCheckItem(${index})" class="text-accent-blue opacity-50 hover:opacity-100 transition-all">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                    <button onclick="deleteCheckItem(${index})" class="text-loss-red opacity-50 hover:opacity-100 transition-all">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    Swal.fire({
+        title: '<div class="flex flex-col"><span class="text-[10px] font-bold text-accent-teal tracking-[0.3em] uppercase opacity-60">Kişisel Notlar</span><span class="text-xl font-black italic uppercase">CHECKLIST</span></div>',
+        html: `
+            <div class="flex gap-2 mb-6">
+                <input id="new_check_item" placeholder="Yeni bir not veya görev yaz..." 
+                    class="flex-1 bg-black/10 dark:bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[12px] focus:ring-1 focus:ring-accent-teal outline-none text-white">
+                <button onclick="addCheckItem()" class="bg-accent-teal text-black rounded-xl px-4 hover:scale-105 transition-all shadow-lg shadow-accent-teal/20">
+                    <span class="material-symbols-outlined font-bold">add</span>
+                </button>
+            </div>
+            <div id="checklist_container" class="max-h-[350px] overflow-y-auto pr-2 no-scrollbar text-left">
+                ${renderList()}
+            </div>
+        `,
+        width: '500px',
+        background: isDark ? '#0b0f19' : '#ffffff',
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-4xl' }
+    });
+}
+
+// --- Yardımcı Fonksiyonlar ---
+
+function addCheckItem() {
+    const input = document.getElementById('new_check_item');
+    const text = input.value.trim();
+    if (!text) return;
+
+    let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+    checklist.push({ text: text, completed: false });
+    localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    showChecklist(); // Ekranı yenile
+}
+
+function toggleCheckItem(index) {
+    let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+    checklist[index].completed = !checklist[index].completed;
+    localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    showChecklist();
+}
+
+async function editCheckItem(index) {
+    let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+    const { value: newText } = await Swal.fire({
+        title: 'Notu Düzenle',
+        input: 'text',
+        inputValue: checklist[index].text,
+        showCancelButton: true,
+        confirmButtonColor: '#14B8A6'
+    });
+
+    if (newText) {
+        checklist[index].text = newText;
+        localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+        showChecklist();
+    }
+}
+
+function deleteCheckItem(index) {
+    let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+    checklist.splice(index, 1);
+    localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    showChecklist();
 }
 
 
