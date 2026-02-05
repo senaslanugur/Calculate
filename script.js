@@ -712,24 +712,33 @@ function showHistoryChart() {
   const usdValues = chartData.map(d => d.dolar);
 
   const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#f1f5f9' : '#1e293b';
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
   Swal.fire({
-    title: '<span class="text-xl font-black italic tracking-tighter">VARLIK ANALİZİ</span>',
+    title: '<div class="flex flex-col"><span class="text-xs font-bold text-accent-teal tracking-[0.3em] uppercase opacity-60">Finansal Geçmiş</span><span class="text-xl font-black italic">15 GÜNLÜK DEĞİŞİM</span></div>',
     html: `
-      <div class="w-full mt-4">
-        <canvas id="historyChart" style="max-height: 300px;"></canvas>
+      <div class="w-full mt-2 bg-black/5 dark:bg-white/5 rounded-3xl p-4 border border-white/10">
+        <canvas id="historyChart" style="max-height: 350px;"></canvas>
       </div>
-      <div class="grid grid-cols-2 gap-2 mt-4 text-[10px] font-bold uppercase tracking-widest">
-        <div class="p-2 bg-accent-teal/10 rounded-lg text-accent-teal">● TL Bazlı Gelişim</div>
-        <div class="p-2 bg-accent-blue/10 rounded-lg text-accent-blue">● USD Bazlı Gelişim</div>
+      <div class="flex justify-around mt-4">
+        <div class="text-center">
+          <p class="text-[9px] text-muted uppercase font-bold">En Yüksek (TL)</p>
+          <p class="text-sm font-black text-accent-teal">₺${Math.max(...tlValues).toLocaleString('tr-TR')}</p>
+        </div>
+        <div class="text-center">
+          <p class="text-[9px] text-muted uppercase font-bold">En Düşük (TL)</p>
+          <p class="text-sm font-black text-loss-red">₺${Math.min(...tlValues).toLocaleString('tr-TR')}</p>
+        </div>
       </div>
     `,
-    width: '500px',
-    background: isDark ? '#0b0f19' : '#ffffff',
-    color: isDark ? '#f1f5f9' : '#1e293b',
+    width: '600px',
+    background: isDark ? '#0b0f19' : '#f8fafc',
+    color: textColor,
     showConfirmButton: true,
     confirmButtonText: 'KAPAT',
     confirmButtonColor: '#137fec',
+    customClass: { popup: 'rounded-[2rem] border border-white/10 shadow-3xl' },
     didOpen: () => {
       const ctx = document.getElementById('historyChart').getContext('2d');
       new Chart(ctx, {
@@ -738,40 +747,80 @@ function showHistoryChart() {
           labels: labels,
           datasets: [
             {
-              label: '₺ TL',
+              label: 'TL Değeri',
               data: tlValues,
               borderColor: '#14B8A6',
               backgroundColor: 'rgba(20, 184, 166, 0.1)',
-              borderWidth: 3,
+              borderWidth: 4,
+              pointBackgroundColor: '#14B8A6',
+              pointRadius: 4,
+              pointHoverRadius: 8,
               fill: true,
               tension: 0.4,
-              yAxisID: 'y'
+              yAxisID: 'yTL'
             },
             {
-              label: '$ USD',
+              label: 'USD Değeri',
               data: usdValues,
               borderColor: '#3B82F6',
               borderWidth: 2,
               borderDash: [5, 5],
+              pointRadius: 2,
               fill: false,
               tension: 0.4,
-              yAxisID: 'y1'
+              yAxisID: 'yUSD'
             }
           ]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } },
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              backgroundColor: isDark ? '#1a2131' : '#fff',
+              titleColor: isDark ? '#fff' : '#000',
+              bodyColor: isDark ? '#cbd5e1' : '#475569',
+              borderColor: '#137fec',
+              borderWidth: 1,
+              padding: 12,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) label += ': ';
+                  if (context.parsed.y !== null) {
+                    label += context.datasetIndex === 0 
+                      ? new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(context.parsed.y)
+                      : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                  }
+                  return label;
+                }
+              }
+            }
+          },
           scales: {
-            y: {
-              display: false, // Sol ekseni gizle (temiz görünüm)
+            yTL: {
               type: 'linear',
               position: 'left',
+              grid: { color: gridColor },
+              ticks: { 
+                color: '#14B8A6', 
+                font: { size: 10, weight: 'bold' },
+                callback: (value) => '₺' + value.toLocaleString('tr-TR')
+              }
             },
-            y1: {
-              display: false, // Sağ ekseni gizle
+            yUSD: {
               type: 'linear',
               position: 'right',
+              grid: { display: false },
+              ticks: { 
+                color: '#3B82F6', 
+                font: { size: 10, weight: 'bold' },
+                callback: (value) => '$' + value
+              }
             },
             x: {
               grid: { display: false },
@@ -783,3 +832,5 @@ function showHistoryChart() {
     }
   });
 }
+
+
