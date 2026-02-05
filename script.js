@@ -37,6 +37,51 @@ function calculate() {
   const staff_6 = parseFloat(document.getElementById("staff-6").value) || 0;
   const staff_7 = parseFloat(document.getElementById("staff-7").value) || 0;
 
+  // --- HAFTALIK KAR/ZARAR HESAPLAMA ---
+  const dayDataSet = JSON.parse(localStorage.getItem("day_data_set")) || [];
+  let weeklyPerformanceHtml = "";
+
+  if (dayDataSet.length > 0) {
+    const todayDate = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(todayDate.getDate() - 7);
+
+    // Verileri tarihe göre sıralayalım
+    const sortedData = dayDataSet
+      .map(item => ({ ...item, dateObj: new Date(item.date) }))
+      .sort((a, b) => a.dateObj - b.dateObj);
+
+    // 7 gün önceki en yakın veriyi bulalım
+    const startEntry = sortedData.find(item => item.dateObj >= sevenDaysAgo) || sortedData[0];
+    
+    // Şu anki toplam (borç düşülmeden önceki staff toplamı üzerinden veya result.amount üzerinden gidebiliriz)
+    // Ancak daha tutarlı olması için prompttaki all_amount (borç düşülmüş) üzerinden gidelim.
+    // Şimdilik hesaplama devam ederken "tahmini" bir all_amount oluşturalım:
+    const temp_borc = parseFloat(localStorage.getItem("debit_total_percent")) || 0;
+    const current_total = (staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7) - temp_borc;
+
+    const weeklyDiff = current_total - startEntry.turkish_lira;
+    const weeklyPercent = ((weeklyDiff / startEntry.turkish_lira) * 100).toFixed(1);
+    const isWeeklyProfit = weeklyDiff >= 0;
+
+    weeklyPerformanceHtml = `
+      <div class="mt-2 p-3 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center">
+        <div>
+          <p class="text-[9px] font-bold text-muted uppercase tracking-tight">Haftalık Performans</p>
+          <p class="text-[10px] text-text-muted opacity-50">${startEntry.date} tarihinden beri</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs font-black ${isWeeklyProfit ? 'text-accent-teal' : 'text-loss-red'}">
+            ${isWeeklyProfit ? '▲' : '▼'} ₺${Math.abs(weeklyDiff).toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+          </p>
+          <p class="text-[10px] font-bold ${isWeeklyProfit ? 'text-accent-teal/60' : 'text-loss-red/60'}">
+            %${weeklyPercent}
+          </p>
+        </div>
+      </div>
+    `;
+  }
+
   // --- BORÇ KONTROL MANTIĞI ---
   const rawDebits = localStorage.getItem("debit");
   let todayDebtInfo = "";
@@ -63,16 +108,15 @@ function calculate() {
   if (todayTotalDebt > 0) {
     todayDebtInfo = `
       <div class="mt-3 p-3 bg-loss-red/10 border border-loss-red/20 rounded-xl animate-pulse">
-        <p class="text-[10px] font-bold text-loss-red uppercase tracking-widest mb-1">⚠️ BUGÜN ÖDEME VAR</p>
-        <p class="text-sm font-black text-loss-red">₺${todayTotalDebt.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
+        <p class="text-[10px] font-bold text-loss-red uppercase tracking-widest mb-1 text-center">⚠️ BUGÜN ÖDEME VAR</p>
+        <p class="text-sm font-black text-loss-red text-center">₺${todayTotalDebt.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
       </div>`;
   } else {
     todayDebtInfo = `
       <div class="mt-3 p-2 bg-accent-teal/10 border border-accent-teal/20 rounded-xl">
-        <p class="text-[9px] font-bold text-accent-teal uppercase tracking-widest">✅ BUGÜN ÖDEME YOK</p>
+        <p class="text-[9px] font-bold text-accent-teal uppercase tracking-widest text-center">✅ BUGÜN ÖDEME YOK</p>
       </div>`;
   }
-  // --- BORÇ KONTROL BİTİŞ ---
 
   const borc_bilgisi = "debit_total_percent";
   const total_borc = parseFloat(localStorage.getItem(borc_bilgisi)) || 0;
@@ -102,25 +146,30 @@ function calculate() {
                   ${isIncreased ? 'VARLIKLAR ARTTI' : 'VARLIKLAR AZALDI'}
                 </span>`,
         html: `
-          <div class="flex flex-col gap-4 p-2 font-display">
+          <div class="flex flex-col gap-3 p-1 font-display">
             <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
               <p class="text-[10px] font-bold text-muted uppercase tracking-widest mb-1 text-center">Güncel Toplam (TRY)</p>
               <p class="text-3xl font-black text-white text-center">₺${parseFloat(result.amount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
             </div>
+            
             <div class="grid grid-cols-2 gap-3">
               <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
                 <p class="text-[9px] font-bold text-muted uppercase mb-1">Dolar Karşılığı</p>
                 <p class="text-sm font-bold text-accent-blue">$${result.rates.USD.toFixed(2)}</p>
               </div>
               <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
-                <p class="text-[9px] font-bold text-muted uppercase mb-1">Değişim</p>
+                <p class="text-[9px] font-bold text-muted uppercase mb-1">Son Değişim</p>
                 <p class="text-sm font-bold ${isIncreased ? 'text-accent-teal' : 'text-loss-red'}">
                   ${isIncreased ? '+' : ''}₺${diff.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
                 </p>
               </div>
             </div>
-            ${todayDebtInfo} ${!isIncreased ? `
-            <div class="text-[11px] text-text-muted text-center mt-2 italic">
+
+            ${weeklyPerformanceHtml}
+            ${todayDebtInfo}
+
+            ${!isIncreased ? `
+            <div class="text-[11px] text-text-muted text-center mt-1 italic opacity-60">
               Önceki miktar: ₺${old_amount.toLocaleString("tr-TR")}
             </div>` : ''}
           </div>
@@ -143,6 +192,9 @@ function calculate() {
   donut_and_init();
   lineGraph();
 }
+
+
+
 
 
 
