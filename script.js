@@ -982,26 +982,42 @@ function deleteStock(symbol) {
     showStockManager();
 }
 
-async function exportAllDataJSON() {
+async function exportSpecificDataJSON() {
     const isDark = document.documentElement.classList.contains('dark');
-    const keys = Object.keys(localStorage);
+    
+    // Sadece senin istediğin anahtarları tanımlayalım
+    const allowedKeys = ['day_data_set', 'fon_bilgisi', 'stock_portfolio'];
+    
+    // Sadece var olan ve içi dolu olan anahtarları filtreleyelim
+    const availableKeys = allowedKeys.filter(key => localStorage.getItem(key) !== null);
 
-    if (keys.length === 0) {
-        Swal.fire('Hata', 'LocalStorage içerisinde hiç veri bulunamadı.', 'info');
+    if (availableKeys.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Veri Bulunamadı',
+            text: 'Seçili anahtarlarda henüz kayıtlı bir veri yok.',
+            background: isDark ? '#0b0f19' : '#ffffff',
+            color: isDark ? '#f1f5f9' : '#1e293b'
+        });
         return;
     }
 
-    // --- 1. Adım: Key Listesini Göster ---
+    // --- 1. Adım: Özel Key Listesini Göster ---
     const { value: selectedKey } = await Swal.fire({
-        title: '<span class="text-sm font-black tracking-widest uppercase">Veri Kütüphanesi</span>',
+        title: '<span class="text-sm font-black tracking-widest uppercase italic">Yedekleme Paneli</span>',
         html: `
-            <p class="text-[10px] opacity-50 mb-4 text-left">İşlem yapmak istediğiniz veri anahtarını seçin:</p>
-            <div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-2 no-scrollbar">
-                ${keys.map(key => `
-                    <button onclick="Swal.clickConfirm(); window.tempKey='${key}'" 
-                            class="flex justify-between items-center p-3 bg-black/5 dark:bg-white/5 hover:bg-accent-blue/20 border border-white/5 rounded-xl transition-all group">
-                        <span class="text-[11px] font-bold text-left group-hover:text-accent-blue">${key}</span>
-                        <span class="material-symbols-outlined text-sm opacity-30">chevron_right</span>
+            <p class="text-[10px] opacity-50 mb-4 text-left">İşlem yapmak istediğiniz veriyi seçin:</p>
+            <div class="flex flex-col gap-2">
+                ${availableKeys.map(key => `
+                    <button onclick="window.tempKey='${key}'; Swal.clickConfirm();" 
+                            class="flex justify-between items-center p-4 bg-black/5 dark:bg-white/5 hover:bg-accent-blue/10 border border-white/5 rounded-2xl transition-all group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-accent-blue opacity-70">
+                                ${key === 'stock_portfolio' ? 'Show_chart' : key === 'fon_bilgisi' ? 'account_balance' : 'calendar_month'}
+                            </span>
+                            <span class="text-[12px] font-bold text-left group-hover:text-accent-blue uppercase tracking-tight">${key.replace(/_/g, ' ')}</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm opacity-20">chevron_right</span>
                     </button>
                 `).join('')}
             </div>
@@ -1017,25 +1033,25 @@ async function exportAllDataJSON() {
     const targetKey = window.tempKey;
     if (!targetKey) return;
 
-    // --- 2. Adım: Seçilen Key'in İçeriğini Göster/Düzenle ---
+    // --- 2. Adım: Seçilen Key'in İçeriğini Göster ---
     const rawData = localStorage.getItem(targetKey);
     let formattedData = rawData;
     
-    // Eğer veri JSON formatındaysa daha güzel gösterelim
     try {
         const parsed = JSON.parse(rawData);
         formattedData = JSON.stringify(parsed, null, 4);
     } catch (e) {
-        // JSON değilse düz metin olarak kalsın
+        // Veri JSON değilse olduğu gibi bırak
     }
 
     Swal.fire({
-        title: `<span class="text-xs font-mono text-accent-blue">${targetKey}</span>`,
+        title: `<span class="text-xs font-mono text-accent-blue opacity-50 uppercase tracking-widest">${targetKey}</span>`,
         html: `
-            <textarea id="jsonArea" class="w-full h-64 p-4 text-[11px] font-mono bg-black/20 dark:bg-white/5 border border-white/10 rounded-xl focus:ring-0 no-scrollbar" style="resize: none;">${formattedData}</textarea>
-            <div class="mt-3 flex gap-2">
-                <button onclick="copyToClipboard()" class="flex-1 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-bold transition-all uppercase tracking-widest">Kopyala</button>
+            <textarea id="jsonArea" class="w-full h-80 p-4 text-[11px] font-mono bg-black/20 dark:bg-white/5 border border-white/10 rounded-2xl focus:ring-0 no-scrollbar" style="resize: none;">${formattedData}</textarea>
+            <div class="mt-4 flex gap-2">
+                <button onclick="copyToClipboard()" class="flex-1 py-3 bg-accent-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-accent-blue/20">Metni Kopyala</button>
             </div>
+            <p class="mt-3 text-[9px] opacity-40 italic">Not: Veriyi düzenleyip kaydederek güncelleyebilirsiniz.</p>
         `,
         width: '550px',
         background: isDark ? '#0b0f19' : '#ffffff',
@@ -1043,20 +1059,20 @@ async function exportAllDataJSON() {
         showCancelButton: true,
         cancelButtonText: 'GERİ DÖN',
         confirmButtonText: 'DEĞİŞİKLİKLERİ KAYDET',
-        confirmButtonColor: '#137fec',
-        customClass: { popup: 'rounded-[2rem] border border-white/10 shadow-4xl' },
+        confirmButtonColor: '#10b981', // Yeşil (Success)
+        customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-4xl' },
         preConfirm: () => {
             const updatedValue = document.getElementById('jsonArea').value;
-            // Kaydetmeden önce JSON geçerliliğini kontrol et (opsiyonel)
             localStorage.setItem(targetKey, updatedValue);
             return targetKey;
         }
     }).then((result) => {
         if (result.dismiss === Swal.DismissReason.cancel) {
-            exportAllDataJSON(); // Geri dönme tuşuna basılırsa listeyi tekrar aç
+            exportSpecificDataJSON(); // Geri dönme tuşu listeye atar
         } else if (result.isConfirmed) {
-            Swal.fire({ icon: 'success', title: 'Güncellendi!', timer: 1000, showConfirmButton: false });
-            if (targetKey === 'stock_portfolio') showStockManager(); // Eğer hisseler güncellendiyse tabloyu yenile
+            Swal.fire({ icon: 'success', title: 'Veri Kaydedildi', timer: 1000, showConfirmButton: false });
+            // Eğer portföy güncellendiyse tabloyu yenilemek için kontrol
+            if (targetKey === 'stock_portfolio' && typeof showStockManager === 'function') showStockManager();
         }
     });
 }
@@ -1065,12 +1081,19 @@ async function exportAllDataJSON() {
 function copyToClipboard() {
     const textarea = document.getElementById("jsonArea");
     textarea.select();
+    textarea.setSelectionRange(0, 99999); // Mobil için
     document.execCommand("copy");
     
     const btn = event.target;
-    btn.innerText = "KOPYALANDI!";
-    setTimeout(() => { btn.innerText = "KOPYALA"; }, 2000);
+    const oldText = btn.innerText;
+    btn.innerText = "PANAYA KOPYALANDI!";
+    btn.style.backgroundColor = "#10b981";
+    setTimeout(() => { 
+        btn.innerText = oldText; 
+        btn.style.backgroundColor = ""; 
+    }, 2000);
 }
+
 
 
 
