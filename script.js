@@ -695,3 +695,91 @@ function donut_and_init(){
 }
 
 
+function showHistoryChart() {
+  const rawData = JSON.parse(localStorage.getItem("day_data_set")) || [];
+  
+  // Son 15 günü al ve tarihe göre sırala
+  const chartData = rawData
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(-15);
+
+  const labels = chartData.map(d => {
+    const date = new Date(d.date);
+    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
+  });
+  
+  const tlValues = chartData.map(d => d.turkish_lira);
+  const usdValues = chartData.map(d => d.dolar);
+
+  const isDark = document.documentElement.classList.contains('dark');
+
+  Swal.fire({
+    title: '<span class="text-xl font-black italic tracking-tighter">VARLIK ANALİZİ</span>',
+    html: `
+      <div class="w-full mt-4">
+        <canvas id="historyChart" style="max-height: 300px;"></canvas>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mt-4 text-[10px] font-bold uppercase tracking-widest">
+        <div class="p-2 bg-accent-teal/10 rounded-lg text-accent-teal">● TL Bazlı Gelişim</div>
+        <div class="p-2 bg-accent-blue/10 rounded-lg text-accent-blue">● USD Bazlı Gelişim</div>
+      </div>
+    `,
+    width: '500px',
+    background: isDark ? '#0b0f19' : '#ffffff',
+    color: isDark ? '#f1f5f9' : '#1e293b',
+    showConfirmButton: true,
+    confirmButtonText: 'KAPAT',
+    confirmButtonColor: '#137fec',
+    didOpen: () => {
+      const ctx = document.getElementById('historyChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '₺ TL',
+              data: tlValues,
+              borderColor: '#14B8A6',
+              backgroundColor: 'rgba(20, 184, 166, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              yAxisID: 'y'
+            },
+            {
+              label: '$ USD',
+              data: usdValues,
+              borderColor: '#3B82F6',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              fill: false,
+              tension: 0.4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              display: false, // Sol ekseni gizle (temiz görünüm)
+              type: 'linear',
+              position: 'left',
+            },
+            y1: {
+              display: false, // Sağ ekseni gizle
+              type: 'linear',
+              position: 'right',
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: isDark ? '#64748b' : '#94a3b8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+  });
+}

@@ -23,6 +23,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.js"
     integrity="sha512-iiZOijMkLFQSa43AyuzD6p176GJlnhWXEv7loEZFkCDpFQvZCijZLE6U8IRpAIb53KagIIwhSwHWTgsDlci/jw=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -325,7 +327,7 @@
       </a>
 
       <a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-all cursor-pointer"
-        href="./test.html"> <span class="material-icons-round">show_chart</span> <span
+        onClick="showHistoryChart()"> <span class="material-icons-round">show_chart</span> <span
           class="text-[10px] font-medium">Özet</span> </a>
     </div>
   </nav>
