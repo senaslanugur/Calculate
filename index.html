@@ -23,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.js"
     integrity="sha512-iiZOijMkLFQSa43AyuzD6p176GJlnhWXEv7loEZFkCDpFQvZCijZLE6U8IRpAIb53KagIIwhSwHWTgsDlci/jw=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script id="tailwind-config">
     tailwind.config = {
@@ -87,6 +87,29 @@
       color: #10b981;
       text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
+
+    @keyframes pulse-red {
+      0% {
+        background-color: #ef4444;
+        transform: scale(1);
+      }
+
+      50% {
+        background-color: #b91c1c;
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+      }
+
+      100% {
+        background-color: #ef4444;
+        transform: scale(1);
+      }
+    }
+
+    .animate-pulse-red {
+      animation: pulse-red 1.5s infinite ease-in-out !important;
+      color: white !important;
+    }
   </style>
 </head>
 
@@ -104,7 +127,8 @@
                   wallet
                 </span>
               </div>
-              <h2 class="text-black dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]" onclick="showStockManager()">
+              <h2 class="text-black dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]"
+                onclick="showStockManager()">
                 Hesaplarım</h2>
             </div>
             <div class="flex flex-1 justify-end gap-4">
@@ -114,14 +138,13 @@
                   add_notes
                 </span>
               </button>
-              <button onclick="showChecklist()"
+              <button onclick="showChecklist()" id="checklistBtn"
                 class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-gray-200 dark:bg-[#283039] text-black dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0">
                 <span class="material-symbols-outlined">
                   notifications
                 </span>
               </button>
-              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-                data-alt="User avatar"
+              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar"
                 style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSZpcCc0dT1DhdDQKWT81EXGWi8rqUgI_SFnF_0Rh_YB0Qz5T5RW2IesH2nfPiSWZLHRYUthzsWMpwMWjCj1rRIBC3Pytm81Bh0zHG0LhevSnzTMcTnE32gr2EvkrGc2MBay3WSjRr3q-Uf3d6LfIMJupEKKwHyKIqurfwvF0vYemYGojnBvxEwsl2hRtUxSVNjXvT7vkgzsO4vCjEDyiC90b4V_F0MZvtJ5ivqDZu-slU3Dza1g4FGErpS9xOd8vorVv_75MEtEc6");'>
               </div>
             </div>

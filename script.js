@@ -288,6 +288,8 @@ function updateBorrowAndExpenseDisplays() {
 // --- Sayfa hazır olduğunda güncelle ---
 document.addEventListener("DOMContentLoaded", () => {
   updateBorrowAndExpenseDisplays();
+  updateChecklistNotification();
+
   
 
   // localStorage değişikliklerinde otomatik güncelleme (başka sekmede değişirse)
@@ -1112,14 +1114,18 @@ function addCheckItem() {
     let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
     checklist.push({ text: text, completed: false });
     localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    updateChecklistNotification()
     showChecklist(); // Ekranı yenile
+    
 }
 
 function toggleCheckItem(index) {
     let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
     checklist[index].completed = !checklist[index].completed;
     localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    updateChecklistNotification()
     showChecklist();
+    
 }
 
 async function editCheckItem(index) {
@@ -1135,15 +1141,61 @@ async function editCheckItem(index) {
     if (newText) {
         checklist[index].text = newText;
         localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+        updateChecklistNotification()
         showChecklist();
     }
+    
 }
 
 function deleteCheckItem(index) {
     let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
     checklist.splice(index, 1);
     localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    updateChecklistNotification()
     showChecklist();
+    
+}
+function updateChecklistNotification() {
+    const checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+    
+    // Bugünün tarihini al (Format: DD.MM.YYYY)
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('tr-TR'); // Örn: "05.02.2024"
+
+    // Notların sonunda bugünün tarihi var mı ve not henüz tamamlanmamış mı?
+    const hasTodayTask = checklist.some(item => {
+        const parts = item.text.split('-');
+        const itemDate = parts[parts.length - 1].trim(); // Sondaki tarihi al
+        return itemDate === todayStr && !item.completed;
+    });
+
+    // Butonu bul (Önce butona kolay erişmek için bir ID verelim veya class üzerinden bulalım)
+    // HTML'deki butona id="checklistBtn" eklediğinizi varsayıyorum
+    const btn = document.querySelector('[onclick="showChecklist()"]');
+
+    if (hasTodayTask) {
+        btn.classList.add('animate-pulse-red');
+    } else {
+        btn.classList.remove('animate-pulse-red');
+    }
+}
+function addCheckItem() {
+    const input = document.getElementById('new_check_item');
+    let text = input.value.trim();
+    if (!text) return;
+
+    // Eğer kullanıcı tarih yazmadıysa bugünün tarihini otomatik ekle
+    if (!text.includes('-')) {
+        const todayStr = new Date().toLocaleDateString('tr-TR');
+        text = `${text} - ${todayStr}`;
+    }
+
+    let checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
+    checklist.push({ text: text, completed: false });
+    localStorage.setItem("personal_checklist", JSON.stringify(checklist));
+    
+    updateChecklistNotification(); // Bildirimi güncelle
+    showChecklist(); // Ekranı yenile
 }
 
 
