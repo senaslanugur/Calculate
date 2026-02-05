@@ -982,71 +982,96 @@ function deleteStock(symbol) {
     showStockManager();
 }
 
-function exportPortfolioJSON() {
+async function exportAllDataJSON() {
     const isDark = document.documentElement.classList.contains('dark');
-    const stocks = localStorage.getItem("stock_portfolio") || "[]";
-    
-    // JSON'ı daha okunabilir (girintili) hale getirelim
-    const formattedJSON = JSON.stringify(JSON.parse(stocks), null, 4);
+    const keys = Object.keys(localStorage);
 
-    Swal.fire({
-        title: '<span class="text-sm font-black tracking-widest uppercase">JSON Veri Yönetimi</span>',
+    if (keys.length === 0) {
+        Swal.fire('Hata', 'LocalStorage içerisinde hiç veri bulunamadı.', 'info');
+        return;
+    }
+
+    // --- 1. Adım: Key Listesini Göster ---
+    const { value: selectedKey } = await Swal.fire({
+        title: '<span class="text-sm font-black tracking-widest uppercase">Veri Kütüphanesi</span>',
         html: `
-            <p class="text-[10px] opacity-50 mb-3 text-left">Aşağıdaki veriyi kopyalayabilir veya düzenleyerek portföyünüzü manuel güncelleyebilirsiniz.</p>
-            <textarea id="jsonArea" class="w-full h-64 p-4 text-[11px] font-mono bg-black/20 dark:bg-white/5 border border-white/10 rounded-xl focus:ring-0 no-scrollbar" style="resize: none;">${formattedJSON}</textarea>
-            <div class="mt-3 flex gap-2">
-                <button onclick="copyJSON()" class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold transition-all">KOPYALA</button>
+            <p class="text-[10px] opacity-50 mb-4 text-left">İşlem yapmak istediğiniz veri anahtarını seçin:</p>
+            <div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-2 no-scrollbar">
+                ${keys.map(key => `
+                    <button onclick="Swal.clickConfirm(); window.tempKey='${key}'" 
+                            class="flex justify-between items-center p-3 bg-black/5 dark:bg-white/5 hover:bg-accent-blue/20 border border-white/5 rounded-xl transition-all group">
+                        <span class="text-[11px] font-bold text-left group-hover:text-accent-blue">${key}</span>
+                        <span class="material-symbols-outlined text-sm opacity-30">chevron_right</span>
+                    </button>
+                `).join('')}
             </div>
         `,
-        width: '500px',
+        width: '400px',
+        background: isDark ? '#0b0f19' : '#ffffff',
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl' }
+    });
+
+    const targetKey = window.tempKey;
+    if (!targetKey) return;
+
+    // --- 2. Adım: Seçilen Key'in İçeriğini Göster/Düzenle ---
+    const rawData = localStorage.getItem(targetKey);
+    let formattedData = rawData;
+    
+    // Eğer veri JSON formatındaysa daha güzel gösterelim
+    try {
+        const parsed = JSON.parse(rawData);
+        formattedData = JSON.stringify(parsed, null, 4);
+    } catch (e) {
+        // JSON değilse düz metin olarak kalsın
+    }
+
+    Swal.fire({
+        title: `<span class="text-xs font-mono text-accent-blue">${targetKey}</span>`,
+        html: `
+            <textarea id="jsonArea" class="w-full h-64 p-4 text-[11px] font-mono bg-black/20 dark:bg-white/5 border border-white/10 rounded-xl focus:ring-0 no-scrollbar" style="resize: none;">${formattedData}</textarea>
+            <div class="mt-3 flex gap-2">
+                <button onclick="copyToClipboard()" class="flex-1 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-bold transition-all uppercase tracking-widest">Kopyala</button>
+            </div>
+        `,
+        width: '550px',
         background: isDark ? '#0b0f19' : '#ffffff',
         color: isDark ? '#f1f5f9' : '#1e293b',
         showCancelButton: true,
-        cancelButtonText: 'İPTAL',
-        confirmButtonText: 'VERİYİ GÜNCELLE',
+        cancelButtonText: 'GERİ DÖN',
+        confirmButtonText: 'DEĞİŞİKLİKLERİ KAYDET',
         confirmButtonColor: '#137fec',
-        customClass: { popup: 'rounded-[2rem] border border-white/10 shadow-3xl' },
+        customClass: { popup: 'rounded-[2rem] border border-white/10 shadow-4xl' },
         preConfirm: () => {
-            const newJSON = document.getElementById('jsonArea').value;
-            try {
-                JSON.parse(newJSON); // Geçerli bir JSON mı kontrol et
-                localStorage.setItem("stock_portfolio", newJSON);
-                return true;
-            } catch (e) {
-                Swal.showValidationMessage('Hatalı JSON formatı! Lütfen kontrol edin.');
-                return false;
-            }
+            const updatedValue = document.getElementById('jsonArea').value;
+            // Kaydetmeden önce JSON geçerliliğini kontrol et (opsiyonel)
+            localStorage.setItem(targetKey, updatedValue);
+            return targetKey;
         }
     }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Güncellendi',
-                text: 'Portföy verileri başarıyla kaydedildi.',
-                timer: 1500,
-                showConfirmButton: false
-            });
-            showStockManager(); // Ana tabloyu yenile
+        if (result.dismiss === Swal.DismissReason.cancel) {
+            exportAllDataJSON(); // Geri dönme tuşuna basılırsa listeyi tekrar aç
+        } else if (result.isConfirmed) {
+            Swal.fire({ icon: 'success', title: 'Güncellendi!', timer: 1000, showConfirmButton: false });
+            if (targetKey === 'stock_portfolio') showStockManager(); // Eğer hisseler güncellendiyse tabloyu yenile
         }
     });
 }
 
-// Kopyalama Yardımcı Fonksiyonu
-function copyJSON() {
-    const copyText = document.getElementById("jsonArea");
-    copyText.select();
+// Yardımcı Kopyalama Fonksiyonu
+function copyToClipboard() {
+    const textarea = document.getElementById("jsonArea");
+    textarea.select();
     document.execCommand("copy");
     
-    // Kullanıcıya kopyalandı bildirimi verelim
     const btn = event.target;
-    const originalText = btn.innerText;
     btn.innerText = "KOPYALANDI!";
-    btn.classList.add("text-accent-teal");
-    setTimeout(() => {
-        btn.innerText = originalText;
-        btn.classList.remove("text-accent-teal");
-    }, 2000);
+    setTimeout(() => { btn.innerText = "KOPYALA"; }, 2000);
 }
+
 
 
 
