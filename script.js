@@ -1158,27 +1158,41 @@ function deleteCheckItem(index) {
 function updateChecklistNotification() {
     const checklist = JSON.parse(localStorage.getItem("personal_checklist")) || [];
     
-    // Bugünün tarihini al (Format: DD.MM.YYYY)
+    // Bugünün tarihini Manuel Oluştur (Safari/İngiltere bölge hatasını önler)
     const today = new Date();
-    const todayStr = today.toLocaleDateString('tr-TR'); // Örn: "05.02.2024"
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const todayStr = `${day}.${month}.${year}`; // Her zaman DD.MM.YYYY formatında
 
-    // Notların sonunda bugünün tarihi var mı ve not henüz tamamlanmamış mı?
     const hasTodayTask = checklist.some(item => {
+        if (!item.text.includes('-')) return false;
+        
         const parts = item.text.split('-');
-        const itemDate = parts[parts.length - 1].trim(); // Sondaki tarihi al
+        // Sondaki tarihi al ve hem noktaları hem bölüleri temizleyip normalize et
+        let itemDate = parts[parts.length - 1].trim(); 
+        
+        // Eşleşme kontrolü (Tamamlanmamış notlar için)
         return itemDate === todayStr && !item.completed;
     });
 
-    // Butonu bul (Önce butona kolay erişmek için bir ID verelim veya class üzerinden bulalım)
-    // HTML'deki butona id="checklistBtn" eklediğinizi varsayıyorum
+    // Butonu bul (Safari için daha kapsayıcı bir seçici)
     const btn = document.querySelector('[onclick="showChecklist()"]');
 
-    if (hasTodayTask) {
-        btn.classList.add('animate-pulse-red');
-    } else {
-        btn.classList.remove('animate-pulse-red');
+    if (btn) {
+        if (hasTodayTask) {
+            btn.classList.add('animate-pulse-red');
+            // Safari bazen sadece class eklemeyi algılamaz, zorla renk verelim
+            btn.style.backgroundColor = "#ef4444"; 
+        } else {
+            btn.classList.remove('animate-pulse-red');
+            btn.style.backgroundColor = ""; // Eski haline döner
+        }
     }
 }
+
+
+
 function addCheckItem() {
     const input = document.getElementById('new_check_item');
     let text = input.value.trim();
