@@ -982,6 +982,72 @@ function deleteStock(symbol) {
     showStockManager();
 }
 
+function exportPortfolioJSON() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const stocks = localStorage.getItem("stock_portfolio") || "[]";
+    
+    // JSON'ı daha okunabilir (girintili) hale getirelim
+    const formattedJSON = JSON.stringify(JSON.parse(stocks), null, 4);
+
+    Swal.fire({
+        title: '<span class="text-sm font-black tracking-widest uppercase">JSON Veri Yönetimi</span>',
+        html: `
+            <p class="text-[10px] opacity-50 mb-3 text-left">Aşağıdaki veriyi kopyalayabilir veya düzenleyerek portföyünüzü manuel güncelleyebilirsiniz.</p>
+            <textarea id="jsonArea" class="w-full h-64 p-4 text-[11px] font-mono bg-black/20 dark:bg-white/5 border border-white/10 rounded-xl focus:ring-0 no-scrollbar" style="resize: none;">${formattedJSON}</textarea>
+            <div class="mt-3 flex gap-2">
+                <button onclick="copyJSON()" class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold transition-all">KOPYALA</button>
+            </div>
+        `,
+        width: '500px',
+        background: isDark ? '#0b0f19' : '#ffffff',
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        showCancelButton: true,
+        cancelButtonText: 'İPTAL',
+        confirmButtonText: 'VERİYİ GÜNCELLE',
+        confirmButtonColor: '#137fec',
+        customClass: { popup: 'rounded-[2rem] border border-white/10 shadow-3xl' },
+        preConfirm: () => {
+            const newJSON = document.getElementById('jsonArea').value;
+            try {
+                JSON.parse(newJSON); // Geçerli bir JSON mı kontrol et
+                localStorage.setItem("stock_portfolio", newJSON);
+                return true;
+            } catch (e) {
+                Swal.showValidationMessage('Hatalı JSON formatı! Lütfen kontrol edin.');
+                return false;
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Güncellendi',
+                text: 'Portföy verileri başarıyla kaydedildi.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            showStockManager(); // Ana tabloyu yenile
+        }
+    });
+}
+
+// Kopyalama Yardımcı Fonksiyonu
+function copyJSON() {
+    const copyText = document.getElementById("jsonArea");
+    copyText.select();
+    document.execCommand("copy");
+    
+    // Kullanıcıya kopyalandı bildirimi verelim
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "KOPYALANDI!";
+    btn.classList.add("text-accent-teal");
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.classList.remove("text-accent-teal");
+    }, 2000);
+}
+
 
 
 
