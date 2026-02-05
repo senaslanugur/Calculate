@@ -845,7 +845,7 @@ async function fetchStockPrice(symbol) {
         const data = await response.json();
         
         if (data.c && data.c !== 0) {
-            return data.c;
+            return data.h;
         } else {
             console.warn(`${symbol} için veri bulunamadı.`);
             return 0;
