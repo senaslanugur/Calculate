@@ -834,3 +834,155 @@ function showHistoryChart() {
 }
 
 
+// stockkkk
+
+const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
+
+
+async function fetchStockPrice(symbol) {
+    try {
+        const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
+        const data = await response.json();
+        
+        if (data.c && data.c !== 0) {
+            return data.c;
+        } else {
+            console.warn(`${symbol} için veri bulunamadı.`);
+            return 0;
+        }
+    } catch (error) {
+        console.error("API Hatası:", error);
+        return 0;
+    }
+}
+
+async function showStockManager() {
+    const isDark = document.documentElement.classList.contains('dark');
+    let stocks = JSON.parse(localStorage.getItem("stock_portfolio")) || [];
+
+    Swal.fire({
+        title: 'Veriler Güncelleniyor...',
+        html: '<div class="text-[11px] opacity-70 font-mono">USD bazlı veriler alınıyor...</div>',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    let tableRows = "";
+    let grandTotalValue = 0;
+    let grandTotalCost = 0;
+
+    // Tüm istekleri paralel çekiyoruz
+    const pricePromises = stocks.map(stock => fetchStockPrice(stock.symbol));
+    const currentPrices = await Promise.all(pricePromises);
+
+    stocks.forEach((stock, index) => {
+        const currentPrice = currentPrices[index];
+        const cost = stock.amount * stock.avgPrice;
+        const value = stock.amount * currentPrice;
+        const profitLoss = value - cost;
+        const plPercent = currentPrice > 0 ? ((currentPrice - stock.avgPrice) / stock.avgPrice * 100).toFixed(2) : 0;
+
+        grandTotalCost += cost;
+        grandTotalValue += value;
+
+        tableRows += `
+            <tr class="border-b border-white/5 text-[11px]">
+                <td class="py-3 font-bold text-white text-left uppercase">${stock.symbol}</td>
+                <td class="py-3 text-right">$${stock.avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="py-3 text-right font-bold text-accent-blue">$${currentPrice ? currentPrice.toLocaleString('en-US', {minimumFractionDigits: 2}) : '---'}</td>
+                <td class="py-3 text-right ${profitLoss >= 0 ? 'text-accent-teal' : 'text-loss-red'} font-bold">
+                    %${plPercent}<br><span class="text-[9px] opacity-70">$${profitLoss.toLocaleString('en-US', {maximumFractionDigits: 2})}</span>
+                </td>
+                <td class="py-3 text-right">
+                    <button onclick="deleteStock('${stock.symbol}')" class="text-loss-red/40 hover:text-loss-red transition-all">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    Swal.fire({
+        title: '<div class="flex flex-col"><span class="text-[10px] font-bold text-accent-blue tracking-[0.3em] uppercase opacity-60">Global Portfolio</span><span class="text-xl font-black italic uppercase">USD VARLIKLARIM</span></div>',
+        width: '600px',
+        background: isDark ? '#0b0f19' : '#ffffff',
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl' },
+        html: `
+            <div class="grid grid-cols-3 gap-2 mb-6 p-3 bg-black/5 dark:bg-white/5 rounded-2xl border border-white/10">
+                <input id="stock_symbol" placeholder="Symbol (TSLA)" class="bg-transparent text-xs border-none focus:ring-0 uppercase font-bold px-2">
+                <input id="stock_amount" type="number" placeholder="Shares" class="bg-transparent text-xs border-none focus:ring-0 px-2">
+                <div class="flex gap-1">
+                    <input id="stock_price" type="number" placeholder="Cost ($)" class="bg-transparent text-xs border-none focus:ring-0 w-full px-2">
+                    <button onclick="saveStock()" class="bg-accent-blue text-white rounded-xl px-3 hover:scale-105 shadow-lg shadow-accent-blue/20">
+                        <span class="material-symbols-outlined font-bold">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="p-4 bg-accent-blue/5 rounded-2xl text-left border border-accent-blue/10">
+                    <p class="text-[9px] font-bold text-accent-blue uppercase tracking-widest mb-1">Market Value</p>
+                    <p class="text-xl font-black text-white">$${grandTotalValue.toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
+                </div>
+                <div class="p-4 bg-white/5 rounded-2xl text-left border border-white/5">
+                    <p class="text-[9px] font-bold text-muted uppercase tracking-widest mb-1">Total P/L</p>
+                    <p class="text-xl font-black ${grandTotalValue - grandTotalCost >= 0 ? 'text-accent-teal' : 'text-loss-red'}">
+                        $${(grandTotalValue - grandTotalCost).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-[9px] uppercase tracking-widest text-muted border-b border-white/10 opacity-50">
+                            <th class="pb-3 text-left font-bold">SYMBOL</th>
+                            <th class="pb-3 text-right">AVG COST</th>
+                            <th class="pb-3 text-right">PRICE</th>
+                            <th class="pb-3 text-right">GAIN/LOSS</th>
+                            <th class="pb-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/[0.03]">
+                        ${stocks.length > 0 ? tableRows : '<tr><td colspan="5" class="py-10 text-center opacity-30 text-xs italic">No stocks found.</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `
+    });
+}
+
+
+
+
+
+
+
+// LocalStorage Kayıt ve Silme İşlemleri
+function saveStock() {
+    const symbol = document.getElementById('stock_symbol').value.toUpperCase();
+    const amount = parseFloat(document.getElementById('stock_amount').value);
+    const avgPrice = parseFloat(document.getElementById('stock_price').value);
+
+    if (!symbol || isNaN(amount) || isNaN(avgPrice)) return;
+
+    let stocks = JSON.parse(localStorage.getItem("stock_portfolio")) || [];
+    stocks.push({ symbol, amount, avgPrice });
+    localStorage.setItem("stock_portfolio", JSON.stringify(stocks));
+    showStockManager();
+}
+
+function deleteStock(symbol) {
+    let stocks = JSON.parse(localStorage.getItem("stock_portfolio")) || [];
+    stocks = stocks.filter(s => s.symbol !== symbol);
+    localStorage.setItem("stock_portfolio", JSON.stringify(stocks));
+    showStockManager();
+}
+
+
+
+
+
