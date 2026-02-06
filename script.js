@@ -1263,6 +1263,119 @@ function addCheckItem() {
 
 
 
+async function showGraphSettings() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const values = JSON.parse(localStorage.getItem("values")) || {};
+    const labels = JSON.parse(localStorage.getItem("labels")) || {
+        "label_1": "Cüzdan 1", "label_2": "Cüzdan 2", "label_3": "Cüzdan 3",
+        "label_4": "Cüzdan 4", "label_5": "Cüzdan 5", "label_6": "Cüzdan 6", "label_7": "Cüzdan 7"
+    };
+
+    // Renk paleti
+    const colors = ["#3B82F6", "#8B5CF6", "#FACC15", "#F97316", "#14B8A6", "#EC4899", "#6366F1"];
+
+    Swal.fire({
+        title: '<div class="flex flex-col"><span class="text-[10px] font-bold text-accent-blue tracking-[0.3em] uppercase opacity-60">Grafik ve Etiketler</span><span class="text-xl font-black italic uppercase">PORTFÖY DAĞILIMI</span></div>',
+        width: '800px',
+        background: isDark ? '#0b0f19' : '#ffffff',
+        color: isDark ? '#f1f5f9' : '#1e293b',
+        showConfirmButton: true,
+        confirmButtonText: 'DEĞİŞİKLİKLERİ UYGULA',
+        confirmButtonColor: '#137fec',
+        showCloseButton: true,
+        customClass: {
+            popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl',
+            confirmButton: 'rounded-2xl px-8 py-3 font-bold'
+        },
+        html: `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
+                <div class="flex flex-col justify-center items-center bg-black/10 dark:bg-white/5 rounded-3xl p-4 border border-white/5">
+                    <div id="chartContainerPop" style="height: 300px; width: 100%;"></div>
+                    <div class="mt-4 text-center">
+                        <p class="text-[10px] font-bold text-muted uppercase tracking-widest">Toplam Varlık</p>
+                        <p class="text-2xl font-black text-white">₺${parseFloat(localStorage.getItem("all_amount") || 0).toLocaleString('tr-TR')}</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <p class="text-[10px] font-bold text-accent-blue uppercase tracking-widest mb-2 px-2">Cüzdan İsimlerini Düzenle</p>
+                    <div class="max-h-[350px] overflow-y-auto pr-2 no-scrollbar">
+                        ${[1, 2, 3, 4, 5, 6, 7].map(i => `
+                            <div class="flex items-center gap-3 mb-2 bg-white/5 p-2 rounded-2xl border border-white/5 group focus-within:border-accent-blue/30 transition-all">
+                                <div class="w-2 h-8 rounded-full" style="background-color: ${colors[i-1]}"></div>
+                                <div class="flex-1 text-left">
+                                    <p class="text-[8px] font-bold text-muted uppercase opacity-50">Cüzdan ${i}</p>
+                                    <input type="text" id="edit-label-${i}" value="${labels[`label_${i}`] || ''}" 
+                                        class="bg-transparent border-none p-0 text-white text-sm font-bold w-full focus:ring-0 placeholder:text-white/10"
+                                        placeholder="İsim girin...">
+                                </div>
+                                <div class="text-right px-2">
+                                    <p class="text-[10px] font-mono font-bold text-white/40">₺${(values[`staff_${i}`] || 0).toLocaleString('tr-TR')}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `,
+        didOpen: () => {
+            // CanvasJS Grafiğini Pop-up içinde render et
+            const chart = new CanvasJS.Chart("chartContainerPop", {
+                theme: isDark ? "dark2" : "light2",
+                backgroundColor: "transparent",
+                animationEnabled: true,
+                data: [{
+                    type: "doughnut",
+                    startAngle: 180,
+                    innerRadius: "70%",
+                    indexLabel: "{label}: %{y}",
+                    indexLabelFontSize: 10,
+                    indexLabelFontColor: isDark ? "#94a3b8" : "#475569",
+                    indexLabelPlacement: "outside",
+                    dataPoints: [1, 2, 3, 4, 5, 6, 7].map(i => ({
+                        y: Math.abs(values[`staff_${i}`] || 0),
+                        label: labels[`label_${i}`],
+                        color: colors[i-1]
+                    }))
+                }]
+            });
+            chart.render();
+        },
+        preConfirm: () => {
+            // Verileri topla ve kaydet
+            const newLabels = {};
+            for(let i=1; i<=7; i++) {
+                const val = document.getElementById(`edit-label-${i}`).value;
+                newLabels[`label_${i}`] = val || `Wallet-${i}`;
+                
+                // Ana sayfadaki etiketleri de güncelle (varsa)
+                const mainLabelEl = document.getElementById(`staff-${i}-name`);
+                if(mainLabelEl) mainLabelEl.innerText = newLabels[`label_${i}`];
+            }
+            localStorage.setItem("labels", JSON.stringify(newLabels));
+            return newLabels;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Ana grafikleri ve UI'ı yenile
+            if (typeof donut_and_init === "function") donut_and_init();
+            if (typeof graph === "function") graph();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Etiketler Güncellendi',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                background: isDark ? '#1a2131' : '#fff',
+                color: isDark ? '#fff' : '#000'
+            });
+        }
+    });
+}
+
+
 
 
 
