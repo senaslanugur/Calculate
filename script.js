@@ -860,94 +860,112 @@ async function showStockManager() {
 
     Swal.fire({
         title: 'Veriler Güncelleniyor...',
-        html: '<div class="text-[11px] opacity-70 font-mono">USD bazlı veriler alınıyor...</div>',
+        html: '<div class="text-[11px] opacity-70 font-mono">Finnhub API üzerinden canlı veriler alınıyor...</div>',
         allowOutsideClick: false,
         didOpen: () => { Swal.showLoading(); }
     });
 
-    let tableRows = "";
-    let grandTotalValue = 0;
-    let grandTotalCost = 0;
-
-    // Tüm istekleri paralel çekiyoruz
+    // Fiyatları paralel çek
     const pricePromises = stocks.map(stock => fetchStockPrice(stock.symbol));
     const currentPrices = await Promise.all(pricePromises);
 
-    stocks.forEach((stock, index) => {
-        const currentPrice = currentPrices[index];
+    let grandTotalValue = 0;
+    let grandTotalCost = 0;
+
+    // Kartları oluştur
+    let cardsHtml = stocks.map((stock, index) => {
+        const currentPrice = currentPrices[index] || 0;
         const cost = stock.amount * stock.avgPrice;
         const value = stock.amount * currentPrice;
         const profitLoss = value - cost;
-        const plPercent = currentPrice > 0 ? ((currentPrice - stock.avgPrice) / stock.avgPrice * 100).toFixed(2) : 0;
+        const plPercent = stock.avgPrice > 0 ? ((currentPrice - stock.avgPrice) / stock.avgPrice * 100).toFixed(2) : 0;
+        const isProfit = profitLoss >= 0;
 
         grandTotalCost += cost;
         grandTotalValue += value;
 
-        tableRows += `
-            <tr class="border-b border-white/5 text-[11px]">
-                <td class="py-3 font-bold text-white text-left uppercase">${stock.symbol}</td>
-                <td class="py-3 text-right">$${stock.avgPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                <td class="py-3 text-right font-bold text-accent-blue">$${currentPrice ? currentPrice.toLocaleString('en-US', {minimumFractionDigits: 2}) : '---'}</td>
-                <td class="py-3 text-right ${profitLoss >= 0 ? 'text-accent-teal' : 'text-loss-red'} font-bold">
-                    %${plPercent}<br><span class="text-[9px] opacity-70">$${profitLoss.toLocaleString('en-US', {maximumFractionDigits: 2})}</span>
-                </td>
-                <td class="py-3 text-right">
-                    <button onclick="deleteStock('${stock.symbol}')" class="text-loss-red/40 hover:text-loss-red transition-all">
-                        <span class="material-symbols-outlined text-[18px]">delete</span>
-                    </button>
-                </td>
-            </tr>
+        return `
+            <div class="bg-white/[0.03] border border-white/10 rounded-3xl p-4 mb-3 transition-all hover:bg-white/[0.05] group">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="text-lg font-black text-white tracking-tight">${stock.symbol}</h3>
+                        <p class="text-[10px] text-text-muted font-bold opacity-50 uppercase">Global Market</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-black ${isProfit ? 'bg-accent-teal/10 text-accent-teal' : 'bg-loss-red/10 text-loss-red'}">
+                            ${isProfit ? '▲' : '▼'} %${Math.abs(plPercent)}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/5">
+                    <div>
+                        <p class="text-[8px] text-muted font-bold uppercase mb-1">Miktar</p>
+                        <input type="number" value="${stock.amount}" onchange="updateStockValue('${stock.symbol}', 'amount', this.value)" 
+                            class="bg-transparent text-white text-xs font-bold w-full outline-none focus:text-accent-blue">
+                    </div>
+                    <div>
+                        <p class="text-[8px] text-muted font-bold uppercase mb-1">Maliyet</p>
+                        <input type="number" value="${stock.avgPrice}" onchange="updateStockValue('${stock.symbol}', 'avgPrice', this.value)" 
+                            class="bg-transparent text-white text-xs font-bold w-full outline-none focus:text-accent-blue">
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[8px] text-muted font-bold uppercase mb-1">Güncel Fiyat</p>
+                        <p class="text-xs font-bold text-accent-blue">$${currentPrice.toLocaleString('en-US')}</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-3">
+                    <div>
+                        <p class="text-[9px] font-bold ${isProfit ? 'text-accent-teal' : 'text-loss-red'}">
+                            ${isProfit ? '+' : ''}$${profitLoss.toLocaleString('en-US', {maximumFractionDigits: 2})}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <p class="text-sm font-black text-white">$${value.toLocaleString('en-US', {maximumFractionDigits: 2})}</p>
+                        <button onclick="deleteStock('${stock.symbol}')" class="text-loss-red/20 hover:text-loss-red transition-colors">
+                            <span class="material-symbols-outlined text-base">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         `;
-    });
+    }).join('');
 
     Swal.fire({
-        title: '<div class="flex flex-col"><span class="text-[10px] font-bold text-accent-blue tracking-[0.3em] uppercase opacity-60">Global Portfolio</span><span class="text-xl font-black italic uppercase">USD VARLIKLARIM</span></div>',
-        width: '600px',
+        title: '<div class="flex flex-col"><span class="text-[10px] font-bold text-accent-blue tracking-[0.3em] uppercase opacity-60">Global Portföy</span><span class="text-xl font-black italic uppercase">USD VARLIKLARIM</span></div>',
+        width: '450px',
         background: isDark ? '#0b0f19' : '#ffffff',
         color: isDark ? '#f1f5f9' : '#1e293b',
         showConfirmButton: false,
         showCloseButton: true,
         customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl' },
         html: `
-            <div class="grid grid-cols-3 gap-2 mb-6 p-3 bg-black/5 dark:bg-white/5 rounded-2xl border border-white/10">
-                <input id="stock_symbol" placeholder="Symbol (TSLA)" class="bg-transparent text-xs border-none focus:ring-0 uppercase font-bold px-2">
-                <input id="stock_amount" type="number" placeholder="Shares" class="bg-transparent text-xs border-none focus:ring-0 px-2">
-                <div class="flex gap-1">
-                    <input id="stock_price" type="number" placeholder="Cost ($)" class="bg-transparent text-xs border-none focus:ring-0 w-full px-2">
-                    <button onclick="saveStock()" class="bg-accent-blue text-white rounded-xl px-3 hover:scale-105 shadow-lg shadow-accent-blue/20">
-                        <span class="material-symbols-outlined font-bold">add</span>
-                    </button>
-                </div>
-            </div>
-
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="p-4 bg-accent-blue/5 rounded-2xl text-left border border-accent-blue/10">
-                    <p class="text-[9px] font-bold text-accent-blue uppercase tracking-widest mb-1">Market Value</p>
+                <div class="p-4 bg-accent-blue/10 rounded-2xl text-left border border-accent-blue/20">
+                    <p class="text-[9px] font-bold text-accent-blue uppercase tracking-widest mb-1">Toplam Değer</p>
                     <p class="text-xl font-black text-white">$${grandTotalValue.toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
                 </div>
                 <div class="p-4 bg-white/5 rounded-2xl text-left border border-white/5">
-                    <p class="text-[9px] font-bold text-muted uppercase tracking-widest mb-1">Total P/L</p>
-                    <p class="text-xl font-black ${grandTotalValue - grandTotalCost >= 0 ? 'text-accent-teal' : 'text-loss-red'}">
+                    <p class="text-[9px] font-bold text-muted uppercase tracking-widest mb-1">Toplam Kar/Zarar</p>
+                    <p class="text-xl font-black ${grandTotalValue >= grandTotalCost ? 'text-accent-teal' : 'text-loss-red'}">
                         $${(grandTotalValue - grandTotalCost).toLocaleString('en-US', {minimumFractionDigits: 2})}
                     </p>
                 </div>
             </div>
 
-            <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                <table class="w-full">
-                    <thead>
-                        <tr class="text-[9px] uppercase tracking-widest text-muted border-b border-white/10 opacity-50">
-                            <th class="pb-3 text-left font-bold">SYMBOL</th>
-                            <th class="pb-3 text-right">AVG COST</th>
-                            <th class="pb-3 text-right">PRICE</th>
-                            <th class="pb-3 text-right">GAIN/LOSS</th>
-                            <th class="pb-3 text-right"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/[0.03]">
-                        ${stocks.length > 0 ? tableRows : '<tr><td colspan="5" class="py-10 text-center opacity-30 text-xs italic">No stocks found.</td></tr>'}
-                    </tbody>
-                </table>
+            <div class="bg-white/5 p-2 rounded-2xl flex gap-2 items-center mb-6 border border-white/10">
+                <input id="stock_symbol" placeholder="SEMBOLLER" class="bg-transparent text-[11px] border-none focus:ring-0 uppercase font-black px-2 w-20 text-white">
+                <div class="w-[1px] h-4 bg-white/10"></div>
+                <input id="stock_amount" type="number" placeholder="Adet" class="bg-transparent text-[11px] border-none focus:ring-0 px-2 w-16 text-white">
+                <input id="stock_price" type="number" placeholder="Maliyet $" class="bg-transparent text-[11px] border-none focus:ring-0 px-2 w-full text-white">
+                <button onclick="saveStock()" class="bg-accent-blue text-white h-9 w-12 rounded-xl flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-accent-blue/20">
+                    <span class="material-symbols-outlined font-bold">add</span>
+                </button>
+            </div>
+
+            <div class="max-h-[400px] overflow-y-auto pr-1 no-scrollbar">
+                ${stocks.length > 0 ? cardsHtml : '<div class="py-10 opacity-30 text-xs italic text-center">Henüz USD varlığı eklenmedi.</div>'}
             </div>
         `
     });
@@ -955,6 +973,17 @@ async function showStockManager() {
 
 
 
+// Yeni: Değerleri doğrudan kart üzerinden güncelleme fonksiyonu
+function updateStockValue(symbol, field, newValue) {
+    let stocks = JSON.parse(localStorage.getItem("stock_portfolio")) || [];
+    const index = stocks.findIndex(s => s.symbol === symbol);
+    if (index !== -1) {
+        stocks[index][field] = parseFloat(newValue);
+        localStorage.setItem("stock_portfolio", JSON.stringify(stocks));
+        // UI'yı yenile (Input odağını kaybetmemesi için hafif bir delay verilebilir veya direkt çağrılabilir)
+        showStockManager();
+    }
+}
 
 
 
