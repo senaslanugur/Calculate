@@ -371,14 +371,14 @@ function renderPortfolioContent(viewType) {
     
     let contentHtml = '';
 
-    // Görünüm Başlığı ve Yenile Butonu (Ortak Kısım)
+    // Görünüm Başlığı ve Yenile Butonu
     const headerHtml = `
-        <div class="text-center mb-8 pt-4 relative">
-            <p class="text-text-muted text-[10px] font-bold tracking-[0.3em] uppercase mb-2 opacity-60">Toplam Portföy</p>
+        <div class="text-center mb-6 pt-2">
+            <p class="text-text-muted text-[10px] font-bold tracking-[0.2em] uppercase mb-1 opacity-50">Toplam Portföy Değeri</p>
             <div class="flex items-center justify-center gap-3">
-                <h2 class="text-4xl font-black text-white tracking-tighter italic">₺${formattedTotal}</h2>
-                <button onclick="triggerRefresh('${viewType}')" class="text-accent-teal hover:text-white transition-colors">
-                    <span class="material-symbols-outlined font-bold text-[24px] ${spinClass}">refresh</span>
+                <h2 class="text-3xl font-black text-white tracking-tighter italic">₺${formattedTotal}</h2>
+                <button onclick="triggerRefresh('${viewType}')" class="text-accent-teal hover:rotate-180 transition-all duration-500">
+                    <span class="material-symbols-outlined font-bold text-[22px] ${spinClass}">refresh</span>
                 </button>
             </div>
         </div>
@@ -388,46 +388,61 @@ function renderPortfolioContent(viewType) {
         let cardsHtml = currentPortfolioData.map(item => {
             const colorClass = item.change >= 0 ? 'text-accent-teal' : 'text-loss-red';
             return `
-                <div class="p-5 bg-card-dark rounded-3xl border border-white/5 text-left min-w-[260px] m-2 shadow-2xl flex-shrink-0">
+                <div class="p-5 bg-white/[0.03] rounded-3xl border border-white/5 text-left min-w-[240px] m-2 shadow-xl flex-shrink-0 transition-transform hover:scale-[1.02]">
                     <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-xl font-black text-white">${item.symbol}</h3>
-                        <span class="${colorClass} font-bold text-sm">%${item.change}</span>
+                        <div class="flex flex-col">
+                            <h3 class="text-lg font-black text-white">${item.symbol}</h3>
+                            <span class="text-[9px] text-text-muted font-bold opacity-40 uppercase">${item.updateDate}</span>
+                        </div>
+                        <span class="${colorClass} font-bold text-xs bg-${item.change >= 0 ? 'accent-teal' : 'loss-red'}/10 px-2 py-1 rounded-lg">
+                            %${item.change}
+                        </span>
                     </div>
-                    <div class="mt-4 pt-4 border-t border-white/5 flex justify-between">
-                        <div><p class="text-text-muted text-[10px] font-bold uppercase">Adet</p><p class="text-white">${item.amount}</p></div>
-                        <div class="text-right"><p class="text-text-muted text-[10px] font-bold uppercase">Değer</p><p class="text-white font-bold">₺${item.totalVal.toLocaleString('tr-TR')}</p></div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-end">
+                        <div>
+                            <p class="text-text-muted text-[9px] font-bold uppercase mb-1">Adet</p>
+                            <p class="text-white text-sm font-medium">${item.amount}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-text-muted text-[9px] font-bold uppercase mb-1">Piyasa Değeri</p>
+                            <p class="text-white font-black text-base">₺${item.totalVal.toLocaleString('tr-TR')}</p>
+                        </div>
                     </div>
                 </div>`;
         }).join('');
 
         contentHtml = `
             <div id="slider-container" class="flex overflow-x-auto pb-4 no-scrollbar" style="scroll-snap-type: x mandatory;">${cardsHtml}</div>
-            <button onclick="renderPortfolioContent('table')" class="mt-4 px-6 py-2 bg-accent-teal/10 hover:bg-accent-teal/20 text-accent-teal rounded-full text-[11px] font-bold transition-all border border-accent-teal/20 tracking-widest uppercase">⚙️ Portföy Yönetimi</button>
+            <button onclick="renderPortfolioContent('table')" class="mt-6 w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[11px] font-bold transition-all border border-white/10 tracking-[0.2em] uppercase">
+               ⚙️ Portföyü Düzenle
+            </button>
         `;
-   } else {
-        // TABLO GÖRÜNÜMÜ - % Değişim Kolonu Eklendi
+    } else {
+        // TABLO GÖRÜNÜMÜ - UI Optimizasyonu
         let rowsHtml = currentPortfolioData.map(item => {
             const colorClass = item.change >= 0 ? 'text-accent-teal' : 'text-loss-red';
-            const arrow = item.change >= 0 ? '▲' : '▼';
+            const arrow = item.change >= 0 ? 'trending_up' : 'trending_down';
             
             return `
-                <tr class="border-b border-white/5 text-xs">
-                    <td class="py-3 font-bold text-white text-left tracking-tight">
-                        ${item.symbol}
-                        <div class="text-[9px] opacity-40 font-normal mt-0.5">${item.updateDate}</div>
+                <tr class="group border-b border-white/[0.03] hover:bg-white/[0.01] transition-colors">
+                    <td class="py-4 text-left">
+                        <div class="font-black text-white text-sm">${item.symbol}</div>
+                        <div class="text-[9px] text-text-muted opacity-50 font-medium">${item.updateDate}</div>
                     </td>
-                    <td class="py-3 text-right">
-                        <input type="number" value="${item.amount}" onchange="updateAmount('${item.symbol}', this.value)" 
-                            class="bg-white/5 border border-white/10 rounded-lg w-16 text-right text-white text-[11px] px-2 py-1 outline-none focus:border-accent-teal/50 transition-all">
-                    </td>
-                    <td class="py-3 text-right">
-                        <div class="font-bold text-white text-[11px]">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
-                        <div class="${colorClass} text-[10px] font-medium flex items-center justify-end gap-0.5">
-                            ${arrow} %${Math.abs(item.change)}
+                    <td class="py-4">
+                        <div class="flex justify-end">
+                            <input type="number" value="${item.amount}" onchange="updateAmount('${item.symbol}', this.value)" 
+                                class="bg-white/5 border border-white/10 rounded-xl w-20 text-center text-white text-xs px-2 py-2 outline-none focus:border-accent-teal/50 focus:bg-accent-teal/5 transition-all font-bold">
                         </div>
                     </td>
-                    <td class="py-3 text-right">
-                        <button onclick="deleteSymbol('${item.symbol}')" class="text-loss-red/40 hover:text-loss-red transition-colors">
+                    <td class="py-4 text-right">
+                        <div class="font-bold text-white text-[13px]">₺${item.totalVal.toLocaleString('tr-TR', {maximumFractionDigits:0})}</div>
+                        <div class="${colorClass} text-[10px] font-bold flex items-center justify-end gap-1">
+                            <span class="material-symbols-outlined text-[12px]">${arrow}</span> %${Math.abs(item.change)}
+                        </div>
+                    </td>
+                    <td class="py-4 text-right pl-3">
+                        <button onclick="deleteSymbol('${item.symbol}')" class="w-8 h-8 flex items-center justify-center rounded-full text-loss-red/30 hover:text-loss-red hover:bg-loss-red/10 transition-all">
                             <span class="material-symbols-outlined text-[18px]">delete</span>
                         </button>
                     </td>
@@ -436,47 +451,52 @@ function renderPortfolioContent(viewType) {
         }).join('');
 
         contentHtml = `
-            <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar mb-4">
-                <table class="w-full text-text-muted">
+            <div class="max-h-[320px] overflow-y-auto pr-1 custom-scrollbar mb-6">
+                <table class="w-full">
                     <thead>
-                        <tr class="text-[9px] uppercase tracking-[0.2em] border-b border-white/10 opacity-50">
-                            <th class="pb-3 text-left">Fon / Tarih</th>
-                            <th class="pb-3 text-right">Adet</th>
-                            <th class="pb-3 text-right">Değer & Değişim</th>
-                            <th class="pb-3 text-right"></th>
+                        <tr class="text-[9px] uppercase tracking-[0.2em] text-text-muted border-b border-white/10">
+                            <th class="pb-3 text-left font-bold opacity-50">Varlık</th>
+                            <th class="pb-3 text-right font-bold opacity-50">Miktar</th>
+                            <th class="pb-3 text-right font-bold opacity-50">Durum</th>
+                            <th class="pb-3 text-right font-bold opacity-50 w-10"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/[0.02]">
+                    <tbody>
                         ${rowsHtml}
                     </tbody>
                 </table>
             </div>
 
-            <div class="bg-white/[0.03] p-2 rounded-2xl flex gap-2 items-center mb-6 border border-white/5 shadow-inner">
-                <input id="newSymbol" type="text" placeholder="SEM" class="bg-transparent border-none text-white text-xs w-16 focus:ring-0 uppercase font-bold px-3">
+            <div class="bg-white/[0.03] p-1.5 rounded-2xl flex gap-2 items-center mb-6 border border-white/5 shadow-inner group focus-within:border-accent-teal/30 transition-all">
+                <input id="newSymbol" type="text" placeholder="KOD" class="bg-transparent border-none text-white text-xs w-16 focus:ring-0 uppercase font-black px-3 placeholder:text-white/20">
                 <div class="w-[1px] h-4 bg-white/10"></div>
-                <input id="newAmount" type="number" placeholder="Adet Girin" class="bg-transparent border-none text-white text-xs w-full focus:ring-0 px-2">
-                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-8 w-8 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20">
-                    <span class="material-symbols-outlined font-bold text-[20px]">add</span>
+                <input id="newAmount" type="number" placeholder="Adet giriniz..." class="bg-transparent border-none text-white text-xs w-full focus:ring-0 px-2 placeholder:text-white/20 font-medium">
+                <button onclick="addNewSymbol()" class="bg-accent-teal text-black h-9 w-9 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent-teal/20">
+                    <span class="material-symbols-outlined font-black text-[20px]">add</span>
                 </button>
             </div>
 
-            <button onclick="renderPortfolioContent('slider')" class="mt-2 text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">
-                ← Kart Görünümüne Dön
+            <button onclick="renderPortfolioContent('slider')" class="w-full text-text-muted hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all py-2">
+                ← Portföy Özetine Dön
             </button>
         `;
     }
-
 
     Swal.fire({
         background: '#0b0f19',
         showConfirmButton: false,
         showCloseButton: true,
-        width: '400px',
-        customClass: { popup: 'rounded-[2.5rem] border border-white/10 shadow-3xl' },
+        width: '420px',
+        padding: '1.5rem',
+        customClass: { 
+            popup: 'rounded-[2.5rem] border border-white/10 shadow-2xl backdrop-blur-xl',
+            closeButton: 'text-white/20 hover:text-white border-none focus:outline-none'
+        },
         html: headerHtml + contentHtml
     });
 }
+
+
 
 // Veri Yönetim Fonksiyonları
 function updateAmount(symbol, newAmount) {
