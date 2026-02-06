@@ -73,8 +73,10 @@
     <!-- Top App Bar -->
     <header class="shrink-0 bg-white dark:bg-[#0F1720] border-b border-[#e5e7eb] dark:border-[#243241]">
         <div class="flex items-center p-4 justify-between h-16">
-            <div class="flex size-12 shrink-0 items-center justify-start text-[#111418] dark:text-white cursor-pointer" onclick="location.href='./index.html';">
-                <span class="material-symbols-outlined text-2xl">arrow_back</span> </div>
+            <div class="flex size-12 shrink-0 items-center justify-start text-[#111418] dark:text-white cursor-pointer"
+                onclick="location.href='./index.html';">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+            </div>
             <h2
                 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
                 Fund Performance </h2>
@@ -255,57 +257,107 @@
             function calculateTopFunds() {
                 if (funds.length === 0) return;
 
-                // Tüm yield alanlarını topla (null olanları 0 kabul et)
+                // Kartların ekleneceği ana konteyner
+                const mainContainer = topFundsContainer;
+                mainContainer.innerHTML = "";
+
+                // 1. LOCALSTORAGE'DAN "fon_bilgisi" OBJESİNİ İŞLE
+                const storedFonBilgisi = localStorage.getItem('fon_bilgisi');
+                if (storedFonBilgisi) {
+                    try {
+                        const portfolioObj = JSON.parse(storedFonBilgisi);
+                        // Objenin key'lerini (DOH, GUH vb.) bir diziye alıyoruz
+                        const trackedCodes = Object.keys(portfolioObj);
+
+                        if (trackedCodes.length > 0) {
+                            // API'den gelen ana veri seti (funds) içinden bu kodları filtrele
+                            const trackedFunds = funds.filter(f => trackedCodes.includes(f.code));
+
+                            if (trackedFunds.length > 0) {
+                                const trackedSection = document.createElement("div");
+                                trackedSection.className = "mb-6"; // Alt bölüme biraz daha mesafe
+                                trackedSection.innerHTML = `
+                        <div class="flex items-center gap-2 mb-3 px-1">
+                            <span class="material-symbols-outlined text-primary text-sm">star</span>
+                            <h3 class="text-xs font-bold text-[#111418] dark:text-white uppercase tracking-wider">Takip Ettiklerim</h3>
+                        </div>
+                        <div class="flex space-x-4 min-w-max no-scrollbar pb-2"></div>
+                    `;
+                                const trackedFlex = trackedSection.querySelector(".flex:last-child");
+
+                                // Takip edilen fonları kart olarak ekle
+                                trackedFunds.forEach(fund => {
+                                    // Eğer istersen kartın içine adet bilgisini de ekleyebilirsin: portfolioObj[fund.code]
+                                    trackedFlex.appendChild(createFundCard(fund, "border-primary/50 shadow-sm shadow-primary/10"));
+                                });
+
+                                mainContainer.appendChild(trackedSection);
+                            }
+                        }
+                    } catch (e) {
+                        console.error("fon_bilgisi JSON ayrıştırma hatası:", e);
+                    }
+                }
+
+                // 2. GENEL EN İYİ FONLARI HESAPLA (Öne Çıkanlar)
                 const fundsWithScore = funds.map(fund => {
                     const score = [
                         fund.yield_1m, fund.yield_3m, fund.yield_6m, fund.yield_ytd,
                         fund.yield_1y, fund.yield_3y, fund.yield_5y
                     ].reduce((sum, val) => sum + (val != null ? parseFloat(val) : 0), 0);
-
                     return { ...fund, score };
                 });
 
-                // Skora göre azalan sırala
                 fundsWithScore.sort((a, b) => b.score - a.score);
+                const top25 = fundsWithScore.slice(0, 25);
 
-                // En iyi 5 fonu al
-                const top5 = fundsWithScore.slice(0, 25);
-
-                // Kartları oluştur
-                const cardsContainer = topFundsContainer.querySelector(".flex");
-                cardsContainer.innerHTML = "";
-
-                top5.forEach(fund => {
-                    const card = document.createElement("div");
-                    card.className = "bg-white dark:bg-[#061223] border border-[#e5e7eb] dark:border-[#1b2a36] rounded-lg p-4 w-64 flex flex-col";
-
-                    const title = fund.title || "Bilinmeyen Fon";
-                    const code = fund.code || "—";
-                    const type = fund.type || "—";
-
-                    // Yield değerlerini göster
-                    const yield1m = safeValue(fund.yield_1m);
-                    const yield3m = safeValue(fund.yield_3m);
-                    const yield6m = safeValue(fund.yield_6m);
-                    const yieldYtd = safeValue(fund.yield_ytd);
-                    const yield1y = safeValue(fund.yield_1y);
-                    const yield3y = safeValue(fund.yield_3y);
-                    const yield5y = safeValue(fund.yield_5y);
-
-                    card.innerHTML = `
-                <h3 class="text-sm font-bold text-[#111418] dark:text-white">${title}</h3>
-                <span class="text-xs text-[#617589] dark:text-[#9fb0c6]">${code}</span>
-                <span class="text-xs text-[#617589] dark:text-[#9fb0c6] italic">${type}</span>
-                <div class="mt-2 space-y-1 text-xs">
-                    <div class="flex justify-between"><span>1M:</span><span class="${getColorClass(fund.yield_1m)}">${yield1m != null ? (fund.yield_1m >= 0 ? "+" : "") + yield1m + "%" : "—"}</span></div>
-                    <div class="flex justify-between"><span>3M:</span><span class="${getColorClass(fund.yield_3m)}">${yield3m != null ? (fund.yield_3m >= 0 ? "+" : "") + yield3m + "%" : "—"}</span></div>
-                    <div class="flex justify-between"><span>YTD:</span><span class="${getColorClass(fund.yield_ytd)}">${yieldYtd != null ? (fund.yield_ytd >= 0 ? "+" : "") + yieldYtd + "%" : "—"}</span></div>
-                </div>
-            `;
-
-                    cardsContainer.appendChild(card);
-                });
+                const topSection = document.createElement("div");
+                topSection.innerHTML = `
+        <div class="flex items-center gap-2 mb-3 px-1">
+            <span class="material-symbols-outlined text-[#617589] text-sm">trending_up</span>
+            <h3 class="text-xs font-bold text-[#617589] dark:text-[#9fb0c6] uppercase tracking-wider">Öne Çıkanlar</h3>
+        </div>
+        <div class="flex space-x-4 min-w-max no-scrollbar"></div>
+    `;
+                const topFlex = topSection.querySelector(".flex:last-child");
+                top25.forEach(fund => topFlex.appendChild(createFundCard(fund)));
+                mainContainer.appendChild(topSection);
             }
+
+            // Kart oluşturma şablonu (Daha temiz görünüm için güncellendi)
+            function createFundCard(fund, extraClass = "") {
+                const card = document.createElement("div");
+                card.className = `bg-white dark:bg-[#0d1b2a] border border-[#e5e7eb] dark:border-[#1f2d3d] rounded-xl p-4 w-64 flex flex-col hover:border-primary/60 transition-all ${extraClass}`;
+
+                const title = fund.title || "Bilinmeyen Fon";
+                const code = fund.code || "—";
+
+                const yield1m = safeValue(fund.yield_1m);
+                const yieldYtd = safeValue(fund.yield_ytd);
+
+                card.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase">${code}</span>
+            <span class="text-[10px] text-[#617589] italic">${fund.type?.substring(0, 20) || ""}</span>
+        </div>
+        <h3 class="text-sm font-bold text-[#111418] dark:text-white truncate mb-4" title="${title}">${title}</h3>
+        
+        <div class="grid grid-cols-2 gap-2 mt-auto">
+            <div class="flex flex-col">
+                <span class="text-[10px] text-gray-500 uppercase">1 AY</span>
+                <span class="${getColorClass(fund.yield_1m)} text-sm font-bold">${yield1m != null ? (fund.yield_1m >= 0 ? "+" : "") + yield1m + "%" : "—"}</span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-[10px] text-gray-500 uppercase">YTD</span>
+                <span class="${getColorClass(fund.yield_ytd)} text-sm font-bold">${yieldYtd != null ? (fund.yield_ytd >= 0 ? "+" : "") + yieldYtd + "%" : "—"}</span>
+            </div>
+        </div>
+    `;
+                return card;
+            }
+
+
+
 
             // Tabloyu render et
             function renderTable(data) {
