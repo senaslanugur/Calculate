@@ -42,6 +42,21 @@ function lineGraph() {
         return prev;
     }
 
+    // Helper: verilen dizi içinde numeric olarak en büyük turkish_lira değerine sahip datum'u döndür
+    function findMaxByTL(arr) {
+        if (!arr || arr.length === 0) return null;
+        let max = null;
+        for (let i = 0; i < arr.length; i++) {
+            const d = arr[i];
+            const val = Number(d.turkish_lira);
+            if (!isFinite(val)) continue;
+            if (!max || Number(max.turkish_lira) < val) {
+                max = d;
+            }
+        }
+        return max;
+    }
+
     // Boyutlar
     const container = document.getElementById('chartContainer');
     const rect = container.getBoundingClientRect();
@@ -82,11 +97,9 @@ function lineGraph() {
             #dataTable tbody td { border-bottom: 1px solid rgba(255,255,255,0.03); padding:6px 8px; font-size:13px; }
             .change-badge { display:inline-flex; align-items:center; gap:6px; font-size:13px; }
             .change-arrow { font-size:12px; line-height:1; }
-            /* Tablo görünür/gizli geçişi için basit geçiş */
             #dataTableWrapper { transition: max-height 300ms ease, opacity 300ms ease; overflow: hidden; }
             #dataTableWrapper.hidden { max-height: 0; opacity: 0; pointer-events: none; }
             #dataTableWrapper.visible { max-height: 800px; opacity: 1; pointer-events: auto; }
-            /* Buton stili */
             .table-toggle-btn {
                 padding: 6px 10px;
                 border-radius: 6px;
@@ -198,8 +211,8 @@ function lineGraph() {
     }
 
     // Y ekseni aralığını veriye göre akıllıca ayarla
-    const minValue = d3.min(data, d => d.turkish_lira);
-    const maxValue = d3.max(data, d => d.turkish_lira);
+    const minValue = d3.min(data, d => Number(d.turkish_lira));
+    const maxValue = d3.max(data, d => Number(d.turkish_lira));
     const padding = (maxValue - minValue) * 0.2;
     const yMin = Math.max(0, minValue - padding);
     const yMax = maxValue + padding;
@@ -273,11 +286,11 @@ function lineGraph() {
         .attr("d", line)
         .style("shape-rendering", "geometricPrecision");
 
-    // Maksimum değeri bul (tüm veri için)
-    const maxDatum = data.reduce((max, d) => (d.turkish_lira > max.turkish_lira ? d : max), data[0]);
+    // Başlangıçta global maksimumu bul ve göster (güvenli numeric karşılaştırma)
+    let globalMaxDatum = findMaxByTL(data);
 
-    // Noktalar (MAX hariç)
-    const normalDotsData = data.filter(d => d !== maxDatum);
+    // Noktalar (global max hariç)
+    const normalDotsData = data.filter(d => !(globalMaxDatum && d.date.getTime() === globalMaxDatum.date.getTime() && Number(d.turkish_lira) === Number(globalMaxDatum.turkish_lira)));
 
     // Noktaları değişkenlere bağla
     svg.selectAll(".dot")
@@ -292,26 +305,32 @@ function lineGraph() {
         .attr("stroke-width", 0)
         .style("filter", "drop-shadow(0 2.5px 5px rgba(0,0,0,0.13))");
 
-    // Maksimum nokta ve etiket
-    const maxDot = svg.append("circle")
-        .attr("class", "max-dot")
-        .attr("cx", x(maxDatum.date))
-        .attr("cy", y(maxDatum.turkish_lira))
-        .attr("r", 6)
-        .attr("fill", "#e53935")
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 1.5)
-        .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
+    // Maksimum nokta ve etiket (başlangıçta global max)
+    // Eğer globalMaxDatum null ise bu elemanlar oluşturulmayacak
+    let maxDot = null;
+    let maxLabel = null;
+    if (globalMaxDatum) {
+        maxDot = svg.append("circle")
+            .attr("class", "max-dot")
+            .attr("cx", x(globalMaxDatum.date))
+            .attr("cy", y(globalMaxDatum.turkish_lira))
+            .attr("r", 6)
+            .attr("fill", "#e53935")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
 
-    const maxLabel = svg.append("text")
-        .attr("x", x(maxDatum.date))
-        .attr("y", y(maxDatum.turkish_lira) - 12)
-        .attr("text-anchor", "middle")
-        .style("font-size", "12px")
-        .style("fill", "#ffdddd")
-        .style("font-family", "Inter, sans-serif")
-        .style("font-weight", "600")
-        .text(maxDatum.turkish_lira.toLocaleString('tr-TR') + " ₺");
+        maxLabel = svg.append("text")
+            .attr("class", "max-label")
+            .attr("x", x(globalMaxDatum.date))
+            .attr("y", y(globalMaxDatum.turkish_lira) - 12)
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .style("fill", "#ffdddd")
+            .style("font-family", "Inter, sans-serif")
+            .style("font-weight", "600")
+            .text(Number(globalMaxDatum.turkish_lira).toLocaleString('tr-TR') + " ₺");
+    }
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
@@ -352,7 +371,7 @@ function lineGraph() {
             tooltip
                 .html(`
         <span style="color:#ffa726"><b>Tarih:</b></span> ${d.date.toLocaleDateString('tr-TR')}<br>
-        <span style="color:#ffee58"><b>Değer:</b></span> ${d.turkish_lira.toLocaleString('tr-TR')} ₺
+        <span style="color:#ffee58"><b>Değer:</b></span> ${Number(d.turkish_lira).toLocaleString('tr-TR')} ₺
     `)
                 .style("left", (event.pageX + 12) + "px")
                 .style("top", (event.pageY - 36) + "px");
@@ -372,9 +391,9 @@ function lineGraph() {
     // % DEĞİŞİM GÖSTERGESİ
     const first = data[0];
     const last = data[data.length - 1];
-    const change = ((last.turkish_lira - first.turkish_lira) / first.turkish_lira) * 100;
-    const changeText = change.toFixed(2).replace('.', ',') + "%";
-    const up = change >= 0;
+    const change = ((Number(last.turkish_lira) - Number(first.turkish_lira)) / Number(first.turkish_lira)) * 100;
+    const changeText = isFinite(change) ? change.toFixed(2).replace('.', ',') + "%" : '—';
+    const up = isFinite(change) ? change >= 0 : true;
     const indicatorColor = up ? "#43a047" : "#e53935";
     const arrow = up ? "▲" : "▼";
     const kar_zarar = document.getElementById('kar_zarar');
@@ -461,7 +480,6 @@ function lineGraph() {
 
     // --- TABLO OLUŞTURMA (sayfada yoksa) ---
     if (!document.getElementById('dataTableWrapper')) {
-        // wrapper ile tabloyu show/hide yapacağız; başlangıçta gizli
         d3.select("#chartContainer").append("div")
             .attr("id", "dataTableWrapper")
             .attr("class", "hidden")
@@ -482,11 +500,12 @@ function lineGraph() {
     }
 
     // Tablo güncelleme fonksiyonu - tarih en üstte (yeniden sıralama: newest first)
-    // ve "maksimum" olarak SON TL değeri işaretlenecek (yani en yeni satır)
+    // ve maksimum TL değeri (görünür aralık içindeki) işaretlenecek
     function updateTable(filteredData) {
         const sortedDesc = filteredData.slice().sort((a, b) => b.date - a.date);
-        let maxInFiltered = null;
-        if (sortedDesc.length > 0) maxInFiltered = sortedDesc[0]; // newest
+
+        // Determine maximum by TL within filteredData (true max)
+        const maxInFiltered = findMaxByTL(filteredData);
 
         const tbody = d3.select('#dataTable tbody');
         const rows = tbody.selectAll('tr').data(sortedDesc, d => d.date.toISOString());
@@ -530,7 +549,7 @@ function lineGraph() {
             cell.html(html).attr('class', cls);
         });
 
-        // Highlight newest row as max-row
+        // Highlight the true max row (within filteredData)
         tbody.selectAll('tr').classed('max-row', false);
         if (maxInFiltered) {
             tbody.selectAll('tr')
@@ -544,7 +563,7 @@ function lineGraph() {
     svg.append("clipPath").attr("id", clipId).append("rect").attr("width", plotWidth).attr("height", plotHeight);
     linePath.attr("clip-path", `url(#${clipId})`);
     svg.selectAll('.dot').attr("clip-path", `url(#${clipId})`);
-    maxDot.attr("clip-path", `url(#${clipId})`);
+    if (maxDot) maxDot.attr("clip-path", `url(#${clipId})`);
 
     const zoom = d3.zoom()
         .scaleExtent([1, 50])
@@ -577,6 +596,7 @@ function lineGraph() {
 
         displayDiv.html(`<b>${formatDateDisplay(found.date)}</b><br><span style="color:#ffee58">TL:</span> ${tlText} &nbsp; <span style="color:#90caf9">USD:</span> ${usdText}`);
 
+        // Grafikte vurgulama: önce kaldır, sonra ekle
         d3.select("#chartContainer").selectAll(".selected-dot").remove();
         const svgSelection = svgRef.append("g").attr("class", "selected-dot");
         svgSelection.append("circle")
@@ -621,21 +641,52 @@ function lineGraph() {
         // update dots positions
         svg.selectAll(".dot").attr("cx", d => rescaleX(d.date)).attr("cy", d => y(d.turkish_lira));
 
-        // update max dot and label
-        maxDot.attr("cx", rescaleX(maxDatum.date)).attr("cy", y(maxDatum.turkish_lira));
-        maxLabel.attr("x", rescaleX(maxDatum.date)).attr("y", y(maxDatum.turkish_lira) - 12);
-
-        // selected-dot
-        d3.select("#chartContainer").selectAll(".selected-dot").remove();
-        const currentIso = datePicker.property("value");
-        if (currentIso) showValuesForISO(currentIso, svg, rescaleX, y);
-
         // Determine visible domain and update table
-        const visibleDomain = rescaleX.domain();
+        const visibleDomain = rescaleX.domain(); // [minDate, maxDate]
         const filtered = data.filter(d => d.date >= visibleDomain[0] && d.date <= visibleDomain[1]);
         updateTable(filtered);
 
-        // update datePicker to newest visible date and display
+        // Recompute visible max and update maxDot / maxLabel accordingly
+        const visibleMax = findMaxByTL(filtered);
+        if (visibleMax) {
+            // if maxDot doesn't exist yet, create it
+            if (!maxDot) {
+                maxDot = svg.append("circle")
+                    .attr("class", "max-dot")
+                    .attr("r", 6)
+                    .attr("fill", "#e53935")
+                    .attr("stroke", "#fff")
+                    .attr("stroke-width", 1.5)
+                    .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))")
+                    .attr("clip-path", `url(#${clipId})`);
+            }
+            if (!maxLabel) {
+                maxLabel = svg.append("text")
+                    .attr("class", "max-label")
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .style("fill", "#ffdddd")
+                    .style("font-family", "Inter, sans-serif")
+                    .style("font-weight", "600");
+            }
+            maxDot.attr("cx", rescaleX(visibleMax.date)).attr("cy", y(visibleMax.turkish_lira));
+            maxLabel.attr("x", rescaleX(visibleMax.date)).attr("y", y(visibleMax.turkish_lira) - 12)
+                .text(Number(visibleMax.turkish_lira).toLocaleString('tr-TR') + " ₺");
+        } else {
+            // no visible max (no points in view) -> remove visuals if present
+            if (maxDot) { maxDot.remove(); maxDot = null; }
+            if (maxLabel) { maxLabel.remove(); maxLabel = null; }
+        }
+
+        // update max-dot for global label if needed (we already handled visible)
+        // remove and re-add selected-dot to avoid stale positions
+        d3.select("#chartContainer").selectAll(".selected-dot").remove();
+        const currentIso = datePicker.property("value");
+        if (currentIso) {
+            showValuesForISO(currentIso, svg, rescaleX, y);
+        }
+
+        // Optionally update datePicker to newest visible date and display
         if (filtered.length > 0) {
             const newest = filtered.reduce((a,b) => (a.date > b.date ? a : b));
             const newestIso = formatDateISO(newest.date);
