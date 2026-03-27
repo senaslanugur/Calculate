@@ -30,6 +30,19 @@ function lineGraph() {
     // Veriyi tarihe göre sırala (bisector için gerekli) - ascending for scales
     data.sort((a, b) => a.date - b.date);
 
+    // Helper: önceki tarihli kaydı bul (tam veri kümesinde)
+    function getPreviousDatum(currentDate) {
+        // find the datum with the largest date strictly less than currentDate
+        let prev = null;
+        for (let i = 0; i < data.length; i++) {
+            const d = data[i];
+            if (d.date < currentDate) {
+                if (!prev || d.date > prev.date) prev = d;
+            }
+        }
+        return prev;
+    }
+
     // Boyutlar
     const container = document.getElementById('chartContainer');
     const rect = container.getBoundingClientRect();
@@ -48,13 +61,13 @@ function lineGraph() {
     d3.select("#chartContainer").selectAll("*").remove();
     d3.selectAll(".tooltip").remove();
 
-    // --- Stil ekle: max-row ve pulse animasyonu (hafif, rahatsız etmeyecek) ---
+    // --- Stil ekle: max-row, pulse animasyonu ve değişim hücresi stilleri ---
     const styleId = 'chartContainer-custom-styles';
     if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
         style.id = styleId;
         style.innerHTML = `
-            /* Maksimum satır vurgusu */
+            /* Maksimum satır vurgusu (son TL değeri olarak işaretlenecek) */
             #dataTable tbody tr.max-row td {
                 background: linear-gradient(90deg, rgba(255,213,79,0.06), rgba(255,213,79,0.02));
                 color: #fff;
@@ -70,10 +83,17 @@ function lineGraph() {
             #dataTable tbody tr.max-row {
                 animation: subtlePulse 2.5s ease-in-out infinite;
             }
+            /* Değişim hücresi stilleri */
+            #dataTable td.change-cell { font-weight: 600; }
+            #dataTable td.change-up { color: #43a047; } /* yeşil */
+            #dataTable td.change-down { color: #e53935; } /* kırmızı */
+            #dataTable td.change-neutral { color: #bdbdbd; } /* nötr */
             /* Küçük responsive iyileştirmeler */
             #dataTable { border-collapse: collapse; }
             #dataTable thead th { padding: 6px 8px; font-weight:700; color:#ddd; border-bottom:1px solid rgba(255,255,255,0.06); }
-            #dataTable tbody td { border-bottom: 1px solid rgba(255,255,255,0.03); }
+            #dataTable tbody td { border-bottom: 1px solid rgba(255,255,255,0.03); padding:6px 8px; font-size:13px; }
+            .change-badge { display:inline-flex; align-items:center; gap:6px; font-size:13px; }
+            .change-arrow { font-size:12px; line-height:1; }
         `;
         document.head.appendChild(style);
     }
@@ -429,21 +449,29 @@ function lineGraph() {
     if (!document.getElementById('dataTable')) {
         const tableHtml = `
             <table id="dataTable" style="width:100%;margin-top:10px;color:#f2f2f2;font-family:Inter, sans-serif;">
-                <thead><tr><th style="text-align:left">Tarih</th><th style="text-align:right">TL</th><th style="text-align:right">USD</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th style="text-align:left">Tarih</th>
+                        <th style="text-align:right">TL</th>
+                        <th style="text-align:right">USD</th>
+                        <th style="text-align:right">Değişim (₺ / %)</th>
+                    </tr>
+                </thead>
                 <tbody></tbody>
             </table>`;
         d3.select("#chartContainer").append("div").html(tableHtml);
     }
 
-    // Tablo güncelleme fonksiyonu - tarih en üstte (yeniden sıralama: newest first) ve maksimum satırı vurgula
+    // Tablo güncelleme fonksiyonu - tarih en üstte (yeniden sıralama: newest first)
+    // ve "maksimum" olarak SON TL değeri işaretlenecek (yani en yeni satır)
     function updateTable(filteredData) {
         // Ensure we show newest date at top: sort descending by date
         const sortedDesc = filteredData.slice().sort((a, b) => b.date - a.date);
 
-        // Determine maximum by turkish_lira within filteredData (if any)
+        // Determine "max" as the newest TL value (son TL değeri)
         let maxInFiltered = null;
-        if (filteredData.length > 0) {
-            maxInFiltered = filteredData.reduce((m, d) => (Number(d.turkish_lira) > Number(m.turkish_lira) ? d : m), filteredData[0]);
+        if (sortedDesc.length > 0) {
+            maxInFiltered = sortedDesc[0]; // newest row becomes the highlighted "max"
         }
 
         const tbody = d3.select('#dataTable tbody');
@@ -453,6 +481,7 @@ function lineGraph() {
         newRows.append('td').style('padding','6px 8px').style('font-size','13px');
         newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
         newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
+        newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right').attr('class','change-cell');
         const all = newRows.merge(rows);
 
         // Update cell contents
@@ -463,10 +492,35 @@ function lineGraph() {
             return usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : '—';
         });
 
-        // Remove any previous max-row classes then set on current max (if exists)
+        // For each row, compute change vs previous day (in full data)
+        all.each(function(d) {
+            const prev = getPreviousDatum(d.date);
+            const cell = d3.select(this).select('td:nth-child(4)');
+            if (!prev || prev.turkish_lira == null || prev.turkish_lira === '' || isNaN(Number(prev.turkish_lira))) {
+                cell.html('—').attr('class', 'change-cell change-neutral');
+                return;
+            }
+            const prevVal = Number(prev.turkish_lira);
+            const curVal = Number(d.turkish_lira);
+            if (isNaN(curVal) || prevVal === 0) {
+                cell.html('—').attr('class', 'change-cell change-neutral');
+                return;
+            }
+            const diff = curVal - prevVal;
+            const diffFormatted = (diff >= 0 ? '+' : '') + diff.toFixed(2).replace('.', ',') + ' ₺';
+            const pct = (diff / prevVal) * 100;
+            const pctFormatted = (pct >= 0 ? '+' : '') + pct.toFixed(2).replace('.', ',') + ' %';
+            const up = diff >= 0;
+            const arrow = up ? '▲' : '▼';
+            const cls = up ? 'change-cell change-up' : 'change-cell change-down';
+            // small badge with arrow, percent and amount
+            const html = `<span class="change-badge ${up ? 'up' : 'down'}"><span class="change-arrow">${arrow}</span><span>${pctFormatted}</span>&nbsp;<span style="opacity:0.85">(${diffFormatted})</span></span>`;
+            cell.html(html).attr('class', cls);
+        });
+
+        // Remove any previous max-row classes then set on current "max" (newest)
         tbody.selectAll('tr').classed('max-row', false);
         if (maxInFiltered) {
-            // Find the row corresponding to maxInFiltered and add class
             tbody.selectAll('tr')
                 .filter(d => d && d.date && (new Date(d.date)).getTime() === (new Date(maxInFiltered.date)).getTime())
                 .classed('max-row', true);
@@ -578,7 +632,7 @@ function lineGraph() {
         // Determine visible domain and update table
         const visibleDomain = rescaleX.domain(); // [minDate, maxDate]
         const filtered = data.filter(d => d.date >= visibleDomain[0] && d.date <= visibleDomain[1]);
-        // UpdateTable now expects newest first; updateTable will sort descending internally and highlight max
+        // UpdateTable now expects newest first; updateTable will sort descending internally and highlight newest as "max"
         updateTable(filtered);
 
         // Optionally update datePicker to newest visible date (tarih en üstte olacak şekilde)
