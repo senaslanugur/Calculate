@@ -57,10 +57,11 @@ function lineGraph() {
         return max;
     }
 
-    // Boyutlar
+    // Boyutlar (container genişliğini al ve SVG'yi container'a sığacak şekilde ayarla)
     const container = document.getElementById('chartContainer');
     const rect = container.getBoundingClientRect();
-    const width = rect.width;
+    // Eğer rect.width 0 ise fallback
+    const width = rect.width > 0 ? rect.width : Math.min(window.innerWidth - 32, 900);
     const height = 370;
     const margin = { top: 40, right: 40, bottom: 80, left: 60 };
     const plotWidth = width - margin.left - margin.right;
@@ -70,36 +71,24 @@ function lineGraph() {
     d3.select("#chartContainer").selectAll("*").remove();
     d3.selectAll(".tooltip").remove();
 
-    // --- Stil ekle: max-row ve değişim hücresi stilleri ---
+    // Stil (popup tablolar için inline stiller eklenir; sayfa içi tablo kaldırıldı)
     const styleId = 'chartContainer-custom-styles';
     if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
         style.id = styleId;
         style.innerHTML = `
-            #dataTable tbody tr.max-row td {
-                background: linear-gradient(90deg, rgba(255,213,79,0.06), rgba(255,213,79,0.02));
-                color: #fff;
-                font-weight: 700;
-                border-left: 4px solid rgba(255,213,79,0.9);
-            }
-            @keyframes subtlePulse {
-                0% { box-shadow: 0 0 0 0 rgba(255,213,79,0.00); }
-                50% { box-shadow: 0 0 12px 4px rgba(255,213,79,0.08); }
-                100% { box-shadow: 0 0 0 0 rgba(255,213,79,0.00); }
-            }
-            #dataTable tbody tr.max-row { animation: subtlePulse 2.5s ease-in-out infinite; }
-            #dataTable td.change-cell { font-weight: 600; }
-            #dataTable td.change-up { color: #43a047; }
-            #dataTable td.change-down { color: #e53935; }
-            #dataTable td.change-neutral { color: #bdbdbd; }
-            #dataTable { border-collapse: collapse; }
-            #dataTable thead th { padding: 6px 8px; font-weight:700; color:#ddd; border-bottom:1px solid rgba(255,255,255,0.06); }
-            #dataTable tbody td { border-bottom: 1px solid rgba(255,255,255,0.03); padding:6px 8px; font-size:13px; }
             .change-badge { display:inline-flex; align-items:center; gap:6px; font-size:13px; }
             .change-arrow { font-size:12px; line-height:1; }
-            #dataTableWrapper { transition: max-height 300ms ease, opacity 300ms ease; overflow: hidden; }
-            #dataTableWrapper.hidden { max-height: 0; opacity: 0; pointer-events: none; }
-            #dataTableWrapper.visible { max-height: 800px; opacity: 1; pointer-events: auto; }
+            .swal-table { width:100%; border-collapse:collapse; font-family:Inter, sans-serif; color:#f2f2f2; }
+            .swal-table thead th { text-align:left; padding:8px; font-weight:700; color:#ddd; border-bottom:1px solid rgba(255,255,255,0.06); }
+            .swal-table tbody td { padding:8px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); }
+            .swal-table td.right { text-align:right; }
+            .swal-max-row td { background: linear-gradient(90deg, rgba(255,213,79,0.06), rgba(255,213,79,0.02)); font-weight:700; border-left:4px solid rgba(255,213,79,0.9); }
+            .change-up { color:#43a047; font-weight:600; }
+            .change-down { color:#e53935; font-weight:600; }
+            .change-neutral { color:#bdbdbd; font-weight:600; }
+            .swal-scroll { max-height:420px; overflow:auto; margin-top:8px; }
+            /* Buton stili */
             .table-toggle-btn {
                 padding: 6px 10px;
                 border-radius: 6px;
@@ -114,7 +103,7 @@ function lineGraph() {
         document.head.appendChild(style);
     }
 
-    // Kontroller: nokta göster/gizle, datepicker ve tablo butonu
+    // Kontroller: nokta göster/gizle, datepicker ve popup butonu
     const controlDiv = d3.select("#chartContainer")
         .append("div")
         .style("display", "flex")
@@ -151,26 +140,34 @@ function lineGraph() {
         .style("background", "#0b1116")
         .style("color", "#fff");
 
-    // Yeni: tabloyu aç/kapat butonu (datePicker'ın yanında)
-    const tableBtn = controlDiv.append("button")
+    // Popup butonu (sadece popup açar)
+    const popupBtn = controlDiv.append("button")
         .attr("type", "button")
-        .attr("id", "toggleTableBtn")
         .attr("class", "table-toggle-btn")
-        .style("margin-left", "6px")
-        .text("Tabloyu Göster")
+        .text("Tablo")
         .on("click", function () {
-            const wrapper = document.getElementById('dataTableWrapper');
-            if (!wrapper) return;
-            const isHidden = wrapper.classList.contains('hidden');
-            if (isHidden) {
-                wrapper.classList.remove('hidden');
-                wrapper.classList.add('visible');
-                tableBtn.text('Tabloyu Gizle');
-            } else {
-                wrapper.classList.remove('visible');
-                wrapper.classList.add('hidden');
-                tableBtn.text('Tabloyu Göster');
-            }
+            const { filtered } = getVisibleFilteredData();
+            const html = buildSwalTableHtml(filtered);
+            Swal.fire({
+                title: 'Tablo',
+                html: html,
+                width: Math.min(1000, Math.max(700, Math.round(window.innerWidth * 0.9))),
+                showCloseButton: true,
+                showCancelButton: false,
+                confirmButtonText: 'Kapat',
+        background:'#1a2131',
+        color: '#f1f5f9',
+        confirmButtonText: 'TAMAM',
+        confirmButtonColor: '#137fec',
+        customClass: {
+          popup: 'rounded-3xl border border-white/10 shadow-2xl',
+          confirmButton: 'rounded-xl px-10 py-3 font-bold tracking-wide'
+        },
+                didOpen: () => {
+                    const scroll = document.querySelector('.swal-scroll');
+                    if (scroll) scroll.scrollTop = 0;
+                }
+            });
         });
 
     // Display alanı: seçilen tarihin değerlerini gösterecek
@@ -210,27 +207,23 @@ function lineGraph() {
         return datum.usd ?? datum.usd_value ?? datum.dollar ?? datum.usd_price ?? datum.dolar ?? null;
     }
 
-    // Y ekseni aralığını veriye göre akıllıca ayarla
-    const minValue = d3.min(data, d => Number(d.turkish_lira));
-    const maxValue = d3.max(data, d => Number(d.turkish_lira));
-    const padding = (maxValue - minValue) * 0.2;
-    const yMin = Math.max(0, minValue - padding);
-    const yMax = maxValue + padding;
-
     // X ve Y ölçekler
     const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.date))
         .range([0, plotWidth]);
 
     const y = d3.scaleLinear()
-        .domain([yMin, yMax])
+        .domain([Math.max(0, d3.min(data, d => Number(d.turkish_lira)) - (d3.max(data, d => Number(d.turkish_lira)) - d3.min(data, d => Number(d.turkish_lira))) * 0.2),
+                 d3.max(data, d => Number(d.turkish_lira)) + (d3.max(data, d => Number(d.turkish_lira)) - d3.min(data, d => Number(d.turkish_lira))) * 0.2])
         .range([plotHeight, 0]);
 
-    // SVG
+    // SVG - genişliği container'a göre ayarla (ekrana sığmama sorununu çözmek için)
     const svg = d3.select("#chartContainer")
         .append("svg")
-        .attr("width", "100%")
+        .attr("width", width) // container genişliğine sabit
         .attr("height", height)
+        .style("max-width", "100%") // responsive
+        .style("height", "auto")
         .attr("viewBox", `0 0 ${width} ${height}`)
         .attr("preserveAspectRatio", "xMidYMid meet")
         .append("g")
@@ -276,7 +269,7 @@ function lineGraph() {
         .y(d => y(d.turkish_lira))
         .curve(d3.curveMonotoneX);
 
-    // --- Çizgiyi değişkene bağla (class ile) ---
+    // Çizgiyi değişkene bağla
     const linePath = svg.append("path")
         .datum(data)
         .attr("class", "line-path")
@@ -286,13 +279,13 @@ function lineGraph() {
         .attr("d", line)
         .style("shape-rendering", "geometricPrecision");
 
-    // Başlangıçta global maksimumu bul ve göster (güvenli numeric karşılaştırma)
+    // Global maksimum (grafikte ayrıca görünür aralıkta yeniden hesaplanacak)
     let globalMaxDatum = findMaxByTL(data);
 
     // Noktalar (global max hariç)
     const normalDotsData = data.filter(d => !(globalMaxDatum && d.date.getTime() === globalMaxDatum.date.getTime() && Number(d.turkish_lira) === Number(globalMaxDatum.turkish_lira)));
 
-    // Noktaları değişkenlere bağla
+    // Noktaları çiz
     svg.selectAll(".dot")
         .data(normalDotsData)
         .enter().append("circle")
@@ -306,7 +299,6 @@ function lineGraph() {
         .style("filter", "drop-shadow(0 2.5px 5px rgba(0,0,0,0.13))");
 
     // Maksimum nokta ve etiket (başlangıçta global max)
-    // Eğer globalMaxDatum null ise bu elemanlar oluşturulmayacak
     let maxDot = null;
     let maxLabel = null;
     if (globalMaxDatum) {
@@ -418,147 +410,7 @@ function lineGraph() {
         kar_zarar.innerHTML = arrow + changeText;
     }
 
-    // GÜNLÜK % DEĞİŞİM (son iki turkish_lira üzerinden)
-    if (data.length >= 2) {
-        const prevDatum = data[data.length - 2];
-        const prevVal = Number(prevDatum.turkish_lira);
-        const todayVal = Number(last.turkish_lira);
-
-        const gunlukElem = document.getElementById('gunluk_kar_zarar');
-        const gunlukElem_amount = document.getElementById('gunluk_kar_zarar_amount');
-
-        if (!isNaN(prevVal) && prevVal !== 0 && !isNaN(todayVal)) {
-            const dailyChange = ((todayVal - prevVal) / prevVal) * 100;
-            if (gunlukElem_amount) {
-                gunlukElem_amount.innerHTML = (todayVal - prevVal).toFixed(2).replace('.', ',') + '₺';
-            }
-            const dailyText = dailyChange.toFixed(2).replace('.', ',') + '%';
-            const dailyUp = dailyChange >= 0;
-
-            if (gunlukElem) {
-                gunlukElem.classList.remove("text-green-500", "text-red-500");
-                if (dailyUp) {
-                    gunlukElem.classList.add("text-green-500");
-                } else {
-                    gunlukElem.classList.add("text-red-500");
-                }
-                gunlukElem.innerHTML = `${dailyUp ? "▲" : "▼"}${dailyText}`;
-            }
-        } else {
-            if (gunlukElem) {
-                gunlukElem.classList.remove("text-green-500", "text-red-500");
-                gunlukElem.innerHTML = '—';
-            }
-        }
-    } else {
-        const gunlukElem = document.getElementById('gunluk_kar_zarar');
-        if (gunlukElem) {
-            gunlukElem.classList.remove("text-green-500", "text-red-500");
-            gunlukElem.innerHTML = '—';
-        }
-    }
-
-    // Eksen etiketleri
-    svg.append("text")
-        .attr("x", plotWidth / 2)
-        .attr("y", plotHeight + 65)
-        .attr("text-anchor", "middle")
-        .style("font-size", "14px")
-        .style("fill", "#f2f2f2")
-        .style("font-family", "Inter, sans-serif")
-        .text("Tarih");
-
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("x", -plotHeight / 2)
-        .attr("y", -52)
-        .attr("text-anchor", "middle")
-        .style("font-size", "14px")
-        .style("fill", "#f2f2f2")
-        .style("font-family", "Inter, sans-serif")
-        .text("Türk Lirası (₺)");
-
-    // --- TABLO OLUŞTURMA (sayfada yoksa) ---
-    if (!document.getElementById('dataTableWrapper')) {
-        d3.select("#chartContainer").append("div")
-            .attr("id", "dataTableWrapper")
-            .attr("class", "hidden")
-            .style("margin-top", "10px")
-            .html(`
-                <table id="dataTable" style="width:100%;color:#f2f2f2;font-family:Inter, sans-serif;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left">Tarih</th>
-                            <th style="text-align:right">TL</th>
-                            <th style="text-align:right">USD</th>
-                            <th style="text-align:right">Değişim (₺ / %)</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            `);
-    }
-
-    // Tablo güncelleme fonksiyonu - tarih en üstte (yeniden sıralama: newest first)
-    // ve maksimum TL değeri (görünür aralık içindeki) işaretlenecek
-    function updateTable(filteredData) {
-        const sortedDesc = filteredData.slice().sort((a, b) => b.date - a.date);
-
-        // Determine maximum by TL within filteredData (true max)
-        const maxInFiltered = findMaxByTL(filteredData);
-
-        const tbody = d3.select('#dataTable tbody');
-        const rows = tbody.selectAll('tr').data(sortedDesc, d => d.date.toISOString());
-        rows.exit().remove();
-        const newRows = rows.enter().append('tr');
-        newRows.append('td').style('padding','6px 8px').style('font-size','13px');
-        newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
-        newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
-        newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right').attr('class','change-cell');
-        const all = newRows.merge(rows);
-
-        all.select('td:nth-child(1)').html(d => d.date.toLocaleDateString('tr-TR'));
-        all.select('td:nth-child(2)').html(d => (Number(d.turkish_lira).toLocaleString('tr-TR') + ' ₺'));
-        all.select('td:nth-child(3)').html(d => {
-            const usd = extractUsdValue(d);
-            return usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : '—';
-        });
-
-        // For each row, compute change vs previous day (in full data)
-        all.each(function(d) {
-            const prev = getPreviousDatum(d.date);
-            const cell = d3.select(this).select('td:nth-child(4)');
-            if (!prev || prev.turkish_lira == null || prev.turkish_lira === '' || isNaN(Number(prev.turkish_lira))) {
-                cell.html('—').attr('class', 'change-cell change-neutral');
-                return;
-            }
-            const prevVal = Number(prev.turkish_lira);
-            const curVal = Number(d.turkish_lira);
-            if (isNaN(curVal) || prevVal === 0) {
-                cell.html('—').attr('class', 'change-cell change-neutral');
-                return;
-            }
-            const diff = curVal - prevVal;
-            const diffFormatted = (diff >= 0 ? '+' : '') + diff.toFixed(2).replace('.', ',') + ' ₺';
-            const pct = (diff / prevVal) * 100;
-            const pctFormatted = (pct >= 0 ? '+' : '') + pct.toFixed(2).replace('.', ',') + ' %';
-            const up = diff >= 0;
-            const arrow = up ? '▲' : '▼';
-            const cls = up ? 'change-cell change-up' : 'change-cell change-down';
-            const html = `<span class="change-badge ${up ? 'up' : 'down'}"><span class="change-arrow">${arrow}</span><span>${pctFormatted}</span>&nbsp;<span style="opacity:0.85">(${diffFormatted})</span></span>`;
-            cell.html(html).attr('class', cls);
-        });
-
-        // Highlight the true max row (within filteredData)
-        tbody.selectAll('tr').classed('max-row', false);
-        if (maxInFiltered) {
-            tbody.selectAll('tr')
-                .filter(d => d && d.date && (new Date(d.date)).getTime() === (new Date(maxInFiltered.date)).getTime())
-                .classed('max-row', true);
-        }
-    }
-
-    // --- ZOOM VE TABLO GÜNCELLEME ---
+    // --- ZOOM (sadece yatay) ---
     const clipId = 'clip-' + Math.random().toString(36).slice(2);
     svg.append("clipPath").attr("id", clipId).append("rect").attr("width", plotWidth).attr("height", plotHeight);
     linePath.attr("clip-path", `url(#${clipId})`);
@@ -641,15 +493,12 @@ function lineGraph() {
         // update dots positions
         svg.selectAll(".dot").attr("cx", d => rescaleX(d.date)).attr("cy", d => y(d.turkish_lira));
 
-        // Determine visible domain and update table
-        const visibleDomain = rescaleX.domain(); // [minDate, maxDate]
+        // Determine visible domain and recompute visible max
+        const visibleDomain = rescaleX.domain();
         const filtered = data.filter(d => d.date >= visibleDomain[0] && d.date <= visibleDomain[1]);
-        updateTable(filtered);
 
-        // Recompute visible max and update maxDot / maxLabel accordingly
         const visibleMax = findMaxByTL(filtered);
         if (visibleMax) {
-            // if maxDot doesn't exist yet, create it
             if (!maxDot) {
                 maxDot = svg.append("circle")
                     .attr("class", "max-dot")
@@ -673,12 +522,10 @@ function lineGraph() {
             maxLabel.attr("x", rescaleX(visibleMax.date)).attr("y", y(visibleMax.turkish_lira) - 12)
                 .text(Number(visibleMax.turkish_lira).toLocaleString('tr-TR') + " ₺");
         } else {
-            // no visible max (no points in view) -> remove visuals if present
             if (maxDot) { maxDot.remove(); maxDot = null; }
             if (maxLabel) { maxLabel.remove(); maxLabel = null; }
         }
 
-        // update max-dot for global label if needed (we already handled visible)
         // remove and re-add selected-dot to avoid stale positions
         d3.select("#chartContainer").selectAll(".selected-dot").remove();
         const currentIso = datePicker.property("value");
@@ -702,14 +549,92 @@ function lineGraph() {
         showValuesForISO(val, svg, x, y);
     });
 
-    // İlk tablo doldurma (tam veriyle) - tabloyu newest-first gösterecek şekilde çağır
-    updateTable(data);
-
     // İlk gösterimi yap
     if (data.length > 0) {
         const initialISO = formatDateISO(data[data.length - 1].date);
         showValuesForISO(initialISO, svg, x, y);
     } else {
         displayDiv.html('Veri yok');
+    }
+
+    // --- Popup tablo için yardımcılar (sadece popup, sayfa içi tablo kaldırıldı) ---
+    function getVisibleFilteredData() {
+        const zoomPane = svg.select(".zoom-pane").node();
+        let transform = d3.zoomTransform(zoomPane);
+        const rescaleX = transform.rescaleX(x);
+        const domain = rescaleX.domain();
+        const filtered = data.filter(d => d.date >= domain[0] && d.date <= domain[1]);
+        filtered.sort((a, b) => a.date - b.date);
+        return { filtered, rescaleX };
+    }
+
+    function buildSwalTableHtml(filteredData) {
+        const maxInFiltered = findMaxByTL(filteredData);
+        const tableStyle = `
+            <style>
+                .swal-table { width:100%; border-collapse:collapse; font-family:Inter, sans-serif; color:#f2f2f2; }
+                .swal-table thead th { text-align:left; padding:8px; font-weight:700; color:#ddd; border-bottom:1px solid rgba(255,255,255,0.06); }
+                .swal-table tbody td { padding:8px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); }
+                .swal-table td.right { text-align:right; }
+                .swal-max-row td { background: linear-gradient(90deg, rgba(255,213,79,0.06), rgba(255,213,79,0.02)); font-weight:700; border-left:4px solid rgba(255,213,79,0.9); }
+                .change-up { color:#43a047; font-weight:600; }
+                .change-down { color:#e53935; font-weight:600; }
+                .change-neutral { color:#bdbdbd; font-weight:600; }
+                .change-badge { display:inline-flex; align-items:center; gap:6px; }
+                .change-arrow { font-size:12px; line-height:1; }
+                .swal-scroll { max-height:420px; overflow:auto; margin-top:8px; }
+            </style>
+        `;
+
+        const rows = filteredData.slice().sort((a,b) => b.date - a.date).map(d => {
+            const prev = getPreviousDatum(d.date);
+            let changeHtml = '—';
+            let changeClass = 'change-neutral';
+            if (prev && !isNaN(Number(prev.turkish_lira)) && !isNaN(Number(d.turkish_lira))) {
+                const prevVal = Number(prev.turkish_lira);
+                const curVal = Number(d.turkish_lira);
+                if (prevVal !== 0) {
+                    const diff = curVal - prevVal;
+                    const pct = (diff / prevVal) * 100;
+                    const arrow = diff >= 0 ? '▲' : '▼';
+                    const cls = diff >= 0 ? 'change-up' : 'change-down';
+                    changeHtml = `<span class="change-badge ${diff >= 0 ? 'up' : 'down'}"><span class="change-arrow">${arrow}</span><span>${(pct >= 0 ? '+' : '') + pct.toFixed(2).replace('.', ',')} %</span>&nbsp;<span style="opacity:0.85">(${(diff >= 0 ? '+' : '') + diff.toFixed(2).replace('.', ',')} ₺)</span></span>`;
+                    changeClass = cls;
+                }
+            }
+            const isMax = maxInFiltered && (new Date(d.date)).getTime() === (new Date(maxInFiltered.date)).getTime() && Number(d.turkish_lira) === Number(maxInFiltered.turkish_lira);
+            return `<tr class="${isMax ? 'swal-max-row' : ''}">
+                        <td>${d.date.toLocaleDateString('tr-TR')}</td>
+                        <td class="right">${Number(d.turkish_lira).toLocaleString('tr-TR')} ₺</td>
+                        <td class="right">${(extractUsdValue(d) != null) ? (Number(extractUsdValue(d)).toLocaleString('en-US') + ' $') : '—'}</td>
+                        <td class="right ${changeClass}">${changeHtml}</td>
+                    </tr>`;
+        }).join('');
+
+        const header = `
+            <table class="swal-table">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th class="right">TL</th>
+                        <th class="right">USD</th>
+                        <th class="right">Değişim (₺ / %)</th>
+                    </tr>
+                </thead>
+            </table>
+        `;
+
+        const tableHtml = `
+            ${tableStyle}
+            <div style="font-family:Inter, sans-serif; color:#fff; font-size:14px;">
+                ${header}
+                <div class="swal-scroll">
+                    <table class="swal-table"><tbody>
+                        ${rows || '<tr><td colspan="4" style="padding:8px;color:#bdbdbd">Görünür aralıkta veri yok</td></tr>'}
+                    </tbody></table>
+                </div>
+            </div>
+        `;
+        return tableHtml;
     }
 }
