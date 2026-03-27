@@ -32,7 +32,6 @@ function lineGraph() {
 
     // Helper: önceki tarihli kaydı bul (tam veri kümesinde)
     function getPreviousDatum(currentDate) {
-        // find the datum with the largest date strictly less than currentDate
         let prev = null;
         for (let i = 0; i < data.length; i++) {
             const d = data[i];
@@ -48,12 +47,7 @@ function lineGraph() {
     const rect = container.getBoundingClientRect();
     const width = rect.width;
     const height = 370;
-    const margin = {
-        top: 40,
-        right: 40,
-        bottom: 80,
-        left: 60
-    };
+    const margin = { top: 40, right: 40, bottom: 80, left: 60 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
 
@@ -61,44 +55,53 @@ function lineGraph() {
     d3.select("#chartContainer").selectAll("*").remove();
     d3.selectAll(".tooltip").remove();
 
-    // --- Stil ekle: max-row, pulse animasyonu ve değişim hücresi stilleri ---
+    // --- Stil ekle: max-row ve değişim hücresi stilleri ---
     const styleId = 'chartContainer-custom-styles';
     if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
         style.id = styleId;
         style.innerHTML = `
-            /* Maksimum satır vurgusu (son TL değeri olarak işaretlenecek) */
             #dataTable tbody tr.max-row td {
                 background: linear-gradient(90deg, rgba(255,213,79,0.06), rgba(255,213,79,0.02));
                 color: #fff;
                 font-weight: 700;
                 border-left: 4px solid rgba(255,213,79,0.9);
             }
-            /* Hafif pulse (düşük opaklık, yavaş) */
             @keyframes subtlePulse {
                 0% { box-shadow: 0 0 0 0 rgba(255,213,79,0.00); }
                 50% { box-shadow: 0 0 12px 4px rgba(255,213,79,0.08); }
                 100% { box-shadow: 0 0 0 0 rgba(255,213,79,0.00); }
             }
-            #dataTable tbody tr.max-row {
-                animation: subtlePulse 2.5s ease-in-out infinite;
-            }
-            /* Değişim hücresi stilleri */
+            #dataTable tbody tr.max-row { animation: subtlePulse 2.5s ease-in-out infinite; }
             #dataTable td.change-cell { font-weight: 600; }
-            #dataTable td.change-up { color: #43a047; } /* yeşil */
-            #dataTable td.change-down { color: #e53935; } /* kırmızı */
-            #dataTable td.change-neutral { color: #bdbdbd; } /* nötr */
-            /* Küçük responsive iyileştirmeler */
+            #dataTable td.change-up { color: #43a047; }
+            #dataTable td.change-down { color: #e53935; }
+            #dataTable td.change-neutral { color: #bdbdbd; }
             #dataTable { border-collapse: collapse; }
             #dataTable thead th { padding: 6px 8px; font-weight:700; color:#ddd; border-bottom:1px solid rgba(255,255,255,0.06); }
             #dataTable tbody td { border-bottom: 1px solid rgba(255,255,255,0.03); padding:6px 8px; font-size:13px; }
             .change-badge { display:inline-flex; align-items:center; gap:6px; font-size:13px; }
             .change-arrow { font-size:12px; line-height:1; }
+            /* Tablo görünür/gizli geçişi için basit geçiş */
+            #dataTableWrapper { transition: max-height 300ms ease, opacity 300ms ease; overflow: hidden; }
+            #dataTableWrapper.hidden { max-height: 0; opacity: 0; pointer-events: none; }
+            #dataTableWrapper.visible { max-height: 800px; opacity: 1; pointer-events: auto; }
+            /* Buton stili */
+            .table-toggle-btn {
+                padding: 6px 10px;
+                border-radius: 6px;
+                background: linear-gradient(180deg,#1f2937,#111827);
+                color: #fff;
+                border: 1px solid rgba(255,255,255,0.06);
+                font-family: Inter, sans-serif;
+                font-size: 13px;
+                cursor: pointer;
+            }
         `;
         document.head.appendChild(style);
     }
 
-    // Kontroller: nokta göster/gizle ve tarih seçimleri (sadece datepicker)
+    // Kontroller: nokta göster/gizle, datepicker ve tablo butonu
     const controlDiv = d3.select("#chartContainer")
         .append("div")
         .style("display", "flex")
@@ -125,18 +128,6 @@ function lineGraph() {
         .style("font-size", "13px")
         .text("Noktalar");
 
-    // Yardımcı: tarihi yyyy-mm-dd şeklinde döndürür (input[type=date] uyumlu)
-    function formatDateISO(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${y}-${m}-${day}`;
-    }
-
-    function formatDateDisplay(d) {
-        return d.toLocaleDateString('tr-TR');
-    }
-
     // Datepicker (input[type=date])
     const datePicker = controlDiv.append("input")
         .attr("type", "date")
@@ -146,6 +137,28 @@ function lineGraph() {
         .style("border", "1px solid rgba(255,255,255,0.12)")
         .style("background", "#0b1116")
         .style("color", "#fff");
+
+    // Yeni: tabloyu aç/kapat butonu (datePicker'ın yanında)
+    const tableBtn = controlDiv.append("button")
+        .attr("type", "button")
+        .attr("id", "toggleTableBtn")
+        .attr("class", "table-toggle-btn")
+        .style("margin-left", "6px")
+        .text("Tabloyu Göster")
+        .on("click", function () {
+            const wrapper = document.getElementById('dataTableWrapper');
+            if (!wrapper) return;
+            const isHidden = wrapper.classList.contains('hidden');
+            if (isHidden) {
+                wrapper.classList.remove('hidden');
+                wrapper.classList.add('visible');
+                tableBtn.text('Tabloyu Gizle');
+            } else {
+                wrapper.classList.remove('visible');
+                wrapper.classList.add('hidden');
+                tableBtn.text('Tabloyu Göster');
+            }
+        });
 
     // Display alanı: seçilen tarihin değerlerini gösterecek
     const displayDiv = d3.select("#chartContainer")
@@ -166,12 +179,19 @@ function lineGraph() {
         datePicker.property("value", lastIso);
     }
 
-    // Seçilen tarihe göre veriyi bulan fonksiyon
+    // Yardımcı fonksiyonlar
+    function formatDateISO(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+    function formatDateDisplay(d) {
+        return d.toLocaleDateString('tr-TR');
+    }
     function getDataByISO(isoStr) {
         return data.find(dd => formatDateISO(dd.date) === isoStr);
     }
-
-    // USD alanı farklı isimlerde olabilir; uygun alanı kontrol et
     function extractUsdValue(datum) {
         if (!datum) return null;
         return datum.usd ?? datum.usd_value ?? datum.dollar ?? datum.usd_price ?? datum.dolar ?? null;
@@ -209,11 +229,7 @@ function lineGraph() {
         .attr("stroke", "#eeeeee")
         .attr("stroke-opacity", 1)
         .attr("stroke-width", 1)
-        .call(d3.axisLeft(y)
-            .ticks(6)
-            .tickSize(-plotWidth)
-            .tickFormat("")
-        );
+        .call(d3.axisLeft(y).ticks(6).tickSize(-plotWidth).tickFormat(""));
 
     // X ekseni
     const xAxis = svg.append("g")
@@ -233,9 +249,7 @@ function lineGraph() {
 
     // Y ekseni (TL formatında)
     svg.append("g")
-        .call(d3.axisLeft(y)
-            .ticks(6)
-            .tickFormat(d => d.toLocaleString("tr-TR") + " ₺"))
+        .call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toLocaleString("tr-TR") + " ₺"))
         .selectAll("text")
         .style("font-size", "13px")
         .style("fill", "#f2f2f2")
@@ -266,7 +280,7 @@ function lineGraph() {
     const normalDotsData = data.filter(d => d !== maxDatum);
 
     // Noktaları değişkenlere bağla
-    const dots = svg.selectAll(".dot")
+    svg.selectAll(".dot")
         .data(normalDotsData)
         .enter().append("circle")
         .attr("class", "dot")
@@ -446,33 +460,33 @@ function lineGraph() {
         .text("Türk Lirası (₺)");
 
     // --- TABLO OLUŞTURMA (sayfada yoksa) ---
-    if (!document.getElementById('dataTable')) {
-        const tableHtml = `
-            <table id="dataTable" style="width:100%;margin-top:10px;color:#f2f2f2;font-family:Inter, sans-serif;">
-                <thead>
-                    <tr>
-                        <th style="text-align:left">Tarih</th>
-                        <th style="text-align:right">TL</th>
-                        <th style="text-align:right">USD</th>
-                        <th style="text-align:right">Değişim (₺ / %)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>`;
-        d3.select("#chartContainer").append("div").html(tableHtml);
+    if (!document.getElementById('dataTableWrapper')) {
+        // wrapper ile tabloyu show/hide yapacağız; başlangıçta gizli
+        d3.select("#chartContainer").append("div")
+            .attr("id", "dataTableWrapper")
+            .attr("class", "hidden")
+            .style("margin-top", "10px")
+            .html(`
+                <table id="dataTable" style="width:100%;color:#f2f2f2;font-family:Inter, sans-serif;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left">Tarih</th>
+                            <th style="text-align:right">TL</th>
+                            <th style="text-align:right">USD</th>
+                            <th style="text-align:right">Değişim (₺ / %)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            `);
     }
 
     // Tablo güncelleme fonksiyonu - tarih en üstte (yeniden sıralama: newest first)
     // ve "maksimum" olarak SON TL değeri işaretlenecek (yani en yeni satır)
     function updateTable(filteredData) {
-        // Ensure we show newest date at top: sort descending by date
         const sortedDesc = filteredData.slice().sort((a, b) => b.date - a.date);
-
-        // Determine "max" as the newest TL value (son TL değeri)
         let maxInFiltered = null;
-        if (sortedDesc.length > 0) {
-            maxInFiltered = sortedDesc[0]; // newest row becomes the highlighted "max"
-        }
+        if (sortedDesc.length > 0) maxInFiltered = sortedDesc[0]; // newest
 
         const tbody = d3.select('#dataTable tbody');
         const rows = tbody.selectAll('tr').data(sortedDesc, d => d.date.toISOString());
@@ -484,7 +498,6 @@ function lineGraph() {
         newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right').attr('class','change-cell');
         const all = newRows.merge(rows);
 
-        // Update cell contents
         all.select('td:nth-child(1)').html(d => d.date.toLocaleDateString('tr-TR'));
         all.select('td:nth-child(2)').html(d => (Number(d.turkish_lira).toLocaleString('tr-TR') + ' ₺'));
         all.select('td:nth-child(3)').html(d => {
@@ -513,12 +526,11 @@ function lineGraph() {
             const up = diff >= 0;
             const arrow = up ? '▲' : '▼';
             const cls = up ? 'change-cell change-up' : 'change-cell change-down';
-            // small badge with arrow, percent and amount
             const html = `<span class="change-badge ${up ? 'up' : 'down'}"><span class="change-arrow">${arrow}</span><span>${pctFormatted}</span>&nbsp;<span style="opacity:0.85">(${diffFormatted})</span></span>`;
             cell.html(html).attr('class', cls);
         });
 
-        // Remove any previous max-row classes then set on current "max" (newest)
+        // Highlight newest row as max-row
         tbody.selectAll('tr').classed('max-row', false);
         if (maxInFiltered) {
             tbody.selectAll('tr')
@@ -529,13 +541,7 @@ function lineGraph() {
 
     // --- ZOOM VE TABLO GÜNCELLEME ---
     const clipId = 'clip-' + Math.random().toString(36).slice(2);
-    svg.append("clipPath")
-        .attr("id", clipId)
-        .append("rect")
-        .attr("width", plotWidth)
-        .attr("height", plotHeight);
-
-    // apply clip to path and dots so they don't overflow
+    svg.append("clipPath").attr("id", clipId).append("rect").attr("width", plotWidth).attr("height", plotHeight);
     linePath.attr("clip-path", `url(#${clipId})`);
     svg.selectAll('.dot').attr("clip-path", `url(#${clipId})`);
     maxDot.attr("clip-path", `url(#${clipId})`);
@@ -546,7 +552,6 @@ function lineGraph() {
         .extent([[0, 0], [plotWidth, plotHeight]])
         .on("zoom", zoomed);
 
-    // attach zoom to an overlay rect on top of plot area
     svg.append("rect")
         .attr("class", "zoom-pane")
         .attr("width", plotWidth)
@@ -557,7 +562,6 @@ function lineGraph() {
         .attr("transform", "translate(0,0)")
         .call(zoom);
 
-    // showValuesForISO artık xScale parametresi alıyor (rescale edilmiş x ile çalışmak için)
     function showValuesForISO(isoStr, svgRef, xScale, yScale) {
         const found = getDataByISO(isoStr);
         if (!found) {
@@ -573,7 +577,6 @@ function lineGraph() {
 
         displayDiv.html(`<b>${formatDateDisplay(found.date)}</b><br><span style="color:#ffee58">TL:</span> ${tlText} &nbsp; <span style="color:#90caf9">USD:</span> ${usdText}`);
 
-        // Grafikte vurgulama: önce kaldır, sonra ekle
         d3.select("#chartContainer").selectAll(".selected-dot").remove();
         const svgSelection = svgRef.append("g").attr("class", "selected-dot");
         svgSelection.append("circle")
@@ -622,35 +625,29 @@ function lineGraph() {
         maxDot.attr("cx", rescaleX(maxDatum.date)).attr("cy", y(maxDatum.turkish_lira));
         maxLabel.attr("x", rescaleX(maxDatum.date)).attr("y", y(maxDatum.turkish_lira) - 12);
 
-        // remove and re-add selected-dot to avoid stale positions
+        // selected-dot
         d3.select("#chartContainer").selectAll(".selected-dot").remove();
         const currentIso = datePicker.property("value");
-        if (currentIso) {
-            showValuesForISO(currentIso, svg, rescaleX, y);
-        }
+        if (currentIso) showValuesForISO(currentIso, svg, rescaleX, y);
 
         // Determine visible domain and update table
-        const visibleDomain = rescaleX.domain(); // [minDate, maxDate]
+        const visibleDomain = rescaleX.domain();
         const filtered = data.filter(d => d.date >= visibleDomain[0] && d.date <= visibleDomain[1]);
-        // UpdateTable now expects newest first; updateTable will sort descending internally and highlight newest as "max"
         updateTable(filtered);
 
-        // Optionally update datePicker to newest visible date (tarih en üstte olacak şekilde)
+        // update datePicker to newest visible date and display
         if (filtered.length > 0) {
-            // newest is max date in filtered
             const newest = filtered.reduce((a,b) => (a.date > b.date ? a : b));
             const newestIso = formatDateISO(newest.date);
             datePicker.property("value", newestIso);
-            // update displayDiv as well
             showValuesForISO(newestIso, svg, rescaleX, y);
         }
     }
 
-    // Datepicker event: grafikteki svg ve ölçekler hazır olduğu için burada çağrılabilir
+    // Datepicker event
     datePicker.on("change", function () {
         const val = this.value;
         if (!val) return;
-        // show with current x scale (no zoom => original x)
         showValuesForISO(val, svg, x, y);
     });
 
