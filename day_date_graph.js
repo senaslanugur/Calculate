@@ -48,6 +48,36 @@ function lineGraph() {
     d3.select("#chartContainer").selectAll("*").remove();
     d3.selectAll(".tooltip").remove();
 
+    // --- Stil ekle: max-row ve pulse animasyonu (hafif, rahatsız etmeyecek) ---
+    const styleId = 'chartContainer-custom-styles';
+    if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = `
+            /* Maksimum satır vurgusu */
+            #dataTable tbody tr.max-row td {
+                background: linear-gradient(90deg, rgba(255,213,79,0.06), rgba(255,213,79,0.02));
+                color: #fff;
+                font-weight: 700;
+                border-left: 4px solid rgba(255,213,79,0.9);
+            }
+            /* Hafif pulse (düşük opaklık, yavaş) */
+            @keyframes subtlePulse {
+                0% { box-shadow: 0 0 0 0 rgba(255,213,79,0.00); }
+                50% { box-shadow: 0 0 12px 4px rgba(255,213,79,0.08); }
+                100% { box-shadow: 0 0 0 0 rgba(255,213,79,0.00); }
+            }
+            #dataTable tbody tr.max-row {
+                animation: subtlePulse 2.5s ease-in-out infinite;
+            }
+            /* Küçük responsive iyileştirmeler */
+            #dataTable { border-collapse: collapse; }
+            #dataTable thead th { padding: 6px 8px; font-weight:700; color:#ddd; border-bottom:1px solid rgba(255,255,255,0.06); }
+            #dataTable tbody td { border-bottom: 1px solid rgba(255,255,255,0.03); }
+        `;
+        document.head.appendChild(style);
+    }
+
     // Kontroller: nokta göster/gizle ve tarih seçimleri (sadece datepicker)
     const controlDiv = d3.select("#chartContainer")
         .append("div")
@@ -209,7 +239,7 @@ function lineGraph() {
         .attr("d", line)
         .style("shape-rendering", "geometricPrecision");
 
-    // Maksimum değeri bul
+    // Maksimum değeri bul (tüm veri için)
     const maxDatum = data.reduce((max, d) => (d.turkish_lira > max.turkish_lira ? d : max), data[0]);
 
     // Noktalar (MAX hariç)
@@ -405,10 +435,16 @@ function lineGraph() {
         d3.select("#chartContainer").append("div").html(tableHtml);
     }
 
-    // Tablo güncelleme fonksiyonu - artık tarih en üstte (yeniden sıralama: newest first)
+    // Tablo güncelleme fonksiyonu - tarih en üstte (yeniden sıralama: newest first) ve maksimum satırı vurgula
     function updateTable(filteredData) {
         // Ensure we show newest date at top: sort descending by date
         const sortedDesc = filteredData.slice().sort((a, b) => b.date - a.date);
+
+        // Determine maximum by turkish_lira within filteredData (if any)
+        let maxInFiltered = null;
+        if (filteredData.length > 0) {
+            maxInFiltered = filteredData.reduce((m, d) => (Number(d.turkish_lira) > Number(m.turkish_lira) ? d : m), filteredData[0]);
+        }
 
         const tbody = d3.select('#dataTable tbody');
         const rows = tbody.selectAll('tr').data(sortedDesc, d => d.date.toISOString());
@@ -418,12 +454,23 @@ function lineGraph() {
         newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
         newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
         const all = newRows.merge(rows);
+
+        // Update cell contents
         all.select('td:nth-child(1)').html(d => d.date.toLocaleDateString('tr-TR'));
         all.select('td:nth-child(2)').html(d => (Number(d.turkish_lira).toLocaleString('tr-TR') + ' ₺'));
         all.select('td:nth-child(3)').html(d => {
             const usd = extractUsdValue(d);
             return usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : '—';
         });
+
+        // Remove any previous max-row classes then set on current max (if exists)
+        tbody.selectAll('tr').classed('max-row', false);
+        if (maxInFiltered) {
+            // Find the row corresponding to maxInFiltered and add class
+            tbody.selectAll('tr')
+                .filter(d => d && d.date && (new Date(d.date)).getTime() === (new Date(maxInFiltered.date)).getTime())
+                .classed('max-row', true);
+        }
     }
 
     // --- ZOOM VE TABLO GÜNCELLEME ---
@@ -531,7 +578,7 @@ function lineGraph() {
         // Determine visible domain and update table
         const visibleDomain = rescaleX.domain(); // [minDate, maxDate]
         const filtered = data.filter(d => d.date >= visibleDomain[0] && d.date <= visibleDomain[1]);
-        // UpdateTable now expects newest first; updateTable will sort descending internally
+        // UpdateTable now expects newest first; updateTable will sort descending internally and highlight max
         updateTable(filtered);
 
         // Optionally update datePicker to newest visible date (tarih en üstte olacak şekilde)
