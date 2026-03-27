@@ -27,7 +27,7 @@ function lineGraph() {
         date: new Date(d.date)
     }));
 
-    // Veriyi tarihe göre sırala (bisector için gerekli)
+    // Veriyi tarihe göre sırala (bisector için gerekli) - ascending for scales
     data.sort((a, b) => a.date - b.date);
 
     // Boyutlar
@@ -127,47 +127,9 @@ function lineGraph() {
         return datum.usd ?? datum.usd_value ?? datum.dollar ?? datum.usd_price ?? datum.dolar ?? null;
     }
 
-    // Seçim değiştiğinde göstergeyi güncelle ve grafikte vurgula
-    function showValuesForISO(isoStr, svg, x, y) {
-        const found = getDataByISO(isoStr);
-        if (!found) {
-            displayDiv.html(`<span style="color:#ffa726">Seçilen tarihte veri yok</span>`);
-            // vurguyu kaldır
-            d3.select("#chartContainer").selectAll(".selected-dot").remove();
-            return;
-        }
-        const tl = found.turkish_lira ?? found.tl ?? found.turkish ?? null;
-        const usd = extractUsdValue(found);
-
-        const tlText = tl != null ? (Number(tl).toLocaleString('tr-TR') + ' ₺') : 'TL bilgisi yok';
-        const usdText = usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : 'USD bilgisi yok';
-
-        displayDiv.html(`<b>${formatDateDisplay(found.date)}</b><br><span style="color:#ffee58">TL:</span> ${tlText} &nbsp; <span style="color:#90caf9">USD:</span> ${usdText}`);
-
-        // Grafikte vurgulama: önce kaldır, sonra ekle
-        d3.select("#chartContainer").selectAll(".selected-dot").remove();
-        const svgSelection = svg.append("g").attr("class", "selected-dot");
-        svgSelection.append("circle")
-            .attr("cx", x(found.date))
-            .attr("cy", y(found.turkish_lira))
-            .attr("r", 7)
-            .attr("fill", "none")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 2)
-            .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
-        svgSelection.append("circle")
-            .attr("cx", x(found.date))
-            .attr("cy", y(found.turkish_lira))
-            .attr("r", 4)
-            .attr("fill", "#ffd54f")
-            .attr("stroke", "transparent");
-    }
-
-    // İlk gösterimi yap (grafik çizildikten sonra çağrılacak)
     // Y ekseni aralığını veriye göre akıllıca ayarla
     const minValue = d3.min(data, d => d.turkish_lira);
     const maxValue = d3.max(data, d => d.turkish_lira);
-
     const padding = (maxValue - minValue) * 0.2;
     const yMin = Math.max(0, minValue - padding);
     const yMax = maxValue + padding;
@@ -231,14 +193,16 @@ function lineGraph() {
 
     svg.select(".domain").remove();
 
-    // Çizgi
+    // Çizgi fonksiyonu (orijinal x ile)
     const line = d3.line()
         .x(d => x(d.date))
         .y(d => y(d.turkish_lira))
         .curve(d3.curveMonotoneX);
 
-    svg.append("path")
+    // --- Çizgiyi değişkene bağla (class ile) ---
+    const linePath = svg.append("path")
         .datum(data)
+        .attr("class", "line-path")
         .attr("fill", "none")
         .attr("stroke", "#1565c0")
         .attr("stroke-width", 3)
@@ -251,7 +215,8 @@ function lineGraph() {
     // Noktalar (MAX hariç)
     const normalDotsData = data.filter(d => d !== maxDatum);
 
-    svg.selectAll(".dot")
+    // Noktaları değişkenlere bağla
+    const dots = svg.selectAll(".dot")
         .data(normalDotsData)
         .enter().append("circle")
         .attr("class", "dot")
@@ -263,28 +228,26 @@ function lineGraph() {
         .attr("stroke-width", 0)
         .style("filter", "drop-shadow(0 2.5px 5px rgba(0,0,0,0.13))");
 
-    // Maksimum nokta
-    if (maxDatum) {
-        svg.append("circle")
-            .attr("class", "max-dot")
-            .attr("cx", x(maxDatum.date))
-            .attr("cy", y(maxDatum.turkish_lira))
-            .attr("r", 6)
-            .attr("fill", "#e53935")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5)
-            .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
+    // Maksimum nokta ve etiket
+    const maxDot = svg.append("circle")
+        .attr("class", "max-dot")
+        .attr("cx", x(maxDatum.date))
+        .attr("cy", y(maxDatum.turkish_lira))
+        .attr("r", 6)
+        .attr("fill", "#e53935")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1.5)
+        .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
 
-        svg.append("text")
-            .attr("x", x(maxDatum.date))
-            .attr("y", y(maxDatum.turkish_lira) - 12)
-            .attr("text-anchor", "middle")
-            .style("font-size", "12px")
-            .style("fill", "#ffdddd")
-            .style("font-family", "Inter, sans-serif")
-            .style("font-weight", "600")
-            .text(maxDatum.turkish_lira.toLocaleString('tr-TR') + " ₺");
-    }
+    const maxLabel = svg.append("text")
+        .attr("x", x(maxDatum.date))
+        .attr("y", y(maxDatum.turkish_lira) - 12)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .style("fill", "#ffdddd")
+        .style("font-family", "Inter, sans-serif")
+        .style("font-weight", "600")
+        .text(maxDatum.turkish_lira.toLocaleString('tr-TR') + " ₺");
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
@@ -301,7 +264,7 @@ function lineGraph() {
         .style("box-shadow", "0 6px 18px rgba(0,0,0,0.18)")
         .style("z-index", "9999");
 
-    // Fare etkileşimi
+    // Fare etkileşimi (overlay)
     svg.append("rect")
         .attr("class", "overlay")
         .attr("width", plotWidth)
@@ -381,17 +344,14 @@ function lineGraph() {
         const gunlukElem = document.getElementById('gunluk_kar_zarar');
         const gunlukElem_amount = document.getElementById('gunluk_kar_zarar_amount');
 
-
         if (!isNaN(prevVal) && prevVal !== 0 && !isNaN(todayVal)) {
             const dailyChange = ((todayVal - prevVal) / prevVal) * 100;
-            gunlukElem_amount.innerHTML = (todayVal - prevVal).toFixed(2).replace('.', ',') + '₺'
-            console.log(gunlukElem_amount)
+            if (gunlukElem_amount) {
+                gunlukElem_amount.innerHTML = (todayVal - prevVal).toFixed(2).replace('.', ',') + '₺';
+            }
             const dailyText = dailyChange.toFixed(2).replace('.', ',') + '%';
             const dailyUp = dailyChange >= 0;
-            const dailyColor = dailyUp ? "#43a047" : "#e53935";
-            const dailyArrow = dailyUp ? "▲" : "▼";
 
-            // DOM elementini güncelle (varsa)
             if (gunlukElem) {
                 gunlukElem.classList.remove("text-green-500", "text-red-500");
                 if (dailyUp) {
@@ -399,17 +359,15 @@ function lineGraph() {
                 } else {
                     gunlukElem.classList.add("text-red-500");
                 }
-                gunlukElem.innerHTML = `${dailyArrow}${dailyText}`;
+                gunlukElem.innerHTML = `${dailyUp ? "▲" : "▼"}${dailyText}`;
             }
         } else {
-
             if (gunlukElem) {
                 gunlukElem.classList.remove("text-green-500", "text-red-500");
                 gunlukElem.innerHTML = '—';
             }
         }
     } else {
-        // Yeterli veri yoksa varsa DOM elemanını temizle
         const gunlukElem = document.getElementById('gunluk_kar_zarar');
         if (gunlukElem) {
             gunlukElem.classList.remove("text-green-500", "text-red-500");
@@ -437,12 +395,166 @@ function lineGraph() {
         .style("font-family", "Inter, sans-serif")
         .text("Türk Lirası (₺)");
 
+    // --- TABLO OLUŞTURMA (sayfada yoksa) ---
+    if (!document.getElementById('dataTable')) {
+        const tableHtml = `
+            <table id="dataTable" style="width:100%;margin-top:10px;color:#f2f2f2;font-family:Inter, sans-serif;">
+                <thead><tr><th style="text-align:left">Tarih</th><th style="text-align:right">TL</th><th style="text-align:right">USD</th></tr></thead>
+                <tbody></tbody>
+            </table>`;
+        d3.select("#chartContainer").append("div").html(tableHtml);
+    }
+
+    // Tablo güncelleme fonksiyonu - artık tarih en üstte (yeniden sıralama: newest first)
+    function updateTable(filteredData) {
+        // Ensure we show newest date at top: sort descending by date
+        const sortedDesc = filteredData.slice().sort((a, b) => b.date - a.date);
+
+        const tbody = d3.select('#dataTable tbody');
+        const rows = tbody.selectAll('tr').data(sortedDesc, d => d.date.toISOString());
+        rows.exit().remove();
+        const newRows = rows.enter().append('tr');
+        newRows.append('td').style('padding','6px 8px').style('font-size','13px');
+        newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
+        newRows.append('td').style('padding','6px 8px').style('font-size','13px').style('text-align','right');
+        const all = newRows.merge(rows);
+        all.select('td:nth-child(1)').html(d => d.date.toLocaleDateString('tr-TR'));
+        all.select('td:nth-child(2)').html(d => (Number(d.turkish_lira).toLocaleString('tr-TR') + ' ₺'));
+        all.select('td:nth-child(3)').html(d => {
+            const usd = extractUsdValue(d);
+            return usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : '—';
+        });
+    }
+
+    // --- ZOOM VE TABLO GÜNCELLEME ---
+    const clipId = 'clip-' + Math.random().toString(36).slice(2);
+    svg.append("clipPath")
+        .attr("id", clipId)
+        .append("rect")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight);
+
+    // apply clip to path and dots so they don't overflow
+    linePath.attr("clip-path", `url(#${clipId})`);
+    svg.selectAll('.dot').attr("clip-path", `url(#${clipId})`);
+    maxDot.attr("clip-path", `url(#${clipId})`);
+
+    const zoom = d3.zoom()
+        .scaleExtent([1, 50])
+        .translateExtent([[0, 0], [plotWidth, plotHeight]])
+        .extent([[0, 0], [plotWidth, plotHeight]])
+        .on("zoom", zoomed);
+
+    // attach zoom to an overlay rect on top of plot area
+    svg.append("rect")
+        .attr("class", "zoom-pane")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .style("cursor", "move")
+        .attr("transform", "translate(0,0)")
+        .call(zoom);
+
+    // showValuesForISO artık xScale parametresi alıyor (rescale edilmiş x ile çalışmak için)
+    function showValuesForISO(isoStr, svgRef, xScale, yScale) {
+        const found = getDataByISO(isoStr);
+        if (!found) {
+            displayDiv.html(`<span style="color:#ffa726">Seçilen tarihte veri yok</span>`);
+            d3.select("#chartContainer").selectAll(".selected-dot").remove();
+            return;
+        }
+        const tl = found.turkish_lira ?? found.tl ?? found.turkish ?? null;
+        const usd = extractUsdValue(found);
+
+        const tlText = tl != null ? (Number(tl).toLocaleString('tr-TR') + ' ₺') : 'TL bilgisi yok';
+        const usdText = usd != null ? (Number(usd).toLocaleString('en-US') + ' $') : 'USD bilgisi yok';
+
+        displayDiv.html(`<b>${formatDateDisplay(found.date)}</b><br><span style="color:#ffee58">TL:</span> ${tlText} &nbsp; <span style="color:#90caf9">USD:</span> ${usdText}`);
+
+        // Grafikte vurgulama: önce kaldır, sonra ekle
+        d3.select("#chartContainer").selectAll(".selected-dot").remove();
+        const svgSelection = svgRef.append("g").attr("class", "selected-dot");
+        svgSelection.append("circle")
+            .attr("cx", xScale(found.date))
+            .attr("cy", yScale(found.turkish_lira))
+            .attr("r", 7)
+            .attr("fill", "none")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2)
+            .style("filter", "drop-shadow(0 3px 8px rgba(0,0,0,0.18))");
+        svgSelection.append("circle")
+            .attr("cx", xScale(found.date))
+            .attr("cy", yScale(found.turkish_lira))
+            .attr("r", 4)
+            .attr("fill", "#ffd54f")
+            .attr("stroke", "transparent");
+    }
+
+    function zoomed(event) {
+        const t = event.transform;
+        const rescaleX = t.rescaleX(x);
+
+        // update x axis
+        xAxis.call(d3.axisBottom(rescaleX).ticks(Math.min(7, data.length)));
+        xAxis.selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-45)")
+            .style("font-size", "13px")
+            .style("fill", "#f2f2f2")
+            .style("font-weight", 500);
+
+        // update line path with new x accessor
+        const newLine = d3.line()
+            .x(d => rescaleX(d.date))
+            .y(d => y(d.turkish_lira))
+            .curve(d3.curveMonotoneX);
+
+        linePath.attr("d", newLine(data));
+
+        // update dots positions
+        svg.selectAll(".dot").attr("cx", d => rescaleX(d.date)).attr("cy", d => y(d.turkish_lira));
+
+        // update max dot and label
+        maxDot.attr("cx", rescaleX(maxDatum.date)).attr("cy", y(maxDatum.turkish_lira));
+        maxLabel.attr("x", rescaleX(maxDatum.date)).attr("y", y(maxDatum.turkish_lira) - 12);
+
+        // remove and re-add selected-dot to avoid stale positions
+        d3.select("#chartContainer").selectAll(".selected-dot").remove();
+        const currentIso = datePicker.property("value");
+        if (currentIso) {
+            showValuesForISO(currentIso, svg, rescaleX, y);
+        }
+
+        // Determine visible domain and update table
+        const visibleDomain = rescaleX.domain(); // [minDate, maxDate]
+        const filtered = data.filter(d => d.date >= visibleDomain[0] && d.date <= visibleDomain[1]);
+        // UpdateTable now expects newest first; updateTable will sort descending internally
+        updateTable(filtered);
+
+        // Optionally update datePicker to newest visible date (tarih en üstte olacak şekilde)
+        if (filtered.length > 0) {
+            // newest is max date in filtered
+            const newest = filtered.reduce((a,b) => (a.date > b.date ? a : b));
+            const newestIso = formatDateISO(newest.date);
+            datePicker.property("value", newestIso);
+            // update displayDiv as well
+            showValuesForISO(newestIso, svg, rescaleX, y);
+        }
+    }
+
     // Datepicker event: grafikteki svg ve ölçekler hazır olduğu için burada çağrılabilir
     datePicker.on("change", function () {
         const val = this.value;
         if (!val) return;
+        // show with current x scale (no zoom => original x)
         showValuesForISO(val, svg, x, y);
     });
+
+    // İlk tablo doldurma (tam veriyle) - tabloyu newest-first gösterecek şekilde çağır
+    updateTable(data);
 
     // İlk gösterimi yap
     if (data.length > 0) {
