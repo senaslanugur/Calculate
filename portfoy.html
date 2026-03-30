@@ -24,37 +24,31 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background-color: var(--bg-main); color: var(--text-main); padding: 12px; min-height: 100vh; }
 
-    /* Top Navigation */
     .top-controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
     @media (min-width: 768px) { .top-controls { flex-direction: row; align-items: center; justify-content: space-between; } }
 
     .search-bar { background: var(--bg-card); border: 1px solid var(--border-color); color: #fff; padding: 12px 16px; border-radius: 12px; outline: none; width: 100%; max-width: 400px; }
     
-    /* Mobil Sıralama Seçici (Sadece Mobilde Görünür) */
     .mobile-sort-ui { display: flex; gap: 8px; margin-bottom: 10px; }
     @media (min-width: 768px) { .mobile-sort-ui { display: none; } }
     
     select.mobile-select { background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px; border-radius: 8px; flex: 1; font-size: 13px; }
 
-    /* Layout */
     .container { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
     @media (min-width: 1024px) { .container { grid-template-columns: 1fr 360px; } }
 
-    /* Metrics */
     .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
     @media (min-width: 768px) { .summary-grid { grid-template-columns: repeat(4, 1fr); } }
     .metric-card { background: var(--bg-card); padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); }
     .metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
     .metric-value { font-size: 18px; font-weight: 800; margin-top: 5px; }
 
-    /* Tables & Cards */
     .card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); padding: 16px; margin-bottom: 20px; }
     h3 { margin-bottom: 15px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--accent); padding-left: 10px; }
 
     table { width: 100%; border-collapse: collapse; }
     thead th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--border-color); cursor: pointer; }
     
-    /* Mobil Kart Tasarımı */
     @media (max-width: 768px) {
       table, thead, tbody, th, td, tr { display: block; }
       thead { display: none; }
@@ -64,12 +58,9 @@
       td::before { content: attr(data-label); font-weight: 500; color: var(--text-muted); font-size: 12px; }
       td.symbol-cell { font-size: 18px; color: var(--accent); font-weight: 700; border-bottom: 1px solid var(--border-color); margin-bottom: 5px; justify-content: flex-start; }
       td.symbol-cell::before { display: none; }
-      
-      /* Butonları yan yana düzgünce diz */
       .action-group { display: flex; gap: 10px; width: 100%; justify-content: flex-end; }
     }
 
-    /* Buttons & Inputs */
     input[type="number"] { background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 8px; width: 100px; text-align: right; }
     .btn { padding: 10px 14px; border-radius: 8px; cursor: pointer; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s; }
     .btn-update { background: var(--gain); color: #fff; }
@@ -80,7 +71,7 @@
     .positive { color: var(--gain); }
     .negative { color: var(--loss); }
     .text-right { text-align: right; }
-    .chart-box { height: 250px; position: relative; }
+    .font-bold { font-weight: 700; }
   </style>
 </head>
 <body>
@@ -157,7 +148,6 @@
 
         if(searchTerm) data = data.filter(d => d.symbol.toLowerCase().includes(searchTerm));
 
-        // Sıralama Uygula
         data.sort((a, b) => {
           let vA = a[sortConfig.key], vB = b[sortConfig.key];
           return sortConfig.direction === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
@@ -166,6 +156,8 @@
         let html = `<div class="card"><h3>${key.toUpperCase()} <button class="btn btn-icon" onclick="addRow('${key}')"><i data-feather="plus"></i></button></h3><table><thead><tr>
           <th onclick="setSort('${key}', 'symbol')">Varlık</th>
           <th onclick="setSort('${key}', 'amount')">Miktar</th>
+          <th onclick="setSort('${key}', 'price')">Fiyat</th>
+          <th onclick="setSort('${key}', 'value')">Toplam Değer</th>
           <th onclick="setSort('${key}', 'pl')">K/Z</th>
           <th>İşlem</th>
         </tr></thead><tbody>`;
@@ -175,8 +167,9 @@
             <td class="symbol-cell">${item.symbol}</td>
             <td data-label="Miktar"><input type="number" id="i-amt-${key}-${item.idx}" value="${item.amount}"></td>
             <td data-label="Maliyet"><input type="number" id="i-cost-${key}-${item.idx}" value="${item.avgPrice}"></td>
-            <td data-label="Fiyat">${fmt(item.price)}</td>
-            <td data-label="K/Z" class="${item.pl >= 0 ? 'positive' : 'negative'}">${fmt(item.pl, 0)}</td>
+            <td data-label="Fiyat">${fmt(item.price)} ₺</td>
+            <td data-label="Toplam" class="font-bold">${fmt(item.value, 0)} ₺</td>
+            <td data-label="K/Z" class="${item.pl >= 0 ? 'positive' : 'negative'}">${fmt(item.pl, 0)} ₺</td>
             <td>
               <div class="action-group">
                 <button class="btn btn-update" onclick="updateRow('${key}', ${item.idx})"><i data-feather="check"></i></button>
@@ -191,7 +184,6 @@
       feather.replace();
     }
 
-    // Mobil Sıralama Fonksiyonları
     function applyMobileSort() {
       sortConfig.key = document.getElementById('mobileSortKey').value;
       renderTables();
@@ -232,7 +224,6 @@
       }
     }
 
-    // Grafik ve Metrik Fonksiyonları (Öncekiyle aynı ama stabilize edilmiş)
     function updateMetrics() {
       let tc = 0, tv = 0;
       ['tefas','us','silver'].forEach(k => {
@@ -271,4 +262,3 @@
   </script>
 </body>
 </html>
-
