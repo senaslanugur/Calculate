@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <title>WalletApp Pro - Portföy</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --gain: #22c55e;
+      --loss: #ef4444;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg-main); color: var(--text-main); padding: 16px; min-height: 100vh; }
+
+    /* Layout */
+    .container { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
+    @media (min-width: 1024px) { .container { grid-template-columns: 1fr 360px; } }
+
+    /* Metrics */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .metric-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
+    .metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .metric-value { font-size: 24px; font-weight: 800; margin-top: 8px; letter-spacing: -1px; }
+
+    /* General Card */
+    .card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 20px; overflow: hidden; }
+    h3 { margin-bottom: 20px; font-size: 18px; border-left: 4px solid var(--accent); padding-left: 12px; }
+
+    /* Responsive Table & Card Layout */
+    table { width: 100%; border-collapse: collapse; }
+    thead th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 12px; border-bottom: 1px solid var(--border-color); }
+    
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; background: rgba(255,255,255,0.02); }
+      td { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      td:last-child { border-bottom: none; }
+      td::before { content: attr(data-label); font-weight: 500; color: var(--text-muted); }
+      td.symbol-cell { font-size: 18px; font-weight: 700; color: var(--accent); border-bottom: 2px solid var(--border-color); margin-bottom: 10px; padding-bottom: 10px; }
+      td.symbol-cell::before { display: none; }
+    }
+
+    /* Inputs & Buttons */
+    input { background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 6px 10px; border-radius: 8px; width: 100px; text-align: right; }
+    input:focus { border-color: var(--accent); outline: none; }
+    
+    .btn { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid transparent; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+    .btn-update { background: rgba(34, 197, 94, 0.1); color: var(--gain); border-color: rgba(34, 197, 94, 0.2); }
+    .btn-update:hover { background: var(--gain); color: #fff; }
+    .btn-del { background: rgba(239, 68, 68, 0.1); color: var(--loss); }
+    .btn-del:hover { background: var(--loss); color: #fff; }
+    .btn-primary { background: var(--accent); color: #0f172a; }
+
+    /* Chart Containers */
+    .chart-container { position: relative; height: 300px; margin-bottom: 10px; }
+
+    .positive { color: var(--gain); }
+    .negative { color: var(--loss); }
+    .text-right { text-align: right; }
+  </style>
+</head>
+<body>
+
+  <header style="margin-bottom: 30px;">
+    <h1 style="font-size: 28px; margin-bottom: 8px;">Finansal Portföyüm</h1>
+    <p style="color: var(--text-muted);">Verilerinizi girin ve "Güncelle" butonu ile kaydedin.</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="metric-card"><div class="metric-label">Toplam Maliyet</div><div id="totalCost" class="metric-value">—</div></div>
+    <div class="metric-card"><div class="metric-label">Piyasa Değeri</div><div id="marketValue" class="metric-value">—</div></div>
+    <div class="metric-card"><div class="metric-label">Net Kar / Zarar</div><div id="totalPL" class="metric-value">—</div></div>
+    <div class="metric-card"><div class="metric-label">Portföy Verimi</div><div id="totalPct" class="metric-value">—</div></div>
+  </div>
+
+  <div class="container">
+    <main>
+      <div id="tables-container"></div>
+    </main>
+
+    <aside>
+      <div class="card">
+        <h3>Varlık Dağılımı</h3>
+        <div class="chart-container"><canvas id="pieChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Sınıf Performansı</h3>
+        <div class="chart-container"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Sistem Durumu</h3>
+        <div id="status" style="font-size: 13px; color: var(--accent);">Beklemede...</div>
+        <button class="btn btn-primary" id="refreshAll" style="width: 100%; margin-top: 15px; justify-content: center;">
+          <i data-feather="refresh-cw"></i> Fiyatları Canlı Güncelle
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ugur_portfolio_v3';
+    const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
+
+    // Başlangıç verileri (Eğer storage boşsa)
+    const defaultData = {
+      tefas: [{symbol:"GNS", amount:12260, avgPrice:1.29}],
+      us: [{symbol:"NVDA", amount:2.23, avgPrice:177.46}],
+      silver: [{symbol:"GRAMGUMUS", amount:2442, avgPrice:113.57}],
+      prices: {}
+    };
+
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData;
+    let charts = {};
+
+    const fmt = (n, d=2) => Number(n).toLocaleString('tr-TR', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+    function init() {
+      renderAll();
+      initCharts();
+      updateDashboard();
+      feather.replace();
+    }
+
+    function renderAll() {
+      const container = document.getElementById('tables-container');
+      container.innerHTML = '';
+      
+      const sections = [
+        { key: 'tefas', title: 'TEFAS Fonları' },
+        { key: 'us', title: 'ABD Borsası (USD)' },
+        { key: 'silver', title: 'Emtia & Diğer' }
+      ];
+
+      sections.forEach(sec => {
+        let html = `
+          <div class="card">
+            <h3>${sec.title}</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Sembol</th>
+                  <th class="text-right">Miktar</th>
+                  <th class="text-right">Maliyet</th>
+                  <th class="text-right">Güncel Fiyat</th>
+                  <th class="text-right">K/Z</th>
+                  <th class="text-right">İşlem</th>
+                </tr>
+              </thead>
+              <tbody>`;
+
+        state[sec.key].forEach((item, idx) => {
+          const price = state.prices[item.symbol] || 0;
+          const pl = (price * item.amount) - (item.avgPrice * item.amount);
+          
+          html += `
+            <tr>
+              <td class="symbol-cell">${item.symbol}</td>
+              <td data-label="Miktar" class="text-right">
+                <input type="number" step="any" id="amt-${sec.key}-${idx}" value="${item.amount}">
+              </td>
+              <td data-label="Maliyet" class="text-right">
+                <input type="number" step="any" id="cost-${sec.key}-${idx}" value="${item.avgPrice}">
+              </td>
+              <td data-label="Anlık Fiyat" class="text-right">${fmt(price, 2)}</td>
+              <td data-label="K/Z" class="text-right ${pl >= 0 ? 'positive' : 'negative'}">${fmt(pl, 0)}</td>
+              <td class="text-right" style="gap:5px; display:flex; justify-content:flex-end;">
+                <button class="btn btn-update" onclick="updateRow('${sec.key}', ${idx})"><i data-feather="check"></i></button>
+                <button class="btn btn-del" onclick="deleteRow('${sec.key}', ${idx})"><i data-feather="trash-2"></i></button>
+              </td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>
+          <button class="btn" style="margin-top:15px; background:rgba(255,255,255,0.05);" onclick="addRow('${sec.key}')">+ Yeni Ekle</button>
+        </div>`;
+        container.innerHTML += html;
+      });
+      feather.replace();
+    }
+
+    function updateRow(key, idx) {
+      const newAmt = parseFloat(document.getElementById(`amt-${key}-${idx}`).value);
+      const newCost = parseFloat(document.getElementById(`cost-${key}-${idx}`).value);
+      
+      state[key][idx].amount = newAmt || 0;
+      state[key][idx].avgPrice = newCost || 0;
+      
+      saveAndRefresh("Veri güncellendi.");
+    }
+
+    function addRow(key) {
+      const sym = prompt("Sembol giriniz:");
+      if(sym) {
+        state[key].push({ symbol: sym.toUpperCase(), amount: 0, avgPrice: 0 });
+        saveAndRefresh("Yeni satır eklendi.");
+      }
+    }
+
+    function deleteRow(key, idx) {
+      if(confirm("Silmek istediğinize emin misiniz?")) {
+        state[key].splice(idx, 1);
+        saveAndRefresh("Kayıt silindi.");
+      }
+    }
+
+    function saveAndRefresh(msg) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+      updateDashboard();
+      document.getElementById('status').textContent = msg;
+    }
+
+    function updateDashboard() {
+      let totalCost = 0, totalValue = 0;
+      const classData = { tefas: 0, us: 0, silver: 0 };
+
+      ['tefas', 'us', 'silver'].forEach(key => {
+        state[key].forEach(item => {
+          const price = state.prices[item.symbol] || 0;
+          const cost = item.amount * item.avgPrice;
+          const val = item.amount * price;
+          totalCost += cost;
+          totalValue += val;
+          classData[key] += val;
+        });
+      });
+
+      const pl = totalValue - totalCost;
+      const pct = totalCost > 0 ? (pl / totalCost) * 100 : 0;
+
+      document.getElementById('totalCost').textContent = fmt(totalCost, 0) + " ₺";
+      document.getElementById('marketValue').textContent = fmt(totalValue, 0) + " ₺";
+      document.getElementById('totalPL').textContent = (pl >= 0 ? '+' : '') + fmt(pl, 0) + " ₺";
+      document.getElementById('totalPL').className = 'metric-value ' + (pl >= 0 ? 'positive' : 'negative');
+      document.getElementById('totalPct').textContent = '%' + fmt(pct, 2);
+      document.getElementById('totalPct').className = 'metric-value ' + (pl >= 0 ? 'positive' : 'negative');
+
+      updateCharts(classData, totalValue);
+    }
+
+    function initCharts() {
+      const ctxPie = document.getElementById('pieChart').getContext('2d');
+      charts.pie = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: { labels: ['TEFAS', 'ABD', 'Emtia'], datasets: [{ data: [0,0,0], backgroundColor: ['#38bdf8', '#818cf8', '#fbbf24'], borderWidth: 0 }] },
+        options: { 
+            cutout: '80%', 
+            plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true } } },
+            maintainAspectRatio: false 
+        }
+      });
+
+      const ctxBar = document.getElementById('barChart').getContext('2d');
+      charts.bar = new Chart(ctxBar, {
+        type: 'bar',
+        data: { labels: ['TEFAS', 'ABD', 'Emtia'], datasets: [{ label: 'Varlık Değeri', data: [0,0,0], backgroundColor: '#38bdf8', borderRadius: 8 }] },
+        options: { 
+            scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } },
+            plugins: { legend: { display: false } },
+            maintainAspectRatio: false 
+        }
+      });
+    }
+
+    function updateCharts(classData, total) {
+      charts.pie.data.datasets[0].data = [classData.tefas, classData.us, classData.silver];
+      charts.pie.update();
+
+      charts.bar.data.datasets[0].data = [classData.tefas, classData.us, classData.silver];
+      charts.bar.update();
+    }
+
+    // Fiyat çekme simülasyonu / API Entegrasyonu
+    async function fetchPrices() {
+      document.getElementById('status').textContent = "Fiyatlar güncelleniyor...";
+      const now = Math.floor(Date.now() / 1000);
+      
+      for (const key of ['tefas', 'us', 'silver']) {
+        for (const item of state[key]) {
+          try {
+            let url = key === 'us' 
+              ? `https://finnhub.io/api/v1/quote?symbol=${item.symbol}&token=${FINNHUB_KEY}`
+              : `https://gate.fintables.com/barbar/udf/history?symbol=${item.symbol}&resolution=D&from=1734210000&to=${now}`;
+            
+            const res = await fetch(url);
+            const data = await res.json();
+            state.prices[item.symbol] = key === 'us' ? data.c : (data.c?.at(-1) || data.c);
+          } catch(e) { console.error(item.symbol + " hatası"); }
+        }
+      }
+      saveAndRefresh("Tüm fiyatlar güncellendi.");
+    }
+
+    document.getElementById('refreshAll').onclick = fetchPrices;
+
+    // Başlat
+    init();
+  </script>
+</body>
+</html>
+
+
