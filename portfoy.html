@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-  <title>WalletAppPro</title>
+  <title>WalletApp Pro - Tam Mobil Uyumlu</title>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
@@ -86,7 +86,7 @@
 <body>
 
   <div class="top-controls">
-    <h1>WalletAppPro</h1>
+    <h1>WalletApp Pro</h1>
     <input type="text" id="globalSearch" class="search-bar" placeholder="Sembol veya isim ara...">
   </div>
 
@@ -111,8 +111,6 @@
     <main id="tables-wrapper"></main>
 
     <aside>
-      <div class="card"><h3>Dağılım</h3><div class="chart-box"><canvas id="pieChart"></canvas></div></div>
-      <div class="card"><h3>Performans</h3><div class="chart-box"><canvas id="barChart"></canvas></div></div>
       <div class="card">
         <button class="btn btn-primary" id="refreshPrices"><i data-feather="refresh-cw"></i> Fiyatları Güncelle</button>
         <p id="status" style="font-size:11px; text-align:center; margin-top:10px; color:var(--accent);">Sistem Hazır</p>
@@ -137,7 +135,6 @@
 
     function init() {
       renderTables();
-      initCharts();
       updateMetrics();
       feather.replace();
       document.getElementById('globalSearch').oninput = renderTables;
@@ -251,13 +248,6 @@
       document.getElementById('totalPL').textContent = fmt(pl, 0) + " ₺";
       document.getElementById('totalPL').className = 'metric-value ' + (pl >= 0 ? 'positive' : 'negative');
       document.getElementById('totalPct').textContent = '%' + (tc > 0 ? fmt((pl/tc)*100) : '0');
-    }
-
-    function initCharts() {
-      charts = {
-        pie: new Chart(document.getElementById('pieChart'), { type: 'doughnut', data: { labels: ['T', 'U', 'S'], datasets: [{ data: [1,1,1], backgroundColor: ['#38bdf8', '#818cf8', '#fbbf24'] }] }, options: { cutout: '70%', plugins: { legend: { display: false } }, maintainAspectRatio: false } }),
-        bar: new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: ['T', 'U', 'S'], datasets: [{ data: [1,1,1], backgroundColor: '#38bdf8' }] }, options: { plugins: { legend: { display: false } }, maintainAspectRatio: false } })
-      };
     }
 
     async function fetchPrices() {
