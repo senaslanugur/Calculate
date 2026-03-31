@@ -560,68 +560,54 @@ function addNewSymbol() {
 
 
 function donut_and_init(){
-      const STAFF_COLORS = [
-    "#3B82F6", // blue
-    "#8B5CF6", // purple
-    "#FACC15", // yellow
-    "#F97316", // orange
-    "#14B8A6"  // teal
+  const STAFF_COLORS = [
+    "#3B82F6", "#8B5CF6", "#FACC15", "#F97316", "#14B8A6"
   ];
-  const NEGATIVE_COLOR = "#EF4444"; // Kırmızı!
+  const NEGATIVE_COLOR = "#EF4444";
+
+  // === YENİ: Hedef localStorage'dan yükleniyor ===
+  let hedefMiktar = parseFloat(localStorage.getItem("hedef_miktar"));
+  if (!hedefMiktar || isNaN(hedefMiktar) || hedefMiktar <= 0) {
+    hedefMiktar = 1000;
+    localStorage.setItem("hedef_miktar", hedefMiktar);
+  }
+  document.getElementById("total_hedef").textContent = "₺" + hedefMiktar.toLocaleString("tr-TR");
 
   // Test amaçlı localStorage yoksa ekleyelim
   if (!localStorage.getItem("values")) {
-    localStorage.setItem(
-      "values",
-      JSON.stringify({
-        "staff_1": 103.8,
-        "staff_2": 226.7,
-        "staff_3": 54.2,
-        "staff_4": 132.8,
-        "staff_5": -33.7,
-        "staff_6": -10.2,
-        "staff_7": 0
-      })
-    );
+    localStorage.setItem("values", JSON.stringify({
+      "staff_1": 103.8, "staff_2": 226.7, "staff_3": 54.2,
+      "staff_4": 132.8, "staff_5": -33.7, "staff_6": -10.2, "staff_7": 0
+    }));
   }
 
   const savedTotal = localStorage.getItem("debit_total_percent");
   if (savedTotal) {
     const total = parseFloat(savedTotal);
     const toplamborc = document.getElementById("toplam_borc");
-    toplamborc.textContent = total;
+    if (toplamborc) toplamborc.textContent = total;
   }
 
   // 1. Tüm staff_ değerlerini al
   const values = JSON.parse(localStorage.getItem("values") || "{}");
   const staffEntries = Object.entries(values).filter(([key, val]) => key.startsWith('staff_'));
-  // orijinal değerleri ve onların mutlak değer toplamını bul
+
   const absSum = staffEntries.reduce((sum, [k, v]) => sum + Math.abs(parseFloat(v)), 0);
 
-  // 2. Oranları hesapla ve svg donut chart yarat
+  // 2. Donut chart
   let offset = 0;
   let circles = "";
 
   for (let i = 0; i < staffEntries.length; ++i) {
     const [k, v] = staffEntries[i];
     const val = parseFloat(v);
-
-    // Tüm segment oranlarını mutlak değerle dağıtıyoruz
     let percent = absSum === 0 ? 0 : ((Math.abs(val) / absSum) * 100);
     let dasharray = percent.toFixed(2) + ", 100";
-    let dashoffset = -offset; // eksiyle başlamalı
-    let color = val >= 0
-      ? STAFF_COLORS[i % STAFF_COLORS.length]
-      : NEGATIVE_COLOR; // Negatif değerler kırmızı!
+    let dashoffset = -offset;
+    let color = val >= 0 ? STAFF_COLORS[i % STAFF_COLORS.length] : NEGATIVE_COLOR;
 
     if (percent > 0) {
-      circles += `<circle
-                cx="18" cy="18" r="15.9155" fill="none"
-                stroke="${color}"
-                stroke-width="2.5"
-                stroke-dasharray="${dasharray}"
-                stroke-dashoffset="${dashoffset}"
-            ></circle>`;
+      circles += `<circle cx="18" cy="18" r="15.9155" fill="none" stroke="${color}" stroke-width="2.5" stroke-dasharray="${dasharray}" stroke-dashoffset="${dashoffset}"></circle>`;
     }
     offset += percent;
   }
@@ -634,98 +620,86 @@ function donut_and_init(){
     }
     return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
   }
+
   const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
+  const donutTotalEl = document.getElementById("donut-total");
   if (savedTotal) {
-    document.getElementById("donut-total").textContent = tlFormat(total - savedTotal);
+    donutTotalEl.textContent = tlFormat(total - parseFloat(savedTotal));
   } else {
-    document.getElementById("donut-total").textContent = tlFormat(total);
+    donutTotalEl.textContent = tlFormat(total);
   }
 
-  // --- Başlangıç: Hedef/kalan hesaplaması ve progress güncelleme ---
+  // === HEDEF İLE İLGİLİ GÜNCELLEME (progress bar + kalan) ===
   (function updateGoalProgress() {
-    // format fonksiyonu (sayısal değeri TL biçimine çeviren mevcut fonksiyonunuzla uyumlu)
-    function tlFormat(val) {
-      if (isNaN(val)) return "₺0";
-      if (Math.abs(val) > 9999) {
-        return (val < 0 ? "-₺" : "₺") + (Math.abs(val) / 1000).toFixed(1) + "K";
-      }
-      return (val < 0 ? "-₺" : "₺") + Math.abs(val).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
-    }
-
-    // daha güvenli string -> number parser (₺, . ve , ve K kısaltmasını da ele alır)
     function parseTL(str) {
       if (str == null) return NaN;
-      let s = String(str).trim();
-      if (s === "") return NaN;
-
-      // Eğer "K" içeriyorsa örn "₺1.2K"
-      const kMatch = s.match(/-?[\d\.,]+K/i);
-      if (kMatch) {
-        let num = kMatch[0].replace(/K/i, '').replace(/₺/g, '').trim();
-        num = num.replace(/\./g, '').replace(',', '.'); // güvenli dönüştürme
-        return parseFloat(num) * 1000;
-      }
-
-      // Temizleme: para sembollerini vs kaldır
-      s = s.replace(/₺/g, '').replace(/\s/g, '');
-      // Eğer hem nokta hem virgül varsa (tr formatı: bin ayracı . , ondalık ,) noktaları kaldır, virgülü noktayla değiştir
-      if (s.indexOf('.') > -1 && s.indexOf(',') > -1) {
-        s = s.replace(/\./g, '').replace(',', '.');
-      } else if (s.indexOf(',') > -1 && s.indexOf('.') === -1) {
-        s = s.replace(',', '.');
-      } else {
-        // sadece noktalar varsa (ör. 1000.50), bırak
-      }
-      // Son olarak sayısal olmayanları temizle
+      let s = String(str).trim().replace(/₺/g, '').replace(/\s/g, '');
+      if (s.indexOf('.') > -1 && s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
+      else if (s.indexOf(',') > -1) s = s.replace(',', '.');
       s = s.replace(/[^0-9\.\-]/g, '');
       return parseFloat(s);
     }
 
-    // DOM elemanları
-    const donutTotalEl = document.getElementById("donut-total");
-    const targetEl = document.getElementById("total_hedef");
-    const kalanTLel = document.getElementById("kalan_hedef_tl");
-    const kalanYuzdeEl = document.getElementById("kalan_hedef_yuzde");
-    // progress çubuğunun iç div'ini al (ilk bulunan .bg-gradient-to-r kullanıldı)
-    const progressInner = document.querySelector(".bg-gradient-to-r");
+    const current = parseTL(donutTotalEl.textContent);
+    const target = parseFloat(localStorage.getItem("hedef_miktar")) || 1000;
 
-    if (!donutTotalEl || !targetEl || !kalanTLel || !kalanYuzdeEl || !progressInner) {
-      // Gerekli elemanlardan biri yoksa çık
-      return;
-    }
+    const remaining = (isNaN(target) || isNaN(current)) ? 0 : (target - current);
+    const percentReached = (isNaN(target) || target === 0) ? 0 : Math.min(100, (current / target) * 100);
 
-    // Mevcut toplam değeri (ekrana yazılan değerden ya da script'te hesaplanan total/savedTotal farkından alma)
-    // Eğer donutTotal zaten formatlanmış string ise parse et
-    let current = parseTL(donutTotalEl.textContent);
-
-    // Eğer current NaN ise (ör: script'ten variable 'total' kullanılabilir), deneyelim:
-    if (isNaN(current)) {
-      try {
-        // total ve savedTotal değişkenleri aynı scope'ta varsa kullan
-        if (typeof total !== "undefined") {
-          const saved = (typeof savedTotal !== "undefined" && savedTotal !== null) ? parseFloat(savedTotal) : 0;
-          current = isNaN(saved) ? total : (total - saved);
-        }
-      } catch (e) {
-        current = NaN;
-      }
-    }
-
-    const target = parseTL(targetEl.textContent);
-
-    // Hesaplamalar
-    const remaining = (isNaN(target) || isNaN(current)) ? NaN : (target - current);
-    const percentReached = (isNaN(target) || target === 0 || isNaN(current)) ? 0 : (current / target) * 100;
-    const percentForWidth = Math.max(0, Math.min(100, percentReached)); // görsel için 0-100 aralığı
-
-    // Güncellemeler
-    kalanTLel.textContent = isNaN(remaining) ? "₺0" : tlFormat(remaining);
-    kalanYuzdeEl.textContent = (isNaN(percentReached) ? 0 : percentReached).toFixed(1) + "%";
-    progressInner.style.width = percentForWidth.toFixed(1) + "%";
-
+    document.getElementById("kalan_hedef_tl").textContent = tlFormat(remaining);
+    document.getElementById("kalan_hedef_yuzde").textContent = percentReached.toFixed(1) + "%";
+    document.querySelector(".bg-gradient-to-r").style.width = percentReached.toFixed(1) + "%";
   })();
+
   // --- Bitiş ---
 }
+
+
+// ====================== HEDEF DÜZENLEME ======================
+function editTarget() {
+  const savedTarget = parseFloat(localStorage.getItem("hedef_miktar")) || 1000;
+
+  Swal.fire({
+    title: 'Yeni Hedef Tutarı',
+    input: 'number',
+    inputValue: savedTarget,
+    inputLabel: 'Hedef (₺)',
+    inputPlaceholder: 'Örn: 50000',
+    showCancelButton: true,
+    confirmButtonText: 'Kaydet',
+    cancelButtonText: 'İptal',
+    confirmButtonColor: '#137fec',
+    background: document.documentElement.classList.contains('dark') ? '#0b0f19' : '#f8fafc',
+    customClass: {
+      popup: 'rounded-3xl',
+      confirmButton: 'rounded-2xl px-8 py-3 font-bold'
+    },
+    inputValidator: (value) => {
+      if (!value || parseFloat(value) <= 0) {
+        return 'Lütfen geçerli ve pozitif bir tutar girin!';
+      }
+    }
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const newTarget = parseFloat(result.value);
+      localStorage.setItem("hedef_miktar", newTarget);
+      
+      // Hemen güncelle
+      donut_and_init();
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Hedef Güncellendi!',
+        text: `Yeni hedef: ₺${newTarget.toLocaleString("tr-TR")}`,
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    }
+  });
+}
+
 
 
 function showHistoryChart() {
