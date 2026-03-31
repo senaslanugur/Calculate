@@ -1470,7 +1470,7 @@ async function loadUgurPortfolio() {
   }
 }
 
-// ====================== KATEGORİ ÖZET GÖSTERGESİ ======================
+// ====================== KATEGORİ ÖZET GÖSTERGESİ (KISA VE DENGELİ VERSİYON) ======================
 function renderCategorySummary() {
   const container = document.getElementById("categorySummary");
   if (!container) return;
@@ -1492,25 +1492,46 @@ function renderCategorySummary() {
 
   Object.keys(categories).forEach(key => {
     const cat = categories[key];
-    if (cat.totalValue === 0) return;
+    if (cat.totalValue === 0 && cat.totalPL === 0) return;
 
-    const plPercent = (cat.totalPL / cat.totalValue) * 100;
+    const plPercent = cat.totalValue > 0 ? (cat.totalPL / cat.totalValue) * 100 : 0;
     const isProfit = cat.totalPL >= 0;
     const colorClass = isProfit ? "text-accent-teal" : "text-loss-red";
     const symbol = key === "US" ? "$" : "₺";
 
     html += `
-      <div class="glass-card p-3 rounded-2xl border border-white/10 text-center">
+      <div class="glass-card p-3 rounded-3xl border border-white/10 text-center hover:border-white/30 transition-all min-h-[92px] flex flex-col justify-between">
         <p class="text-[10px] uppercase tracking-widest text-text-muted">${key}</p>
-        <p class="text-sm font-bold ${colorClass} mt-1">
-          ${isProfit ? '▲' : '▼'} ${symbol}${Math.abs(cat.totalPL).toLocaleString('tr-TR', {maximumFractionDigits: 0})}
+        
+        <!-- Toplam Değer -->
+        <p class="text-base font-bold text-white mt-1 mb-1">
+          ${symbol}${cat.totalValue.toLocaleString('tr-TR', { maximumFractionDigits: key === "US" ? 0 : 0 })}
         </p>
-        <p class="text-[10px] ${colorClass}">${plPercent.toFixed(1)}%</p>
+        
+        <!-- Kâr/Zarar - Kısa ve Hizalı -->
+        <div class="flex items-center justify-center gap-1 text-sm">
+          <span class="${colorClass} text-base leading-none mt-px">
+            ${isProfit ? '▲' : '▼'}
+          </span>
+          <span class="${colorClass} font-medium">
+            ${symbol}${Math.abs(cat.totalPL).toLocaleString('tr-TR', { maximumFractionDigits: 0 })}
+          </span>
+          <span class="text-[10px] ${colorClass} opacity-75">
+            (${plPercent.toFixed(1)}%)
+          </span>
+        </div>
       </div>`;
   });
 
-  container.innerHTML = html || `<div class="col-span-3 text-center text-text-muted text-xs py-4">Henüz kategori verisi yok</div>`;
+  if (html === "") {
+    html = `<div class="col-span-3 text-center text-text-muted text-xs py-6">Henüz kategori verisi yok</div>`;
+  }
+
+  container.innerHTML = html;
 }
+
+
+
 
 // ====================== SIRALAMA VE RENDER ======================
 function sortUgurPortfolio() {
