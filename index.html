@@ -133,14 +133,13 @@
     }
 
     #categorySummary .glass-card {
-  transition: all 0.3s ease;
-}
+      transition: all 0.3s ease;
+    }
 
-#categorySummary .glass-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
-}
-
+    #categorySummary .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 
@@ -243,6 +242,49 @@
             </div>
             <br>
 
+
+
+            <!-- === İKİNCİ SLIDER: PORTFÖYÜM + KATEGORİ KÂR/ZARAR GÖSTERGELERİ === -->
+            <div class="mt-8">
+              <div class="px-4 flex items-center justify-between mb-3">
+                <p class="text-xs font-bold text-text-muted uppercase tracking-widest">Portföyüm</p>
+
+                <div class="flex items-center gap-2">
+                  <select id="ugurSortSelect" onchange="sortAndRenderUgurPortfolio()"
+                    class="bg-card-dark text-white text-xs font-medium border border-white/10 rounded-2xl px-3 py-1.5 focus:outline-none focus:border-accent-teal">
+                    <option value="name">İsme göre (A-Z)</option>
+                    <option value="value">Toplam Değere göre</option>
+                    <option value="plPercent">Kâr/Zarar %’ye göre</option>
+                    <option value="type">Türe göre</option>
+                  </select>
+
+                  <button onclick="addNewUgurItem()"
+                    class="bg-accent-teal hover:bg-teal-400 text-black text-xs font-bold px-4 py-1.5 rounded-2xl transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    <span>Ekle</span>
+                  </button>
+
+                  <span onclick="refreshUgurPortfolio()"
+                    class="text-accent-teal text-[10px] font-medium flex items-center gap-1 cursor-pointer hover:underline">
+                    Yenile <span class="material-symbols-outlined text-base">refresh</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- === KATEGORİ KÂR/ZARAR GÖSTERGELERİ === -->
+              <div id="categorySummary" class="grid grid-cols-3 gap-3 px-4 mb-5">
+                <!-- Dinamik olarak doldurulacak -->
+              </div>
+
+              <!-- Slider -->
+              <div id="ugurPortfolioSlider"
+                class="flex overflow-x-auto gap-4 pb-6 px-4 snap-x snap-mandatory no-scrollbar">
+                <!-- Kartlar dinamik doldurulacak -->
+              </div>
+            </div>
+
+
+
             <!-- === HIZLI VARLIK SLIDER (Mobil Tam Uyumlu) === -->
             <div class="mt-6">
               <div class="px-4 flex items-center justify-between mb-3">
@@ -257,27 +299,27 @@
               <div class="flex overflow-x-auto gap-4 pb-6 px-4 snap-x snap-mandatory no-scrollbar">
 
                 <!-- 1. Fon Portföyü -->
-                <div onclick="showPortfolioSlider()"
+                <div onclick="location.href='fundinfo.html';"
                   class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
                   <div class="flex justify-between items-start">
                     <span class="material-symbols-outlined text-4xl text-accent-teal">payments</span>
                     <span
                       class="px-3 py-1 text-[10px] font-bold bg-accent-teal/10 text-accent-teal rounded-2xl">FONLAR</span>
                   </div>
-                  <p class="mt-auto text-lg font-semibold text-white">Fon Portföyü</p>
-                  <p class="text-xs text-text-muted">Adet ve fiyat güncelle</p>
+                  <p class="mt-auto text-lg font-semibold text-white">Fon Piyasası</p>
+                  <p class="text-xs text-text-muted">Fon Piyasa Durumu</p>
                 </div>
 
                 <!-- 2. Hisse Senetleri -->
-                <div onclick="showStockManager()"
+                <div onclick="location.href='portfoy.html';"
                   class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
                   <div class="flex justify-between items-start">
                     <span class="material-symbols-outlined text-4xl text-accent-blue">show_chart</span>
-                    <span class="px-3 py-1 text-[10px] font-bold bg-accent-blue/10 text-accent-blue rounded-2xl">ABD
-                      HİSSE</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-blue/10 text-accent-blue rounded-2xl">PORTFOY</span>
                   </div>
-                  <p class="mt-auto text-lg font-semibold text-white">Hisse Senetleri</p>
-                  <p class="text-xs text-text-muted">Global portföy takibi</p>
+                  <p class="mt-auto text-lg font-semibold text-white">Portföy</p>
+                  <p class="text-xs text-text-muted">Global-Tefas portföy takibi</p>
                 </div>
 
                 <!-- 3. Cüzdan Düzenle -->
@@ -295,47 +337,6 @@
               </div>
             </div>
             <!-- === SLIDER BİTTİ === -->
-
-            
-            <!-- === İKİNCİ SLIDER: PORTFÖYÜM + KATEGORİ KÂR/ZARAR GÖSTERGELERİ === -->
-<div class="mt-8">
-  <div class="px-4 flex items-center justify-between mb-3">
-    <p class="text-xs font-bold text-text-muted uppercase tracking-widest">Portföyüm</p>
-    
-    <div class="flex items-center gap-2">
-      <select id="ugurSortSelect" onchange="sortAndRenderUgurPortfolio()" 
-              class="bg-card-dark text-white text-xs font-medium border border-white/10 rounded-2xl px-3 py-1.5 focus:outline-none focus:border-accent-teal">
-        <option value="name">İsme göre (A-Z)</option>
-        <option value="value">Toplam Değere göre</option>
-        <option value="plPercent">Kâr/Zarar %’ye göre</option>
-        <option value="type">Türe göre</option>
-      </select>
-      
-      <button onclick="addNewUgurItem()" 
-              class="bg-accent-teal hover:bg-teal-400 text-black text-xs font-bold px-4 py-1.5 rounded-2xl transition-all flex items-center gap-1">
-        <span class="material-symbols-outlined text-base">add</span>
-        <span>Ekle</span>
-      </button>
-      
-      <span onclick="refreshUgurPortfolio()" class="text-accent-teal text-[10px] font-medium flex items-center gap-1 cursor-pointer hover:underline">
-        Yenile <span class="material-symbols-outlined text-base">refresh</span>
-      </span>
-    </div>
-  </div>
-
-  <!-- === KATEGORİ KÂR/ZARAR GÖSTERGELERİ === -->
-  <div id="categorySummary" class="grid grid-cols-3 gap-3 px-4 mb-5">
-    <!-- Dinamik olarak doldurulacak -->
-  </div>
-
-  <!-- Slider -->
-  <div id="ugurPortfolioSlider" class="flex overflow-x-auto gap-4 pb-6 px-4 snap-x snap-mandatory no-scrollbar">
-    <!-- Kartlar dinamik doldurulacak -->
-  </div>
-</div>
-
-
-
 
             <div class="flex flex-col gap-4">
               <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
