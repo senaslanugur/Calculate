@@ -37,7 +37,7 @@ function calculate() {
   const staff_6 = parseFloat(document.getElementById("staff-6").value) || 0;
   const staff_7 = parseFloat(document.getElementById("staff-7").value) || 0;
 
-  // --- HAFTALIK KAR/ZARAR HESAPLAMA ---
+  // --- HAFTALIK KAR/ZARAR HESAPLAMA (mevcut kod) ---
   const dayDataSet = JSON.parse(localStorage.getItem("day_data_set")) || [];
   let weeklyPerformanceHtml = "";
 
@@ -46,17 +46,12 @@ function calculate() {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(todayDate.getDate() - 7);
 
-    // Verileri tarihe göre sıralayalım
     const sortedData = dayDataSet
       .map(item => ({ ...item, dateObj: new Date(item.date) }))
       .sort((a, b) => a.dateObj - b.dateObj);
 
-    // 7 gün önceki en yakın veriyi bulalım
     const startEntry = sortedData.find(item => item.dateObj >= sevenDaysAgo) || sortedData[0];
     
-    // Şu anki toplam (borç düşülmeden önceki staff toplamı üzerinden veya result.amount üzerinden gidebiliriz)
-    // Ancak daha tutarlı olması için prompttaki all_amount (borç düşülmüş) üzerinden gidelim.
-    // Şimdilik hesaplama devam ederken "tahmini" bir all_amount oluşturalım:
     const temp_borc = parseFloat(localStorage.getItem("debit_total_percent")) || 0;
     const current_total = (staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7) - temp_borc;
 
@@ -82,7 +77,51 @@ function calculate() {
     `;
   }
 
-  // --- BORÇ KONTROL MANTIĞI ---
+  // === YENİ: GÜNLÜK KAR/ZARAR HESAPLAMA ===
+  const total_borc = parseFloat(localStorage.getItem("debit_total_percent")) || 0;
+  let all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7;
+  all_amount = all_amount - total_borc;
+
+  const gunlukKarZararEl = document.getElementById("gunluk_kar_zarar");
+  const gunlukKarZararAmountEl = document.getElementById("gunluk_kar_zarar_amount");
+
+  let dailyDiff = 0;
+  let dailyPercent = 0;
+  let isDailyProfit = true;
+
+  if (dayDataSet.length > 0) {
+    const todayStr = getCurrentDate();
+
+    // Dünden önceki en son kaydı bul (bugünkü veri hariç)
+    const previousEntries = dayDataSet
+      .filter(item => item.date < todayStr)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (previousEntries.length > 0) {
+      const previousTL = previousEntries[0].turkish_lira;
+      if (previousTL !== 0) {
+        dailyDiff = all_amount - previousTL;
+        dailyPercent = (dailyDiff / previousTL) * 100;
+        isDailyProfit = dailyDiff >= 0;
+      }
+    }
+  }
+
+  // Günlük % değerini güncelle
+  if (gunlukKarZararEl) {
+    gunlukKarZararEl.textContent = `${isDailyProfit ? '+' : ''}${dailyPercent.toFixed(2)}%`;
+    // Renkleri dinamik yap (accent-teal = kâr, loss-red = zarar)
+    gunlukKarZararEl.classList.remove("text-green-500", "text-accent-teal", "text-loss-red", "text-red-500");
+    gunlukKarZararEl.classList.add(isDailyProfit ? "text-accent-teal" : "text-loss-red");
+  }
+
+  // Günlük TL miktarını güncelle
+  if (gunlukKarZararAmountEl) {
+    const sign = isDailyProfit ? "+" : "";
+    gunlukKarZararAmountEl.innerHTML = `${sign}₺${Math.abs(dailyDiff).toLocaleString("tr-TR", { maximumFractionDigits: 2 })}`;
+  }
+
+  // --- BORÇ KONTROL MANTIĞI (mevcut kod) ---
   const rawDebits = localStorage.getItem("debit");
   let todayDebtInfo = "";
   let todayTotalDebt = 0;
@@ -117,11 +156,6 @@ function calculate() {
         <p class="text-[9px] font-bold text-accent-teal uppercase tracking-widest text-center">✅ BUGÜN ÖDEME YOK</p>
       </div>`;
   }
-
-  const borc_bilgisi = "debit_total_percent";
-  const total_borc = parseFloat(localStorage.getItem(borc_bilgisi)) || 0;
-  let all_amount = staff_1 + staff_2 + staff_3 + staff_4 + staff_5 + staff_6 + staff_7;
-  all_amount = all_amount - total_borc;
 
   const old_amount = parseFloat(localStorage.getItem("all_amount")) || 0;
   localStorage.setItem("all_amount", all_amount);
@@ -188,6 +222,7 @@ function calculate() {
       addDayDate(result.amount, result.rates.USD);
     }
   });
+
   get();
   donut_and_init();
   lineGraph();
