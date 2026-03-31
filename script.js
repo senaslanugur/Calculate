@@ -1434,8 +1434,8 @@ async function loadUgurPortfolio() {
         } else {
           const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(item.symbol)}&resolution=D&from=1734210000&to=${now}`);
           const hist = await res.json();
-          if (hist && hist.o && hist.o.length > 0) {
-            currentPrice = hist.o[hist.o.length - 1];
+          if (hist && hist.c && hist.c.length > 0) {
+            currentPrice = hist.c[hist.c.length - 1];
           }
         }
       } catch (e) {
