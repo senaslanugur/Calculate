@@ -1385,6 +1385,393 @@ async function showGraphSettings() {
 }
 
 
+// ====================== UĞUR PORTFÖYÜ SLIDER - TAM HALİ ======================
+// Kategori özetleri + düzenleme + ekleme + sıralama
 
+let ugurPortfolioData = [];
 
+async function loadUgurPortfolio() {
+  const sliderContainer = document.getElementById("ugurPortfolioSlider");
+  const summaryContainer = document.getElementById("categorySummary");
 
+  if (sliderContainer) {
+    sliderContainer.innerHTML = `<div class="text-center py-12 text-accent-teal">Veriler yükleniyor...</div>`;
+  }
+
+  const raw = localStorage.getItem("ugur_portfolio_v3");
+  if (!raw) {
+    if (sliderContainer) sliderContainer.innerHTML = `<div class="text-center py-12 text-text-muted">ugur_portfolio_v3 verisi bulunamadı.</div>`;
+    return;
+  }
+
+  try {
+    const data = JSON.parse(raw);
+    ugurPortfolioData = [];
+
+    const allItems = [
+      ...(data.tefas || []).map(item => ({...item, type: "TEFAS"})),
+      ...(data.us || []).map(item => ({...item, type: "US"})),
+      ...(data.silver || []).map(item => ({...item, type: "GÜMÜŞ"}))
+    ];
+
+    if (allItems.length === 0) {
+      if (sliderContainer) sliderContainer.innerHTML = `<div class="text-center py-12 text-text-muted">Portföyde henüz varlık yok.</div>`;
+      return;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+
+    for (const item of allItems) {
+      let currentPrice = 0;
+      const isUSD = item.type === "US";
+      const currencySymbol = isUSD ? "$" : "₺";
+
+      try {
+        if (isUSD) {
+          const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${item.symbol}&token=c94i99aad3if4j50rvn0`);
+          const quote = await res.json();
+          if (quote && quote.c) currentPrice = quote.c;
+        } else {
+          const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(item.symbol)}&resolution=D&from=1734210000&to=${now}`);
+          const hist = await res.json();
+          if (hist && hist.o && hist.o.length > 0) {
+            currentPrice = hist.o[hist.o.length - 1];
+          }
+        }
+      } catch (e) {
+        console.warn(`Fiyat alınamadı: ${item.symbol}`);
+        if (data.prices && data.prices[item.symbol]) {
+          currentPrice = data.prices[item.symbol];
+        }
+      }
+
+      const totalValue = currentPrice * item.amount;
+      const plPercent = item.avgPrice > 0 ? ((currentPrice - item.avgPrice) / item.avgPrice) * 100 : 0;
+
+      ugurPortfolioData.push({
+        symbol: item.symbol,
+        amount: parseFloat(item.amount),
+        avgPrice: parseFloat(item.avgPrice),
+        currentPrice: currentPrice || 0,
+        totalValue: totalValue,
+        plPercent: plPercent,
+        type: item.type,
+        isUSD: isUSD,
+        currencySymbol: currencySymbol
+      });
+    }
+
+    renderCategorySummary();
+    sortAndRenderUgurPortfolio();
+
+  } catch (err) {
+    console.error("loadUgurPortfolio hatası:", err);
+    if (sliderContainer) sliderContainer.innerHTML = `<div class="text-center py-12 text-loss-red">Veri yüklenirken hata oluştu</div>`;
+  }
+}
+
+// ====================== KATEGORİ ÖZET GÖSTERGESİ ======================
+function renderCategorySummary() {
+  const container = document.getElementById("categorySummary");
+  if (!container) return;
+
+  const categories = {
+    "TEFAS": { totalPL: 0, totalValue: 0 },
+    "US":    { totalPL: 0, totalValue: 0 },
+    "GÜMÜŞ": { totalPL: 0, totalValue: 0 }
+  };
+
+  ugurPortfolioData.forEach(item => {
+    if (categories[item.type]) {
+      categories[item.type].totalPL += (item.currentPrice - item.avgPrice) * item.amount;
+      categories[item.type].totalValue += item.totalValue;
+    }
+  });
+
+  let html = "";
+
+  Object.keys(categories).forEach(key => {
+    const cat = categories[key];
+    if (cat.totalValue === 0) return;
+
+    const plPercent = (cat.totalPL / cat.totalValue) * 100;
+    const isProfit = cat.totalPL >= 0;
+    const colorClass = isProfit ? "text-accent-teal" : "text-loss-red";
+    const symbol = key === "US" ? "$" : "₺";
+
+    html += `
+      <div class="glass-card p-3 rounded-2xl border border-white/10 text-center">
+        <p class="text-[10px] uppercase tracking-widest text-text-muted">${key}</p>
+        <p class="text-sm font-bold ${colorClass} mt-1">
+          ${isProfit ? '▲' : '▼'} ${symbol}${Math.abs(cat.totalPL).toLocaleString('tr-TR', {maximumFractionDigits: 0})}
+        </p>
+        <p class="text-[10px] ${colorClass}">${plPercent.toFixed(1)}%</p>
+      </div>`;
+  });
+
+  container.innerHTML = html || `<div class="col-span-3 text-center text-text-muted text-xs py-4">Henüz kategori verisi yok</div>`;
+}
+
+// ====================== SIRALAMA VE RENDER ======================
+function sortUgurPortfolio() {
+  const sortType = document.getElementById("ugurSortSelect")?.value || "name";
+
+  ugurPortfolioData.sort((a, b) => {
+    switch (sortType) {
+      case "name": return a.symbol.localeCompare(b.symbol);
+      case "value": return b.totalValue - a.totalValue;
+      case "plPercent": return b.plPercent - a.plPercent;
+      case "type":
+        const order = { "TEFAS": 1, "US": 2, "GÜMÜŞ": 3 };
+        return (order[a.type] || 99) - (order[b.type] || 99) || a.symbol.localeCompare(b.symbol);
+      default: return 0;
+    }
+  });
+}
+
+function renderUgurPortfolioSlider() {
+  const container = document.getElementById("ugurPortfolioSlider");
+  if (!container) return;
+
+  if (ugurPortfolioData.length === 0) {
+    container.innerHTML = `<div class="text-center py-12 text-text-muted">Portföy boş.</div>`;
+    return;
+  }
+
+  let html = "";
+  ugurPortfolioData.forEach(item => {
+    const isProfit = item.plPercent >= 0;
+    const colorClass = isProfit ? "text-accent-teal" : "text-loss-red";
+
+    html += `
+      <div onclick="editUgurItem('${item.symbol}')" 
+           class="glass-card min-w-[198px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.04] active:scale-[0.97] transition-all duration-300">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-black text-white text-2xl tracking-tighter">${item.symbol}</p>
+            <p class="text-[10px] uppercase tracking-widest text-text-muted">${item.type}</p>
+          </div>
+          <span class="px-3 py-1 text-[10px] font-bold rounded-2xl ${item.isUSD ? 'bg-accent-blue/10 text-accent-blue' : item.type === 'GÜMÜŞ' ? 'bg-amber-400/10 text-amber-400' : 'bg-accent-teal/10 text-accent-teal'}">
+            ${item.type}
+          </span>
+        </div>
+
+        <div class="mt-5 space-y-4">
+          <div class="flex justify-between">
+            <div><p class="text-[10px] text-text-muted">Adet</p><p class="text-white font-semibold">${item.amount.toLocaleString('tr-TR')}</p></div>
+            <div class="text-right"><p class="text-[10px] text-text-muted">Maliyet</p><p class="text-white/80">${item.currencySymbol}${item.avgPrice.toFixed(item.isUSD ? 2 : 4)}</p></div>
+          </div>
+          <div class="flex justify-between">
+            <div><p class="text-[10px] text-text-muted">Güncel</p><p class="font-bold ${item.isUSD ? 'text-accent-blue' : 'text-white'}">${item.currencySymbol}${item.currentPrice.toFixed(item.isUSD ? 2 : 4)}</p></div>
+            <div class="text-right"><p class="text-[10px] text-text-muted">Toplam</p><p class="font-black text-white">${item.currencySymbol}${item.totalValue.toLocaleString('tr-TR', {maximumFractionDigits: item.isUSD ? 0 : 0})}</p></div>
+          </div>
+        </div>
+
+        <div class="mt-auto pt-4 border-t border-white/10">
+          <div class="${colorClass} text-sm font-medium">
+            ${isProfit ? '▲' : '▼'} %${Math.abs(item.plPercent).toFixed(2)}
+          </div>
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function sortAndRenderUgurPortfolio() {
+  sortUgurPortfolio();
+  renderUgurPortfolioSlider();
+}
+
+async function refreshUgurPortfolio() {
+  await loadUgurPortfolio();
+}
+
+// ====================== DÜZENLEME POPUP ======================
+function editUgurItem(symbol) {
+  const item = ugurPortfolioData.find(i => i.symbol === symbol);
+  if (!item) {
+    Swal.fire("Hata", "Varlık bulunamadı", "error");
+    return;
+  }
+
+  Swal.fire({
+    title: `${item.symbol} - Düzenle`,
+    html: `
+      <div class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs text-text-muted mb-1">Sembol</label>
+          <input id="swal-symbol" value="${item.symbol}" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white" readonly>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-text-muted mb-1">Adet</label>
+            <input id="swal-amount" type="number" value="${item.amount}" step="0.000001" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-text-muted mb-1">Maliyet Fiyatı</label>
+            <input id="swal-avgPrice" type="number" value="${item.avgPrice}" step="0.000001" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-text-muted mb-1">Tür</label>
+          <select id="swal-type" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white">
+            <option value="TEFAS" ${item.type === "TEFAS" ? "selected" : ""}>TEFAS</option>
+            <option value="US" ${item.type === "US" ? "selected" : ""}>US (Dolar)</option>
+            <option value="GÜMÜŞ" ${item.type === "GÜMÜŞ" ? "selected" : ""}>GÜMÜŞ</option>
+          </select>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Kaydet',
+    cancelButtonText: 'İptal',
+    showDenyButton: true,
+    denyButtonText: 'Sil',
+    denyButtonColor: '#ef4444',
+    background: '#0b0f19',
+    color: '#f1f5f9',
+    preConfirm: () => {
+      const amount = parseFloat(document.getElementById("swal-amount").value);
+      const avgPrice = parseFloat(document.getElementById("swal-avgPrice").value);
+      const newType = document.getElementById("swal-type").value;
+
+      if (isNaN(amount) || isNaN(avgPrice) || amount <= 0) {
+        Swal.showValidationMessage("Adet ve maliyet fiyatı geçerli olmalıdır!");
+        return false;
+      }
+      return { amount, avgPrice, type: newType };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      saveEditedItem(symbol, result.value.amount, result.value.avgPrice, result.value.type);
+    } else if (result.isDenied) {
+      deleteUgurItem(symbol);
+    }
+  });
+}
+
+function saveEditedItem(oldSymbol, newAmount, newAvgPrice, newType) {
+  let portfolio = JSON.parse(localStorage.getItem("ugur_portfolio_v3") || "{}");
+
+  const categories = ['tefas', 'us', 'silver'];
+  let found = false;
+
+  for (let cat of categories) {
+    if (portfolio[cat]) {
+      const index = portfolio[cat].findIndex(item => item.symbol === oldSymbol);
+      if (index !== -1) {
+        const oldType = cat === 'us' ? 'US' : cat === 'silver' ? 'GÜMÜŞ' : 'TEFAS';
+
+        if (oldType !== newType) {
+          portfolio[cat].splice(index, 1);
+          const targetCat = newType === 'US' ? 'us' : newType === 'GÜMÜŞ' ? 'silver' : 'tefas';
+          if (!portfolio[targetCat]) portfolio[targetCat] = [];
+          portfolio[targetCat].push({ symbol: oldSymbol, amount: newAmount, avgPrice: newAvgPrice });
+        } else {
+          portfolio[cat][index].amount = newAmount;
+          portfolio[cat][index].avgPrice = newAvgPrice;
+        }
+        found = true;
+        break;
+      }
+    }
+  }
+
+  if (found) {
+    localStorage.setItem("ugur_portfolio_v3", JSON.stringify(portfolio));
+    loadUgurPortfolio();
+    Swal.fire({ icon: 'success', title: 'Güncellendi', timer: 1200, showConfirmButton: false });
+  }
+}
+
+function deleteUgurItem(symbol) {
+  Swal.fire({
+    title: 'Silmek istediğinden emin misin?',
+    text: `${symbol} kalıcı olarak silinecek.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Evet, Sil',
+    cancelButtonText: 'İptal',
+    confirmButtonColor: '#ef4444'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let portfolio = JSON.parse(localStorage.getItem("ugur_portfolio_v3") || "{}");
+      ['tefas', 'us', 'silver'].forEach(cat => {
+        if (portfolio[cat]) {
+          portfolio[cat] = portfolio[cat].filter(item => item.symbol !== symbol);
+        }
+      });
+      localStorage.setItem("ugur_portfolio_v3", JSON.stringify(portfolio));
+      loadUgurPortfolio();
+      Swal.fire('Silindi!', '', 'success');
+    }
+  });
+}
+
+function addNewUgurItem() {
+  Swal.fire({
+    title: 'Yeni Varlık Ekle',
+    html: `
+      <div class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs text-text-muted mb-1">Sembol</label>
+          <input id="new-symbol" placeholder="Örn: NVDA veya GUM" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white uppercase">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-text-muted mb-1">Adet</label>
+            <input id="new-amount" type="number" step="0.000001" placeholder="Adet" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-text-muted mb-1">Maliyet Fiyatı</label>
+            <input id="new-avgPrice" type="number" step="0.000001" placeholder="Maliyet" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-text-muted mb-1">Tür</label>
+          <select id="new-type" class="w-full bg-card-dark border border-white/10 rounded-2xl px-4 py-3 text-white">
+            <option value="TEFAS">TEFAS</option>
+            <option value="US">US (Dolar)</option>
+            <option value="GÜMÜŞ">GÜMÜŞ</option>
+          </select>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Ekle',
+    background: '#0b0f19',
+    preConfirm: () => {
+      const symbol = document.getElementById('new-symbol').value.trim().toUpperCase();
+      const amount = parseFloat(document.getElementById('new-amount').value);
+      const avgPrice = parseFloat(document.getElementById('new-avgPrice').value);
+      const type = document.getElementById('new-type').value;
+
+      if (!symbol || isNaN(amount) || isNaN(avgPrice)) {
+        Swal.showValidationMessage('Sembol, adet ve maliyet zorunludur!');
+        return false;
+      }
+      return { symbol, amount, avgPrice, type };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let portfolio = JSON.parse(localStorage.getItem("ugur_portfolio_v3") || "{}");
+      const targetCat = result.value.type === 'US' ? 'us' : result.value.type === 'GÜMÜŞ' ? 'silver' : 'tefas';
+      if (!portfolio[targetCat]) portfolio[targetCat] = [];
+      portfolio[targetCat].push({
+        symbol: result.value.symbol,
+        amount: result.value.amount,
+        avgPrice: result.value.avgPrice
+      });
+      localStorage.setItem("ugur_portfolio_v3", JSON.stringify(portfolio));
+      loadUgurPortfolio();
+      Swal.fire({ icon: 'success', title: 'Eklendi', timer: 1400, showConfirmButton: false });
+    }
+  });
+}
+
+// ====================== SAYFA YÜKLENDİĞİNDE ÇALIŞTIR ======================
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Uğur Portföyü yükleniyor...");
+  setTimeout(loadUgurPortfolio, 1500);
+});
