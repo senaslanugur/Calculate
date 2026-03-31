@@ -110,6 +110,27 @@
       animation: pulse-red 1.5s infinite ease-in-out !important;
       color: white !important;
     }
+
+    /* Mobil taşma engeli + slider iyileştirmesi */
+    .layout-content-container,
+    main {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Kartların mobil’de daha iyi durması */
+    .glass-card {
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
   </style>
 </head>
 
@@ -211,6 +232,61 @@
               </div>
             </div>
             <br>
+
+            <!-- === HIZLI VARLIK SLIDER (Mobil Tam Uyumlu) === -->
+            <div class="mt-6">
+              <div class="px-4 flex items-center justify-between mb-3">
+                <p class="text-xs font-bold text-text-muted uppercase tracking-widest">Hızlı Varlık İşlemleri</p>
+                <span onclick="showPortfolioSlider()"
+                  class="text-accent-teal text-[10px] font-medium flex items-center gap-1 cursor-pointer hover:underline">
+                  Tümünü Gör <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </span>
+              </div>
+
+              <!-- Slider Container -->
+              <div class="flex overflow-x-auto gap-4 pb-6 px-4 snap-x snap-mandatory no-scrollbar">
+
+                <!-- 1. Fon Portföyü -->
+                <div onclick="showPortfolioSlider()"
+                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
+                  <div class="flex justify-between items-start">
+                    <span class="material-symbols-outlined text-4xl text-accent-teal">payments</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-teal/10 text-accent-teal rounded-2xl">FONLAR</span>
+                  </div>
+                  <p class="mt-auto text-lg font-semibold text-white">Fon Portföyü</p>
+                  <p class="text-xs text-text-muted">Adet ve fiyat güncelle</p>
+                </div>
+
+                <!-- 2. Hisse Senetleri -->
+                <div onclick="showStockManager()"
+                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
+                  <div class="flex justify-between items-start">
+                    <span class="material-symbols-outlined text-4xl text-accent-blue">show_chart</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-blue/10 text-accent-blue rounded-2xl">ABD HİSSE</span>
+                  </div>
+                  <p class="mt-auto text-lg font-semibold text-white">Hisse Senetleri</p>
+                  <p class="text-xs text-text-muted">Global portföy takibi</p>
+                </div>
+
+                <!-- 3. Cüzdan Düzenle -->
+                <div onclick="showGraphSettings()"
+                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
+                  <div class="flex justify-between items-start">
+                    <span class="material-symbols-outlined text-4xl text-accent-purple">edit</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-purple/10 text-accent-purple rounded-2xl">DÜZENLE</span>
+                  </div>
+                  <p class="mt-auto text-lg font-semibold text-white">Cüzdanları Düzenle</p>
+                  <p class="text-xs text-text-muted">İsim, Miktar</p>
+                </div>
+
+              </div>
+            </div>
+            <!-- === SLIDER BİTTİ === -->
+
+
             <div class="flex flex-col gap-4">
               <div class="glass-card p-5 rounded-3xl border-l-4 border-primary">
                 <div class="flex w-full items-start justify-between">
