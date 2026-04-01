@@ -1531,8 +1531,6 @@ function renderCategorySummary() {
 }
 
 
-
-
 // ====================== SIRALAMA VE RENDER ======================
 function sortUgurPortfolio() {
   const sortType = document.getElementById("ugurSortSelect")?.value || "name";
@@ -1563,10 +1561,13 @@ function renderUgurPortfolioSlider() {
   ugurPortfolioData.forEach(item => {
     const isProfit = item.plPercent >= 0;
     const colorClass = isProfit ? "text-accent-teal" : "text-loss-red";
+    const plSign = isProfit ? "+" : "";
+    const plAmount = (item.currentPrice - item.avgPrice) * item.amount;
 
     html += `
       <div onclick="editUgurItem('${item.symbol}')" 
            class="glass-card min-w-[198px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.04] active:scale-[0.97] transition-all duration-300">
+        
         <div class="flex justify-between items-start">
           <div>
             <p class="font-black text-white text-2xl tracking-tighter">${item.symbol}</p>
@@ -1588,9 +1589,13 @@ function renderUgurPortfolioSlider() {
           </div>
         </div>
 
-        <div class="mt-auto pt-4 border-t border-white/10">
+        <!-- KAR/ZARAR ORANI + MİKTAR -->
+        <div class="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
           <div class="${colorClass} text-sm font-medium">
             ${isProfit ? '▲' : '▼'} %${Math.abs(item.plPercent).toFixed(2)}
+          </div>
+          <div class="${colorClass} text-sm font-medium">
+            ${plSign}${item.currencySymbol}${Math.abs(plAmount).toLocaleString('tr-TR', {maximumFractionDigits: item.isUSD ? 0 : 0})}
           </div>
         </div>
       </div>`;
@@ -1603,6 +1608,7 @@ function sortAndRenderUgurPortfolio() {
   sortUgurPortfolio();
   renderUgurPortfolioSlider();
 }
+
 
 async function refreshUgurPortfolio() {
   await loadUgurPortfolio();
