@@ -1797,6 +1797,40 @@ function addNewUgurItem() {
   });
 }
 
+// ====================== VARLIK İŞLEMLERİM SIRALAMA ======================
+function sortVarlikIslemlerim() {
+  const sortType = document.getElementById("varlikSortSelect").value;
+  const container = document.getElementById("varlikIslemlerimSlider");
+  
+  if (!container) return;
+
+  const cards = Array.from(container.children);
+
+  cards.sort((a, b) => {
+    if (sortType === "name") {
+      // İsme göre sırala
+      const nameA = (a.querySelector("p[id^='staff-']") || a).textContent.trim();
+      const nameB = (b.querySelector("p[id^='staff-']") || b).textContent.trim();
+      return nameA.localeCompare(nameB);
+    } 
+    else if (sortType === "value") {
+      // Değere göre sırala (büyükten küçüğe)
+      const inputA = a.querySelector("input[type='number']");
+      const inputB = b.querySelector("input[type='number']");
+      const valA = inputA ? parseFloat(inputA.value) || 0 : 0;
+      const valB = inputB ? parseFloat(inputB.value) || 0 : 0;
+      return valB - valA;
+    }
+    return 0;
+  });
+
+  // Sıralanmış kartları yeniden yerleştir
+  container.innerHTML = "";
+  cards.forEach(card => container.appendChild(card));
+}
+
+
+
 // ====================== SAYFA YÜKLENDİĞİNDE ÇALIŞTIR ======================
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Uğur Portföyü yükleniyor...");
