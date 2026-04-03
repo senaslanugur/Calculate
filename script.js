@@ -166,62 +166,76 @@ function calculate() {
   };
   localStorage.setItem("values", JSON.stringify(values));
 
-  const url = `https://api.frankfurter.app/latest?amount=${all_amount}&from=TRY&to=USD`;
+
   const isDark = document.documentElement.classList.contains('dark');
 
-  $.ajax({
-    url: url,
-    async: false,
-    success: function(result) {
-      const isIncreased = all_amount >= old_amount;
-      const diff = all_amount - old_amount;
-      Swal.fire({
-        title: `<span style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.02em;">
-                  ${isIncreased ? 'VARLIKLAR ARTTI' : 'VARLIKLAR AZALDI'}
-                </span>`,
-        html: `
-          <div class="flex flex-col gap-3 p-1 font-display">
-            <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <p class="text-[10px] font-bold text-muted uppercase tracking-widest mb-1 text-center">Güncel Toplam (TRY)</p>
-              <p class="text-3xl font-black text-white text-center">₺${parseFloat(result.amount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
-                <p class="text-[9px] font-bold text-muted uppercase mb-1">Dolar Karşılığı</p>
-                <p class="text-sm font-bold text-accent-blue">$${result.rates.USD.toFixed(2)}</p>
-              </div>
-              <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
-                <p class="text-[9px] font-bold text-muted uppercase mb-1">Son Değişim</p>
-                <p class="text-sm font-bold ${isIncreased ? 'text-accent-teal' : 'text-loss-red'}">
-                  ${isIncreased ? '+' : ''}₺${diff.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
-                </p>
-              </div>
-            </div>
+// === Güncellenmiş Frankfurter v2 API ile çeviri ===
+const url = `https://api.frankfurter.dev/v2/rates?base=TRY&quotes=USD`;
 
-            ${weeklyPerformanceHtml}
-            ${todayDebtInfo}
+$.ajax({
+  url: url,
+  async: false,
+  success: function(data) {
+    // v2 API'de rate doğrudan geliyor
+    const rate = data[0] ? data[0].rate : 0;
+    const usdAmount = (all_amount * rate).toFixed(2);
 
-            ${!isIncreased ? `
-            <div class="text-[11px] text-text-muted text-center mt-1 italic opacity-60">
-              Önceki miktar: ₺${old_amount.toLocaleString("tr-TR")}
-            </div>` : ''}
+    const isIncreased = all_amount >= old_amount;
+    const diff = all_amount - old_amount;
+
+    Swal.fire({
+      title: `<span style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.02em;">
+                ${isIncreased ? 'VARLIKLAR ARTTI' : 'VARLIKLAR AZALDI'}
+              </span>`,
+      html: `
+        <div class="flex flex-col gap-3 p-1 font-display">
+          <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <p class="text-[10px] font-bold text-muted uppercase tracking-widest mb-1 text-center">Güncel Toplam (TRY)</p>
+            <p class="text-3xl font-black text-white text-center">₺${all_amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}</p>
           </div>
-        `,
-        icon: isIncreased ? "success" : "warning",
-        iconColor: isIncreased ? "#00c49a" : "#ff4d4d",
-        background: isDark ? '#1a2131' : '#f8fafc',
-        color: isDark ? '#f1f5f9' : '#1e293b',
-        confirmButtonText: 'TAMAM',
-        confirmButtonColor: '#137fec',
-        customClass: {
-          popup: 'rounded-3xl border border-white/10 shadow-2xl',
-          confirmButton: 'rounded-xl px-10 py-3 font-bold tracking-wide'
-        }
-      });
-      addDayDate(result.amount, result.rates.USD);
-    }
-  });
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
+              <p class="text-[9px] font-bold text-muted uppercase mb-1">Dolar Karşılığı</p>
+              <p class="text-sm font-bold text-accent-blue">$${usdAmount}</p>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5 text-center">
+              <p class="text-[9px] font-bold text-muted uppercase mb-1">Son Değişim</p>
+              <p class="text-sm font-bold ${isIncreased ? 'text-accent-teal' : 'text-loss-red'}">
+                ${isIncreased ? '+' : ''}₺${diff.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+              </p>
+            </div>
+          </div>
+
+          ${weeklyPerformanceHtml}
+          ${todayDebtInfo}
+
+          ${!isIncreased ? `
+          <div class="text-[11px] text-text-muted text-center mt-1 italic opacity-60">
+            Önceki miktar: ₺${old_amount.toLocaleString("tr-TR")}
+          </div>` : ''}
+        </div>
+      `,
+      icon: isIncreased ? "success" : "warning",
+      iconColor: isIncreased ? "#00c49a" : "#ff4d4d",
+      background: isDark ? '#1a2131' : '#f8fafc',
+      color: isDark ? '#f1f5f9' : '#1e293b',
+      confirmButtonText: 'TAMAM',
+      confirmButtonColor: '#137fec',
+      customClass: {
+        popup: 'rounded-3xl border border-white/10 shadow-2xl',
+        confirmButton: 'rounded-xl px-10 py-3 font-bold tracking-wide'
+      }
+    });
+
+    // addDayDate için usdAmount ve rate gönderiyoruz
+    addDayDate(all_amount, parseFloat(usdAmount));
+  },
+  error: function() {
+    Swal.fire('Hata', 'Döviz kuru alınamadı. Lütfen internet bağlantınızı kontrol edin.', 'error');
+  }
+});
+
 
   get();
   donut_and_init();
