@@ -1,2 +1,754 @@
 https://api.frankfurter.app/latest
 https://api.frankfurter.app/latest?amount=1&from=TRY&to=USD
+[
+  {
+    "optionCount": "4",
+    "questionCode": "3566",
+    "questionText": "Aşağıdakilerden hangisi g&#252;venli e-posta kullanım kurallarına g&#246;re doğru değildir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14205",
+        "optionText": "Ger&#231;ek bir kişi/kurum tarafından g&#246;nderildiği ve amacına uygun bir i&#231;eriği olduğu kontrol edilmelidir.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14207",
+        "optionText": "Ş&#252;pheli bir e-posta ile karşılaşılması durumunda, herhangi bir işlem yapılmadan durum Fiziki G&#252;venlik Takım Liderliği’ne bildirilmelidir.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14208",
+        "optionText": "E-posta ekinde yer alan bağlantı linklerine tıklanmamalıdır.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14206",
+        "optionText": "İndirim ve hediye vaadi gibi olağan dışı metinler var mı, kontrol edilmelidir.",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6977",
+    "questionText": "Aşağıdakilerden hangisi yapay zeka platformları ile ilgili gizlilik ve g&#252;venlik a&#231;ısından dikkat edilmesi gereken bir durumdur?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26583",
+        "optionText": "Yapay zeka platformunu sadece eğlence amacıyla kullanmak",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26582",
+        "optionText": "Cevapları doğrulamadan ger&#231;ek kabul etmek",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26580",
+        "optionText": "T&#252;m sohbetlerin tamamen gizli olduğuna g&#252;venmek",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26581",
+        "optionText": "Sohbetlerde hassas bilgiler paylaşmaktan ka&#231;ınmak",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "3571",
+    "questionText": "Bilgi G&#252;venliğini oluşturan &#252;&#231; temel unsur aşağıdakilerin hangisinde doğru şekilde verilmiştir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14228",
+        "optionText": "Gizlilik, B&#252;t&#252;nl&#252;k, Erişilebilirlik",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14226",
+        "optionText": "Gizlilik, B&#252;t&#252;nl&#252;k, Nesnellik",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14227",
+        "optionText": "Gizlilik, &#214;znellik, Erişilebilirlik",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14225",
+        "optionText": "Doğruluk, B&#252;t&#252;nl&#252;k, Erişilebilirlik",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6961",
+    "questionText": "Aşağıdakilerden hangisi sosyal m&#252;hendislik saldırılarının işaretlerinden biri değildir?&amp;nbsp;",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26516",
+        "optionText": "Bir geri arama numarası vermekten ka&#231;ınılması",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26518",
+        "optionText": "G&#252;&#231;l&#252; parolaların kullanılması i&#231;in teşvik etme",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26519",
+        "optionText": "Aciliyetin &#252;zerine vurgu yapılması",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26517",
+        "optionText": "Sıra dışı taleplerde bulunulması",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6959",
+    "questionText": "Aşağıdakilerden hangisi e-postalara y&#246;nelik yapılan saldırılardan korunma yollarından biri değildir?&amp;nbsp;",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26511",
+        "optionText": "Ekleri a&#231;arken dikkat etmek",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26508",
+        "optionText": "G&#252;venli parolalar kullanmak",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26510",
+        "optionText": "&#199;ok fakt&#246;rl&#252; kimlik doğrulaması kullanmak",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26509",
+        "optionText": "İş i&#231;in kullanılan e-postaları kişisel işler i&#231;in kullanmak",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6978",
+    "questionText": "Parolalarınızla ilgili ş&#252;pheli bir durumla karşılaşırsanız aşağıdakilerden hangisini yapmalısınız?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26587",
+        "optionText": "Bilgisayarı kapatmak ve durumun ge&#231;tiğini varsaymak",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26586",
+        "optionText": "Parolayı en yakındaki kişiyle paylaşıp durumu kontrol etmek",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26584",
+        "optionText": "G&#246;rmezden gelmek",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26585",
+        "optionText": "Parolayı hemen değiştirmek ve durumu bildirmek",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6979",
+    "questionText": "Aşağıdaki se&#231;eneklerden hangisi USB bırakma saldırılarından (USB drop attack) korunmanın yollarından biridir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26591",
+        "optionText": "Kaynağı bilinmeyen USB cihazları kurumun g&#252;venlik g&#246;revlisine teslim etmek",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26588",
+        "optionText": "Kaynağı bilinmeyen USB cihazı bilgisayara takmaktan ka&#231;ınmak&lt;br /&gt;",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26589",
+        "optionText": "USB cihazları g&#252;venlik yazılımları ile taramadan kullanmak",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26590",
+        "optionText": "Kaynağı bilinmeyen USB cihazlar kişisel bilgisayara takıp incelemek",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "3560",
+    "questionText": "Aşağıdakilerden hangisi bilgi varlığı giriş - &#231;ıkış s&#252;reci kurallarına g&#246;re doğru değildir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14183",
+        "optionText": "Bilgi varlığı giriş - &#231;ıkışı i&#231;in Yardım Masası &#252;zerinden talep a&#231;ılmalı ve onay alınmalıdır.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14182",
+        "optionText": "HAVELSAN logolu USB’ler, internet – intranet arası g&#252;venli veri aktarımı sağlamak &#252;zere kişilere tahsis edilmiştir.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14181",
+        "optionText": "HAVELSAN logolu USB’ler, sadece Şirket tesisleri i&#231;inde kullanıma verilmiştir.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14184",
+        "optionText": "Kişisel USB ve bilgisayarlar, Yardım Masası &#252;zerinden talep a&#231;ılmak şartıyla şirket tesislerine getirilebilir.",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "3563",
+    "questionText": "Aşağıdakilerden hangisi bilgi i&#231;eren depolama ortamlarının g&#252;venli kullanım kurallarına g&#246;re doğru değildir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14193",
+        "optionText": "Şirket logolu USB’ler yalnızca HAVELSAN tesisleri i&#231;erisinde kullanılmak &#252;zere tahsis edilmiştir.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14194",
+        "optionText": "İ&#231;erdiği bilgiler gizlilik sınıfına g&#246;re etiketlenmelidir.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14195",
+        "optionText": "Gizlilik anlaşması sağlanmış olan &#252;&#231;&#252;nc&#252; taraflara iletiminde veri şifreleme y&#246;ntemlerinin kullanılmasına ihtiya&#231; bulunmamaktadır.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14196",
+        "optionText": "Şirket tesislerine kişisel bilgi depolama ortamlarının getirilmesi ve kullanılması yasaktır.",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6989",
+    "questionText": "Bilgi g&#252;venliği ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26631",
+        "optionText": "Bilgi g&#252;venliğini sağlamak y&#246;neticilerin sorumluluğundadır",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26628",
+        "optionText": "Bilgi g&#252;venliğini sağlamak bazı birimlerin sorumluluğundadır&lt;br /&gt;",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26629",
+        "optionText": "Bilgi g&#252;venliğini sağlamak t&#252;m bilgi işlem personelinin sorumluluğundadır",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26630",
+        "optionText": "Bilgi g&#252;venliğini sağlamak t&#252;m &#231;alışanların sorumluluğundadır",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6992",
+    "questionText": "Aşağıdakilerden hangisi Şirket parola politikasına uygun olarak belirlenmiş bir paroladır?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26641",
+        "optionText": "##440190sR.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26642",
+        "optionText": "2044019047",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26640",
+        "optionText": "##440190sr",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26643",
+        "optionText": "204_Dm!190sr",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "3573",
+    "questionText": "Bir ihlal olayı ger&#231;ekleştiğinde işletilecek idari s&#252;rece karar veren aşağıdakilerden hangisidir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14233",
+        "optionText": "Bilgi G&#252;venliği M&#252;d&#252;rl&#252;ğ&#252;",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14234",
+        "optionText": "Etik Kurul",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14236",
+        "optionText": "Bilgi G&#252;venliği Y&#246;netimi Komitesi",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14235",
+        "optionText": "İnsan Kaynakları Direkt&#246;rl&#252;ğ&#252;",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "3575",
+    "questionText": "Kimler Bilgi G&#252;venliği Farkındalık Eğitimi’ni almakla y&#252;k&#252;ml&#252;d&#252;r?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14244",
+        "optionText": "Hepsi",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14243",
+        "optionText": "&#199;alışanlar",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14241",
+        "optionText": "İşe yeni başlayanlar",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14242",
+        "optionText": "Y&#246;neticiler",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "3559",
+    "questionText": "&amp;ldquo;Şirket bilgi g&#252;venliği dok&#252;mantasyonuna &amp;hellip;&amp;hellip;&amp;hellip;&amp;hellip;&amp;hellip;&amp;hellip;. &#252;zerinden erişim sağlanmaktadır.&amp;rdquo;&lt;br /&gt;&lt;br /&gt;Yukarıdaki boşluğa aşağıdakilerden hangisi gelmelidir?",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "14177",
+        "optionText": "Ortak Birim Klas&#246;r&#252;",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14179",
+        "optionText": "Yardım Masası",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14180",
+        "optionText": "Kurum K&#252;t&#252;phanesi",
+        "blankCode": null
+      },
+      {
+        "optionCode": "14178",
+        "optionText": "Kurumsal Portal",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  },
+  {
+    "optionCount": "4",
+    "questionCode": "6968",
+    "questionText": "Bir oltalama e-postasında, kullanıcıdan bir bağlantıyı manuel olarak kopyalayıp tarayıcısına yapıştırması istenmektedir. Bu y&#246;ntemin, doğrudan tıklanabilir bir bağlantı kullanmaktan daha tehlikeli olmasının altında yatan temel neden nedir?&amp;nbsp;",
+    "questionType": "0",
+    "topicCount": "4",
+    "questionTopics": [
+      {
+        "topicText": "Bilgi G&#252;venliği",
+        "topicTitle": "1. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalık Eğitimi",
+        "topicTitle": "2. Baslik"
+      },
+      {
+        "topicText": "Bilgi G&#252;venliği Farkındalığı",
+        "topicTitle": "3. Baslik"
+      },
+      {
+        "topicText": "HAVELSAN Bilgi G&#252;venliği",
+        "topicTitle": "4. Baslik"
+      }
+    ],
+    "options": [
+      {
+        "optionCode": "26544",
+        "optionText": "Kopyala-yapıştır işlemi sırasında bilgisayara zararlı yazılım bulaşma riskinin daha y&#252;ksek olmasıdır.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26545",
+        "optionText": "Bu y&#246;ntem, kullanıcının dikkatini dağıtarak adresin sahte olduğunu fark etmesini zorlaştırır.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26546",
+        "optionText": "Otomatik g&#252;venlik tarayıcıları metin halindeki adresleri analiz edemeyebilir ve kullanıcıyı korumasız bırakır.",
+        "blankCode": null
+      },
+      {
+        "optionCode": "26547",
+        "optionText": "Tarayıcılar, manuel olarak yapıştırılan adreslerin g&#252;venlik sertifikalarını kontrol edemez.",
+        "blankCode": null
+      }
+    ],
+    "coding": false,
+    "codeLanguage": null,
+    "codeTheme": null
+  }
+]
