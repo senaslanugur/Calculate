@@ -1843,7 +1843,134 @@ function sortVarlikIslemlerim() {
   cards.forEach(card => container.appendChild(card));
 }
 
+// ====================== AYLIK GETİRİLER TABLOSU ======================
+function showMonthlyReturnsTable() {
+  const rawData = localStorage.getItem("day_data_set");
+  if (!rawData) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Veri Yok',
+      text: 'Henüz günlük performans verisi kaydedilmemiş.',
+      confirmButtonText: 'Tamam'
+    });
+    return;
+  }
 
+  let dayData;
+  try {
+    dayData = JSON.parse(rawData);
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Veri Hatası' });
+    return;
+  }
+
+  if (dayData.length < 2) {
+    Swal.fire({ icon: 'info', title: 'Yetersiz Veri', text: 'Aylık getiri hesaplamak için daha fazla veri gerekiyor.' });
+    return;
+  }
+
+  // Veriyi tarihe göre sırala
+  dayData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Yıla ve aya göre grupla
+  const monthlyData = {};
+
+  dayData.forEach(item => {
+    const date = new Date(item.date);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 1-12
+
+    const key = `${year}-${month.toString().padStart(2, '0')}`;
+
+    if (!monthlyData[key]) {
+      monthlyData[key] = {
+        year: year,
+        month: month,
+        firstTL: null,
+        lastTL: Number(item.turkish_lira),
+        count: 1
+      };
+    } else {
+      monthlyData[key].lastTL = Number(item.turkish_lira);
+      monthlyData[key].count++;
+    }
+
+    // Ayın ilk değeri
+    if (monthlyData[key].firstTL === null) {
+      monthlyData[key].firstTL = Number(item.turkish_lira);
+    }
+  });
+
+  // Aylık getirileri hesapla
+  let tableRows = '';
+  let yearlyTotals = {};
+
+  Object.keys(monthlyData).sort().forEach(key => {
+    const m = monthlyData[key];
+    const returnPct = m.firstTL > 0 ? ((m.lastTL - m.firstTL) / m.firstTL * 100) : 0;
+    const isPositive = returnPct >= 0;
+
+    const monthName = new Date(m.year, m.month - 1).toLocaleString('tr-TR', { month: 'short' });
+
+    tableRows += `
+      <tr>
+        <td class="py-3 px-4 font-medium">${m.year} ${monthName}</td>
+        <td class="py-3 px-4 text-right">${m.firstTL.toLocaleString('tr-TR')}</td>
+        <td class="py-3 px-4 text-right">${m.lastTL.toLocaleString('tr-TR')}</td>
+        <td class="py-3 px-4 text-right ${isPositive ? 'text-emerald-400' : 'text-red-400'} font-medium">
+          ${isPositive ? '+' : ''}${returnPct.toFixed(2)}%
+        </td>
+      </tr>`;
+
+    // Yıllık toplam için
+    if (!yearlyTotals[m.year]) yearlyTotals[m.year] = { totalReturn: 0, count: 0 };
+    yearlyTotals[m.year].totalReturn += returnPct;
+    yearlyTotals[m.year].count++;
+  });
+
+  // Yıllık özet satırları
+  let yearlyRows = '';
+  Object.keys(yearlyTotals).sort().forEach(year => {
+    const avg = (yearlyTotals[year].totalReturn / yearlyTotals[year].count).toFixed(2);
+    yearlyRows += `
+      <tr class="bg-white/5 font-semibold">
+        <td class="py-3 px-4">${year} Yılı Ortalaması</td>
+        <td colspan="2" class="text-right"></td>
+        <td class="py-3 px-4 text-right ${parseFloat(avg) >= 0 ? 'text-emerald-400' : 'text-red-400'}">
+          ${avg}%
+        </td>
+      </tr>`;
+  });
+
+  const html = `
+    <div class="max-h-[520px] overflow-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-white/10">
+            <th class="py-3 px-4 text-left">Dönem</th>
+            <th class="py-3 px-4 text-right">Ay Başı</th>
+            <th class="py-3 px-4 text-right">Ay Sonu</th>
+            <th class="py-3 px-4 text-right">Getiri %</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+          ${tableRows}
+          ${yearlyRows}
+        </tbody>
+      </table>
+    </div>`;
+
+  Swal.fire({
+    title: 'Aylık Getiriler',
+    html: html,
+    width: '820px',
+    background: '#0b0f19',
+    color: '#f1f5f9',
+    showCloseButton: true,
+    confirmButtonText: 'Kapat',
+    confirmButtonColor: '#22d3ee'
+  });
+}
 
 // ====================== SAYFA YÜKLENDİĞİNDE ÇALIŞTIR ======================
 document.addEventListener("DOMContentLoaded", () => {
