@@ -251,9 +251,9 @@
                 <div class="flex items-center gap-2">
                   <select id="ugurSortSelect" onchange="sortAndRenderUgurPortfolio()"
                     class="bg-card-dark text-white text-xs font-medium border border-white/10 rounded-2xl px-3 py-1.5 focus:outline-none focus:border-accent-teal">
-                    <option value="name">İsme göre (A-Z)</option>
-                    <option value="value">Toplam Değere göre</option>
-                    <option value="plPercent">Kâr/Zarar %’ye göre</option>
+                    <option value="name">İsme göre</option>
+                    <option value="value">Değere göre</option>
+                    <option value="plPercent">Kâr/Zarar (%)</option>
                     <option value="type">Türe göre</option>
                   </select>
 
@@ -285,64 +285,6 @@
             <br>
             <hr>
 
-
-
-            <!-- === HIZLI VARLIK SLIDER (Mobil Tam Uyumlu) === -->
-            <div class="mt-6">
-              <div class="px-4 flex items-center justify-between mb-3">
-                <p class="text-xs font-bold text-text-muted uppercase tracking-widest">Hızlı Varlık İşlemleri</p>
-                <!-- <span onclick="showPortfolioSlider()"
-                  class="text-accent-teal text-[10px] font-medium flex items-center gap-1 cursor-pointer hover:underline">
-                  Tümünü Gör <span class="material-symbols-outlined text-base">arrow_forward</span>
-                </span> -->
-              </div>
-
-              <!-- Slider Container -->
-              <div class="flex overflow-x-auto gap-4 pb-6 px-4 snap-x snap-mandatory no-scrollbar">
-
-                <!-- 1. Fon Portföyü -->
-                <div onclick="location.href='fundinfo.html';"
-                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
-                  <div class="flex justify-between items-start">
-                    <span class="material-symbols-outlined text-4xl text-accent-teal">payments</span>
-                    <span
-                      class="px-3 py-1 text-[10px] font-bold bg-accent-teal/10 text-accent-teal rounded-2xl">FONLAR</span>
-                  </div>
-                  <p class="mt-auto text-lg font-semibold text-white">Fon Piyasası</p>
-                  <p class="text-xs text-text-muted">Fon Piyasa Durumu</p>
-                </div>
-
-                <!-- 2. Hisse Senetleri -->
-                <div onclick="location.href='portfoy.html';"
-                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
-                  <div class="flex justify-between items-start">
-                    <span class="material-symbols-outlined text-4xl text-accent-blue">show_chart</span>
-                    <span
-                      class="px-3 py-1 text-[10px] font-bold bg-accent-blue/10 text-accent-blue rounded-2xl">PORTFOY</span>
-                  </div>
-                  <p class="mt-auto text-lg font-semibold text-white">Portföy</p>
-                  <p class="text-xs text-text-muted">Global-Tefas portföy takibi</p>
-                </div>
-
-                <!-- 3. Cüzdan Düzenle -->
-                <div onclick="showGraphSettings()"
-                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
-                  <div class="flex justify-between items-start">
-                    <span class="material-symbols-outlined text-4xl text-accent-purple">edit</span>
-                    <span
-                      class="px-3 py-1 text-[10px] font-bold bg-accent-purple/10 text-accent-purple rounded-2xl">DÜZENLE</span>
-                  </div>
-                  <p class="mt-auto text-lg font-semibold text-white">Cüzdanları Düzenle</p>
-                  <p class="text-xs text-text-muted">İsim, Miktar</p>
-                </div>
-
-              </div>
-            </div>
-            <!-- === SLIDER BİTTİ === -->
-
-            <br>
-            <hr>
-
             <!-- === VARLIK İŞLEMLERİM - SLIDER YAPISI === -->
             <div class="mt-8">
               <div class="px-4 flex items-center justify-between mb-3">
@@ -351,8 +293,8 @@
                 <div class="flex items-center gap-3">
                   <select id="varlikSortSelect" onchange="sortVarlikIslemlerim()"
                     class="bg-card-dark text-white text-xs font-medium border border-white/10 rounded-2xl px-3 py-1.5 focus:outline-none focus:border-accent-teal">
-                    <option value="name">İsme göre (A-Z)</option>
-                    <option value="value">Değere göre (Büyük → Küçük)</option>
+                    <option value="name">İsme göre</option>
+                    <option value="value">Değere göre</option>
                   </select>
 
                   <span onclick="showGraphSettings()"
@@ -492,6 +434,61 @@
               </div>
             </div>
             <!-- === VARLIK İŞLEMLERİM SLIDER BİTTİ === -->
+
+            <hr>
+            <!-- === HIZLI VARLIK SLIDER (Mobil Tam Uyumlu) === -->
+            <div class="mt-6">
+              <div class="px-4 flex items-center justify-between mb-3">
+                <p class="text-xs font-bold text-text-muted uppercase tracking-widest">Piyasalar</p>
+                <!-- <span onclick="showPortfolioSlider()"
+                  class="text-accent-teal text-[10px] font-medium flex items-center gap-1 cursor-pointer hover:underline">
+                  Tümünü Gör <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </span> -->
+              </div>
+
+              <!-- Slider Container -->
+              <div class="flex overflow-x-auto gap-4 pb-6 px-4 snap-x snap-mandatory no-scrollbar">
+
+                <!-- 1. Fon Portföyü -->
+                <div onclick="location.href='fundinfo.html';"
+                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
+                  <div class="flex justify-between items-start">
+                    <span class="material-symbols-outlined text-4xl text-accent-teal">payments</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-teal/10 text-accent-teal rounded-2xl">FONLAR</span>
+                  </div>
+                  <p class="mt-auto text-lg font-semibold text-white">Fon Piyasası</p>
+                  <p class="text-xs text-text-muted">Fon Piyasa Durumu</p>
+                </div>
+
+                <!-- 2. Hisse Senetleri -->
+                <div onclick="location.href='portfoy.html';"
+                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
+                  <div class="flex justify-between items-start">
+                    <span class="material-symbols-outlined text-4xl text-accent-blue">show_chart</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-blue/10 text-accent-blue rounded-2xl">PORTFOY</span>
+                  </div>
+                  <p class="mt-auto text-lg font-semibold text-white">Portföy</p>
+                  <p class="text-xs text-text-muted">Global-Tefas portföy takibi</p>
+                </div>
+
+                <!-- 3. Cüzdan Düzenle -->
+                <div onclick="showGraphSettings()"
+                  class="glass-card min-w-[178px] flex-shrink-0 p-5 rounded-3xl border border-white/10 flex flex-col cursor-pointer hover:scale-[1.03] active:scale-95 transition-all">
+                  <div class="flex justify-between items-start">
+                    <span class="material-symbols-outlined text-4xl text-accent-purple">edit</span>
+                    <span
+                      class="px-3 py-1 text-[10px] font-bold bg-accent-purple/10 text-accent-purple rounded-2xl">DÜZENLE</span>
+                  </div>
+                  <p class="mt-auto text-lg font-semibold text-white">Cüzdanları Düzenle</p>
+                  <p class="text-xs text-text-muted">İsim, Miktar</p>
+                </div>
+
+              </div>
+            </div>
+            <!-- === SLIDER BİTTİ === -->
+
 
 
             <div
