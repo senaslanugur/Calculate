@@ -638,9 +638,15 @@ function donut_and_init(){
   const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
   const donutTotalEl = document.getElementById("donut-total");
   if (savedTotal) {
-    donutTotalEl.textContent = tlFormat(total - parseFloat(savedTotal) - 1000);
+    const total_to_page = total - parseFloat(savedTotal);
+    if (total_to_page> 1000){
+        donutTotalEl.textContent = tlFormat(total_to_page - 1000);
+    }else{
+        donutTotalEl.textContent = tlFormat(total_to_page);
+    }
+    // donutTotalEl.textContent = tlFormat(total - parseFloat(savedTotal));
   } else {
-    donutTotalEl.textContent = tlFormat(total);
+    donutTotalEl.textContent = tlFormat(total - 1000);
   }
 
   // === HEDEF İLE İLGİLİ GÜNCELLEME (progress bar + kalan) ===
