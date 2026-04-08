@@ -638,7 +638,7 @@ function donut_and_init(){
   const total = staffEntries.reduce((s, [k, v]) => s + parseFloat(v), 0);
   const donutTotalEl = document.getElementById("donut-total");
   if (savedTotal) {
-    donutTotalEl.textContent = tlFormat(total - parseFloat(savedTotal));
+    donutTotalEl.textContent = tlFormat(total - parseFloat(savedTotal) - 1000);
   } else {
     donutTotalEl.textContent = tlFormat(total);
   }
