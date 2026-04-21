@@ -1,238 +1,1080 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fintables • Alpha Terminal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        :root { 
-            --c-bg: #0a0a0c; --c-surf: #121217; --c-surf2: #1c1c24; --c-border: #2a2a35; 
-            --c-text: #f3f4f6; --c-muted: #8b949e; --c-green: #10b981; --c-red: #ef4444; 
-            --c-amber: #f59e0b; --c-blue: #3b82f6; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace; 
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font-sans); font-size: 13px; background-color: var(--c-bg); color: var(--c-text); overflow-y: scroll; }
-        
-        /* HEADER & LAYOUT */
-        .hdr { background: rgba(18, 18, 23, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--c-border); position: sticky; top: 0; z-index: 100; }
-        .hdr-inner { max-width: 1400px; margin: auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
-        .main { max-width: 1400px; margin: auto; padding: 24px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fintables • Alpha Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ═══════════════════════ TOKENS ═══════════════════════ */
+:root {
+  --bg:      #080a0e;
+  --surf:    #0e1118;
+  --surf2:   #141923;
+  --border:  #1d2535;
+  --border2: #263040;
+  --text:    #dce6f5;
+  --muted:   #4a6080;
+  --green:   #00d68f;
+  --red:     #ff4560;
+  --amber:   #ffb700;
+  --blue:    #4c9eff;
+  --purple:  #a78bfa;
+  --fn:      'JetBrains Mono', monospace;
+  --fd:      'Syne', sans-serif;
+}
 
-        /* SLIDER - TOP PICKS */
-        .slider-label { font-size: 11px; font-weight: 700; color: var(--c-blue); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .slider-container { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 24px; scrollbar-width: none; }
-        .slider-container::-webkit-scrollbar { display: none; }
-        
-        .pick-card { 
-            min-width: 240px; background: linear-gradient(145deg, var(--c-surf), #1a1a22); border: 1px solid var(--c-border); 
-            border-radius: 12px; padding: 16px; transition: transform 0.2s, border-color 0.2s; cursor: pointer;
-        }
-        .pick-card:hover { transform: translateY(-4px); border-color: var(--c-blue); }
-        .pick-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .pick-symbol { font-size: 18px; font-weight: 800; font-family: var(--font-mono); }
-        .pick-upside { color: var(--c-green); font-weight: 700; font-size: 14px; }
-        .pick-stats { display: flex; gap: 12px; font-size: 11px; color: var(--c-muted); }
-        .pick-score { font-family: var(--font-mono); color: var(--c-amber); font-weight: 700; }
+/* ═══════════════════════ RESET ═══════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+font-family: var(–fn);
+font-size: 12px;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-y: scroll;
+}
 
-        /* TABLES & UI */
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
-        .stat-card { background: var(--c-surf); border: 1px solid var(--c-border); border-radius: 12px; padding: 20px; }
-        .tbl-panel { background: var(--c-surf); border: 1px solid var(--c-border); border-radius: 12px; overflow: hidden; }
-        .tbl-toolbar { padding: 16px 20px; border-bottom: 1px solid var(--c-border); display: flex; gap: 12px; justify-content: space-between; align-items: center; }
-        
-        table { width: 100%; border-collapse: collapse; }
-        thead th { font-size: 10px; color: var(--c-muted); padding: 12px 20px; background: rgba(28, 28, 36, 0.4); text-transform: uppercase; }
-        tbody td { padding: 14px 20px; border-bottom: 1px solid rgba(42, 42, 53, 0.5); }
-        
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
-        .sig-buy { background: rgba(16, 185, 129, 0.15); color: var(--c-green); }
-        .sig-sell { background: rgba(239, 68, 68, 0.15); color: var(--c-red); }
-        .sig-hold { background: rgba(245, 158, 11, 0.15); color: var(--c-amber); }
-        
-        .loading-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    </style>
+/* ═══════════════════════ GRID BG ═══════════════════════ */
+body::before {
+content: ‘’;
+position: fixed; inset: 0; z-index: 0; pointer-events: none;
+background-image:
+linear-gradient(rgba(76,158,255,0.025) 1px, transparent 1px),
+linear-gradient(90deg, rgba(76,158,255,0.025) 1px, transparent 1px);
+background-size: 40px 40px;
+}
+
+/* ═══════════════════════ HEADER ═══════════════════════ */
+.hdr {
+position: sticky; top: 0; z-index: 200;
+background: rgba(8,10,14,0.92);
+backdrop-filter: blur(16px);
+border-bottom: 1px solid var(–border);
+}
+.hdr-inner {
+max-width: 1440px; margin: auto; padding: 0 24px; height: 60px;
+display: flex; align-items: center; justify-content: space-between; gap: 16px;
+position: relative; z-index: 1;
+}
+.logo-mark {
+width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+background: linear-gradient(135deg, #4c9eff, #7c3aed);
+display: flex; align-items: center; justify-content: center;
+box-shadow: 0 0 20px rgba(76,158,255,0.35);
+}
+.logo-name { font-family: var(–fd); font-size: 17px; font-weight: 800; letter-spacing: -0.3px; color: var(–text); }
+.logo-sub  { font-size: 9px; color: var(–muted); letter-spacing: 2px; text-transform: uppercase; }
+.hdr-right { display: flex; align-items: center; gap: 10px; }
+
+/* Live indicator */
+.live-pill {
+display: flex; align-items: center; gap: 6px;
+background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.25);
+border-radius: 999px; padding: 5px 12px; font-size: 11px; color: #00d68f;
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #00d68f; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,214,143,.4)} 50%{opacity:.5;box-shadow:0 0 0 4px rgba(0,214,143,0)} }
+
+.hdr-btn {
+display: flex; align-items: center; gap: 7px;
+background: var(–surf2); border: 1px solid var(–border2);
+border-radius: 8px; padding: 7px 14px; cursor: pointer;
+font-size: 11px; color: var(–text); font-family: var(–fn);
+letter-spacing: .5px; transition: border-color .2s, color .2s;
+}
+.hdr-btn:hover { border-color: var(–blue); color: var(–blue); }
+
+.algo-pill {
+display: flex; align-items: center; gap: 6px;
+background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.25);
+border-radius: 999px; padding: 5px 12px; font-size: 11px; color: var(–purple);
+cursor: pointer; transition: background .2s;
+}
+.algo-pill:hover { background: rgba(167,139,250,0.14); }
+
+/* ═══════════════════════ LOADING ═══════════════════════ */
+#loading-overlay {
+position: fixed; inset: 0; z-index: 9999;
+background: rgba(8,10,14,0.97);
+display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+}
+#loading-overlay.hidden { display: none !important; }
+.ld-ring {
+width: 40px; height: 40px;
+border: 2px solid #1d2535; border-top-color: #4c9eff;
+border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.ld-txt { font-size: 11px; color: #4a6080; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ═══════════════════════ TOAST ═══════════════════════ */
+#toast {
+position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+background: #141923; border: 1px solid rgba(255,181,0,.35); color: #ffb700;
+font-size: 11px; padding: 9px 18px; border-radius: 8px; z-index: 9998;
+letter-spacing: .5px; white-space: nowrap;
+opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+#toast.show { opacity: 1; }
+
+/* ═══════════════════════ MAIN ═══════════════════════ */
+.main { max-width: 1440px; margin: auto; padding: 24px; position: relative; z-index: 1; }
+
+/* ═══════════════════════ SECTION LABEL ═══════════════════════ */
+.sec-lbl {
+font-family: var(–fd); font-size: 10px; font-weight: 700;
+text-transform: uppercase; letter-spacing: 2px;
+display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+}
+.sec-lbl::after { content: ‘’; flex: 1; height: 1px; background: var(–border); }
+
+/* ═══════════════════════ STAT CARDS ═══════════════════════ */
+.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+@media(max-width:1100px) { .stat-grid { grid-template-columns: repeat(3,1fr); } }
+@media(max-width:680px)  { .stat-grid { grid-template-columns: repeat(2,1fr); } }
+.stat-card {
+background: var(–surf); border: 1px solid var(–border); border-radius: 10px;
+padding: 16px 18px; position: relative; overflow: hidden;
+}
+.stat-card::before {
+content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+background: linear-gradient(90deg, transparent, rgba(76,158,255,.4), transparent);
+}
+.stat-kl  { font-size: 9px; color: var(–muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+.stat-val { font-family: var(–fd); font-size: 28px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+.stat-sub { font-size: 10px; color: var(–muted); margin-top: 6px; }
+.col-g { color: #00d68f; } .col-r { color: #ff4560; } .col-a { color: #ffb700; }
+.col-b { color: #4c9eff; } .col-p { color: #a78bfa; } .col-w { color: #dce6f5; }
+
+/* ═══════════════════════ SLIDER ═══════════════════════ */
+.slider { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; scroll-snap-type: x mandatory; margin-bottom: 28px; }
+.slider::-webkit-scrollbar { display: none; }
+.pick-card {
+flex: 0 0 220px; scroll-snap-align: start;
+background: var(–surf); border: 1px solid var(–border); border-radius: 10px;
+padding: 16px; position: relative; overflow: hidden; cursor: pointer;
+transition: transform .2s, border-color .2s;
+}
+.pick-card:hover { transform: translateY(-3px); border-color: var(–blue); }
+.pick-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #4c9eff, #a78bfa); }
+.pick-rank { font-size: 9px; color: var(–muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.pick-sym  { font-family: var(–fd); font-size: 20px; font-weight: 800; color: var(–text); letter-spacing: -0.3px; }
+.pick-alpha-bar { height: 3px; background: var(–border); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+.pick-alpha-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #4c9eff, #a78bfa); transition: width .6s .1s; }
+.pick-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.pick-metric { font-size: 10px; color: var(–muted); }
+.pick-metric span { display: block; font-size: 13px; font-weight: 700; color: var(–text); }
+.empty-slide { text-align: center; padding: 40px 20px; color: var(–muted); font-size: 11px; flex: 1; }
+
+/* ═══════════════════════ BADGES ═══════════════════════ */
+.bp {
+display: inline-flex; align-items: center; gap: 4px;
+font-size: 9px; font-weight: 700; letter-spacing: .5px;
+padding: 3px 8px; border-radius: 4px;
+}
+.bp-al   { background: rgba(0,214,143,.12);  color: #00d68f; border: 1px solid rgba(0,214,143,.25);  }
+.bp-gal  { background: rgba(0,214,143,.2);   color: #00d68f; border: 1px solid rgba(0,214,143,.45); box-shadow: 0 0 8px rgba(0,214,143,.2); }
+.bp-sat  { background: rgba(255,69,96,.12);  color: #ff4560; border: 1px solid rgba(255,69,96,.25);  }
+.bp-gsat { background: rgba(255,69,96,.2);   color: #ff4560; border: 1px solid rgba(255,69,96,.45); box-shadow: 0 0 8px rgba(255,69,96,.2); }
+.bp-tut  { background: rgba(255,183,0,.1);   color: #ffb700; border: 1px solid rgba(255,183,0,.2);   }
+
+/* ═══════════════════════ TABLE PANEL ═══════════════════════ */
+.tbl-panel {
+background: var(–surf); border: 1px solid var(–border);
+border-radius: 10px; overflow: hidden;
+}
+.tbl-toolbar {
+padding: 14px 18px; border-bottom: 1px solid var(–border);
+display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+}
+.tbl-title { font-family: var(–fd); font-size: 13px; font-weight: 700; color: var(–text); display: flex; align-items: center; gap: 8px; }
+.filters   { display: flex; gap: 8px; flex-wrap: wrap; }
+.srch-wrap { position: relative; }
+.srch-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(–muted); font-size: 10px; pointer-events: none; }
+.srch-inp {
+background: var(–bg); border: 1px solid var(–border); border-radius: 6px;
+padding: 7px 10px 7px 28px; font-size: 11px; color: var(–text); outline: none;
+font-family: var(–fn); width: 190px; transition: border-color .2s;
+}
+.srch-inp:focus { border-color: var(–blue); }
+.srch-inp::placeholder { color: var(–muted); }
+.sel {
+background: var(–bg); border: 1px solid var(–border); border-radius: 6px;
+padding: 7px 10px; font-size: 11px; color: var(–text); outline: none;
+font-family: var(–fn); cursor: pointer; transition: border-color .2s;
+}
+.sel:focus { border-color: var(–blue); }
+
+/* ═══════════════════════ TABLE ═══════════════════════ */
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 900px; }
+thead th {
+font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(–muted);
+padding: 10px 14px; background: #0b0d12; border-bottom: 1px solid var(–border);
+text-align: left; white-space: nowrap; font-family: var(–fn); font-weight: 500;
+cursor: pointer; user-select: none;
+}
+thead th:hover { color: var(–text); }
+thead th .sort-arrow { opacity: .3; margin-left: 3px; }
+thead th.sorted .sort-arrow { opacity: 1; color: var(–blue); }
+tbody tr { border-bottom: 1px solid rgba(29,37,53,.6); transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(20,25,35,.7); }
+tbody td { padding: 12px 14px; white-space: nowrap; }
+.td-sym { font-family: var(–fd); font-size: 14px; font-weight: 800; letter-spacing: -.2px; color: var(–text); }
+.td-mono { font-family: var(–fn); }
+.td-muted { color: var(–muted); }
+
+/* Score bar */
+.score-bar { display: flex; align-items: center; gap: 7px; }
+.score-bg  { width: 60px; height: 3px; background: var(–border); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+.score-fill { height: 100%; border-radius: 3px; }
+.sf-g { background: #00d68f; } .sf-r { background: #ff4560; } .sf-a { background: #ffb700; } .sf-b { background: #4c9eff; } .sf-p { background: #a78bfa; }
+
+/* Momentum arrows */
+.mom-up   { color: #00d68f; }
+.mom-down { color: #ff4560; }
+.mom-flat { color: #4a6080; }
+
+.tbl-footer {
+padding: 10px 18px; border-top: 1px solid var(–border);
+display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(–muted);
+}
+.api-tag { color: #4c9eff; letter-spacing: .5px; }
+
+/* ═══════════════════════ MODAL ═══════════════════════ */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 10000; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal-box {
+background: #0e1118; border: 1px solid #1d2535; border-radius: 12px;
+max-width: 560px; width: calc(100% - 40px); padding: 28px; max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-family: var(–fd); font-size: 17px; font-weight: 800; color: var(–text); margin-bottom: 20px; }
+.algo-grid { display: grid; gap: 10px; }
+.algo-item { background: #0b0d12; border: 1px solid #1d2535; border-radius: 8px; padding: 14px; }
+.algo-item h4 { font-size: 10px; font-weight: 700; color: var(–blue); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; }
+.algo-item p  { font-size: 11px; color: var(–muted); line-height: 1.8; }
+.algo-item code { background: #080a0e; color: var(–amber); padding: 2px 5px; border-radius: 3px; font-family: var(–fn); font-size: 10px; }
+.modal-close {
+margin-top: 20px; width: 100%; background: #141923; border: 1px solid #1d2535; color: var(–text);
+border-radius: 8px; padding: 11px; font-size: 12px; cursor: pointer; font-family: var(–fn);
+letter-spacing: .5px; transition: border-color .2s, color .2s;
+}
+.modal-close:hover { border-color: var(–blue); color: var(–blue); }
+
+/* ═══════════════════════ RESPONSIVE ═══════════════════════ */
+@media(max-width:700px) {
+.main { padding: 14px; }
+.hdr-inner { padding: 0 14px; }
+.pick-card { flex: 0 0 190px; }
+.hide-sm { display: none !important; }
+}
+</style>
+
 </head>
-
 <body>
-    <header class="hdr">
-        <div class="hdr-inner">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="width:36px;height:36px;border-radius:8px;background:var(--c-blue);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-bolt" style="color:#fff"></i></div>
-                <div>
-                    <div style="font-weight:700; font-size:16px;">Fintables Alpha</div>
-                    <div style="color:var(--c-muted); font-size:10px; font-family:var(--font-mono);">STRATEJİK ALIM-SATIM TERMİNALİ</div>
-                </div>
-            </div>
-            <button class="btn" style="background:var(--c-surf2); border:1px solid var(--c-border); color:white; padding:8px 16px; border-radius:6px; cursor:pointer;" onclick="fetchAndProcess()">
-                <i class="fa-solid fa-sync" id="sync-icon"></i> ANALİZİ YENİLE
-            </button>
+
+<!-- HEADER -->
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-mark"><i class="fa-solid fa-bolt" style="color:#fff;font-size:15px"></i></div>
+      <div>
+        <div class="logo-name">Fintables Alpha</div>
+        <div class="logo-sub">Stratejik Alım-Satım Terminali</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="live-pill hide-sm" id="time-pill" style="display:none">
+        <i class="fa-regular fa-clock" style="font-size:9px"></i>
+        <span id="last-update">—</span>
+      </div>
+      <div class="live-pill">
+        <div class="live-dot"></div>
+        <span id="total-count">0</span>&nbsp;öneri
+      </div>
+      <div class="algo-pill" onclick="openModal()">
+        <i class="fa-solid fa-flask" style="font-size:9px"></i>
+        <span class="hide-sm">Metodoloji</span>
+      </div>
+      <button class="hdr-btn" onclick="refreshData()">
+        <i id="sync-icon" class="fa-solid fa-rotate" style="font-size:11px"></i>
+        <span class="hide-sm">Yenile</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- LOADING -->
+
+<div id="loading-overlay">
+  <div class="ld-ring"></div>
+  <div class="ld-txt" id="ld-txt">Analiz başlatılıyor…</div>
+</div>
+
+<!-- TOAST -->
+
+<div id="toast">⚠ API erişilemedi — demo verisi yüklendi</div>
+
+<main class="main">
+
+  <!-- STAT CARDS -->
+
+  <div class="stat-grid" id="stat-grid"></div>
+
+  <!-- ALPHA PICKS SLIDER -->
+
+  <div class="sec-lbl" style="color:#4c9eff">
+    <i class="fa-solid fa-fire" style="color:#ffb700"></i> Alpha Picks — En Yüksek Composite Skor
+  </div>
+  <div class="slider" id="alpha-slider"></div>
+
+  <!-- MAIN TABLE -->
+
+  <div class="tbl-panel">
+    <div class="tbl-toolbar">
+      <div class="tbl-title">
+        <i class="fa-solid fa-table" style="color:#4a6080;font-size:11px"></i>
+        Sinyal Tarama Tablosu
+      </div>
+      <div class="filters">
+        <div class="srch-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="srch-inp" id="search" type="text" placeholder="Sembol / sektör ara…" oninput="renderTable()">
         </div>
-    </header>
+        <select class="sel" id="sig-filter" onchange="renderTable()">
+          <option value="">Tüm Sinyaller</option>
+          <option value="GÜÇLÜ AL">GÜÇLÜ AL</option>
+          <option value="AL">AL</option>
+          <option value="TUT">TUT</option>
+          <option value="SAT">SAT</option>
+          <option value="GÜÇLÜ SAT">GÜÇLÜ SAT</option>
+        </select>
+        <select class="sel" id="sec-filter" onchange="renderTable()">
+          <option value="">Tüm Sektörler</option>
+        </select>
+        <button class="hdr-btn" onclick="resetFilters()" title="Sıfırla" style="padding:6px 10px">
+          <i class="fa-solid fa-rotate-left" style="font-size:10px"></i>
+        </button>
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table id="main-table">
+        <thead>
+          <tr>
+            <th onclick="sortBy('code')">SEMBOL <span class="sort-arrow">↕</span></th>
+            <th>SİNYAL</th>
+            <th onclick="sortBy('alpha')">ALPHA SKORU <span class="sort-arrow">↕</span></th>
+            <th onclick="sortBy('conviction')">CONVİCTİON <span class="sort-arrow">↕</span></th>
+            <th onclick="sortBy('upside')">UPSIDE % <span class="sort-arrow">↕</span></th>
+            <th onclick="sortBy('momentum')">MOMENTUM <span class="sort-arrow">↕</span></th>
+            <th onclick="sortBy('sectorZ')">SEKTÖR Z <span class="sort-arrow">↕</span></th>
+            <th onclick="sortBy('dispersion')">HEDEF DAĞILIM <span class="sort-arrow">↕</span></th>
+            <th onclick="sortBy('count')">KURUM <span class="sort-arrow">↕</span></th>
+            <th class="hide-sm">SEKTÖR</th>
+          </tr>
+        </thead>
+        <tbody id="main-tbody"></tbody>
+      </table>
+    </div>
+    <div class="tbl-footer">
+      <span><span id="table-count">0</span> hisse gösteriliyor</span>
+      <span class="api-tag">api.fintables.com</span>
+    </div>
+  </div>
 
-    <main class="main">
-        <div class="slider-label"><i class="fa-solid fa-fire"></i> Yüksek Alım Potansiyeli (Alpha Picks)</div>
-        <div class="slider-container" id="top-picks-slider">
-            </div>
+</main>
 
-        <div class="stat-grid" id="stat-grid"></div>
+<!-- METHODOLOGY MODAL -->
 
-        <div class="tbl-panel">
-            <div class="tbl-toolbar">
-                <div style="font-weight:600;"><i class="fa-solid fa-list-check" style="color:var(--c-blue)"></i> Sektörel Sinyal Takibi</div>
-                <input type="text" id="search" style="background:var(--c-surf2); border:1px solid var(--c-border); color:white; padding:6px 12px; border-radius:6px;" placeholder="Hisse ara..." oninput="renderTable()">
-            </div>
-            <div style="overflow-x:auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sembol</th>
-                            <th>Sinyal</th>
-                            <th>Güven (Score)</th>
-                            <th>Potansiyel</th>
-                            <th>Momentum</th>
-                            <th>Sektör Z-Skor</th>
-                            <th>Volatilite</th>
-                        </tr>
-                    </thead>
-                    <tbody id="quant-tbody"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title">⚗ Algoritma Metodolojisi</div>
+    <div class="algo-grid">
+      <div class="algo-item">
+        <h4>1 · Zaman-Ağırlıklı Conviction (TWC)</h4>
+        <p>Her analist raporuna yaş bazlı üstel azalma uygulanır. 28 günlük yarı-ömür kullanılır — eski raporlar daha az ağırlık taşır.<br>
+        <code>w = e^(−0.0248 × gün) · typePuan</code> (AL:+3, TUT:+1, SAT:−4)<br>
+        <code>TWC = Σ(w) / Σ(ağırlık) × log₁₀(N+1) × hakimiyet</code></p>
+      </div>
+      <div class="algo-item">
+        <h4>2 · Rating Momentumu</h4>
+        <p>Fiyat verisi gerektirmez — tamamen analist revizyon trendinden hesaplanır.<br>
+        Son 14 gün içindeki ortalama puan ile 15-60 gün öncesinin ortalaması karşılaştırılır.<br>
+        <code>Momentum = OrtPuanSon14d − OrtPuan15-60d</code><br>
+        Pozitif = analistler giderek daha iyimser; negatif = kötümser revizyon.</p>
+      </div>
+      <div class="algo-item">
+        <h4>3 · Hedef Dağılımı (İmplied Volatilite Proxy)</h4>
+        <p>Analistlerin hedef fiyat tahminleri arasındaki görüş ayrılığı, risk belirsizliğini ölçer.<br>
+        <code>Dağılım% = (StdSapma_hedef / Ortalama_hedef) × 100</code><br>
+        Yüksek dağılım = analistler hemfikir değil = daha yüksek risk.</p>
+      </div>
+      <div class="algo-item">
+        <h4>4 · Sektör Z-Skoru (Relative Valuation)</h4>
+        <p>Hissenin kendi sektörü içindeki göreli upside konumunu gösterir. Sektör ortalaması 0, pozitif = sektörün üzerinde beklenti.<br>
+        <code>Z = (Upside_hisse − Ort_sektör) / StdSapma_sektör</code></p>
+      </div>
+      <div class="algo-item">
+        <h4>5 · Composite Alpha Skoru (0–100)</h4>
+        <p>Tüm metriklerin normalize edilmiş ağırlıklı bileşimi. Portföy sıralamasında kullanılır.<br>
+        <code>α = 40% TWC + 30% Upside + 20% Momentum + 10% (1−Dağılım)</code><br>
+        Her bileşen 0-1 arasına normalize edilerek ağırlık uygulanır.</p>
+      </div>
+      <div class="algo-item">
+        <h4>6 · Sinyal Eşikleri</h4>
+        <p>
+          <code style="color:#00d68f">GÜÇLÜ AL:</code> α≥65 VE Upside≥12 VE TWC≥2<br>
+          <code style="color:#00d68f">AL:</code> α≥45 VE Upside≥5 VE TWC≥0.5<br>
+          <code style="color:#ff4560">GÜÇLÜ SAT:</code> α≤25 VE Upside≤−10 VE TWC≤−2<br>
+          <code style="color:#ff4560">SAT:</code> TWC≤−1 VEYA Upside≤−5<br>
+          <code style="color:#ffb700">TUT:</code> diğer
+        </p>
+      </div>
+    </div>
+    <p style="font-size:10px;color:#4a6080;margin-top:14px;line-height:1.7">
+      ⚠ Bu sistem mevcut analist verilerini matematiksel olarak özetler. Yatırım tavsiyesi değildir.<br>
+      Tüm metrikler yalnızca analist raporlarından türetilir — harici fiyat verisi kullanılmaz.
+    </p>
+    <button class="modal-close" onclick="closeModal()">Kapat</button>
+  </div>
+</div>
 
-    <script>
-        const SECTOR_MAP = {'THYAO':'Ulaştırma','PGSUS':'Ulaştırma','AKBNK':'Bankacılık','GARAN':'Bankacılık','ISCTR':'Bankacılık','YKBNK':'Bankacılık','TUPRS':'Sanayi','EREGL':'Sanayi','ASELS':'Teknoloji','BIMAS':'Perakende','MGROS':'Perakende','SAHOL':'Holding','KCHOL':'Holding','FROTO':'Otomotiv'};
+<script>
+/* ═══════════════════════════════════════════════════════════
+   COLOR CONSTANTS — hex only, never CSS var() in JS strings
+   ═══════════════════════════════════════════════════════════ */
+var HEX = {
+  green : '#00d68f',
+  red   : '#ff4560',
+  amber : '#ffb700',
+  blue  : '#4c9eff',
+  purple: '#a78bfa',
+  muted : '#4a6080',
+  text  : '#dce6f5'
+};
 
-        let globalStocks = [];
+/* ═══════════════════════════════════════════════════════════
+   SECTOR MAP
+   ═══════════════════════════════════════════════════════════ */
+var SECTOR_MAP = {
+  'THYAO':'Ulaştırma', 'PGSUS':'Ulaştırma',
+  'AKBNK':'Bankacılık', 'GARAN':'Bankacılık', 'ISCTR':'Bankacılık', 'YKBNK':'Bankacılık',
+  'TUPRS':'Sanayi', 'EREGL':'Sanayi', 'KRDMD':'Sanayi',
+  'ASELS':'Savunma', 'ASELSAN':'Savunma',
+  'BIMAS':'Perakende', 'MGROS':'Perakende', 'SOKM':'Perakende',
+  'SAHOL':'Holding', 'KCHOL':'Holding',
+  'FROTO':'Otomotiv', 'TOASO':'Otomotiv',
+  'PETKM':'Petrokimya', 'TUPRS2':'Petrokimya',
+  'AKSEN':'Enerji', 'ENKAI':'İnşaat'
+};
 
-        function getSignal(st) {
-            if (st.conviction > 4 && st.upside > 15 && st.momentum > 0) return { label: 'GÜÇLÜ AL', class: 'sig-buy' };
-            if (st.conviction > 2 && st.upside > 5) return { label: 'AL', class: 'sig-buy' };
-            if (st.conviction < -1 || st.upside < -10) return { label: 'SAT', class: 'sig-sell' };
-            return { label: 'TUT', class: 'sig-hold' };
-        }
+/* ═══════════════════════════════════════════════════════════
+   API
+   ═══════════════════════════════════════════════════════════ */
+var API_URL = 'https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=';
 
-        async function fetchPriceHistory(symbol) {
-            try {
-                const to = Math.floor(Date.now()/1000);
-                const from = to - (30 * 86400);
-                const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${symbol}&resolution=D&from=${from}&to=${to}`);
-                const data = await res.json();
-                if (data.s === 'ok') {
-                    const c = data.c;
-                    const mom = ((c[c.length-1] - c[0]) / c[0]) * 100;
-                    return { momentum: mom, vol: 20 + Math.random()*10 };
-                }
-            } catch(e) {}
-            return { momentum: Math.random()*10-5, vol: 25 };
-        }
+/* ═══════════════════════════════════════════════════════════
+   DEMO DATA — realistic BIST data with spread dates
+   for proper momentum & sector Z-score calculation
+   ═══════════════════════════════════════════════════════════ */
+var DEMO_DATA = (function() {
+  var KR = ['İş Yatırım','Ata Yat.','Oyak Yat.','Garanti BBVA','Yapı Kredi','QNB Fin.','Denizbank','TEB Yat.','Meksa Yat.','GCM Yat.'];
+  function r(code, type, target, current, ki, daysAgo) {
+    var d = new Date(); d.setDate(d.getDate() - daysAgo);
+    return { code: code, type: type, price_target: target, current_price: current,
+             published_at: d.toISOString(), brokerage: { short_title: KR[ki % KR.length] } };
+  }
+  return [
+    /* THYAO — Güçlü AL, pozitif momentum (recent daha iyi) */
+    r('THYAO','al',455,365,0,2), r('THYAO','al',448,365,1,6), r('THYAO','al',430,365,2,10),
+    r('THYAO','tut',388,365,3,28), r('THYAO','tut',375,365,4,40), r('THYAO','al',400,365,5,55),
 
-        async function fetchAndProcess() {
-            const icon = document.getElementById('sync-icon');
-            icon.classList.add('loading-spin');
-            
-            try {
-                const response = await fetch('https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=');
-                const apiData = await response.json();
-                const ratings = apiData.results || apiData;
+    /* AKBNK — AL, pozitif momentum */
+    r('AKBNK','al',76,57.5,0,3), r('AKBNK','al',73,57.5,1,8), r('AKBNK','al',79,57.5,2,13),
+    r('AKBNK','tut',64,57.5,3,32), r('AKBNK','al',70,57.5,4,48),
 
-                const aggregated = {};
-                ratings.forEach(r => {
-                    if (!aggregated[r.code]) {
-                        aggregated[r.code] = { code: r.code, targets: [], current: r.current_price, count: 0, score: 0 };
-                    }
-                    let weight = Math.max(0.2, Math.exp(-0.02 * ((new Date() - new Date(r.published_at))/(1000*60*60*24))));
-                    let base = r.type === 'al' ? 3 : (r.type === 'sat' ? -4 : 1);
-                    aggregated[r.code].score += (base * weight);
-                    if(r.price_target) aggregated[r.code].targets.push(r.price_target);
-                    aggregated[r.code].count++;
-                });
+    /* ASELS — Güçlü AL, yüksek conviction */
+    r('ASELS','al',132,108,0,1), r('ASELS','al',129,108,1,5), r('ASELS','al',136,108,2,9),
+    r('ASELS','al',126,108,3,22), r('ASELS','tut',118,108,4,38), r('ASELS','al',123,108,5,52),
 
-                globalStocks = [];
-                for (const code in aggregated) {
-                    const st = aggregated[code];
-                    const hist = await fetchPriceHistory(code);
-                    const avgT = st.targets.length ? (st.targets.reduce((a,b)=>a+b,0)/st.targets.length) : st.current;
-                    
-                    globalStocks.push({
-                        code: code,
-                        conviction: (st.score * (1 + Math.log10(st.count + 1))) / (1 + (hist.vol/100)),
-                        upside: ((avgT - st.current)/st.current)*100,
-                        momentum: hist.momentum,
-                        volatility: hist.vol,
-                        zScore: Math.random() * 4 - 2 // Sektörel normalizasyon simülasyonu
-                    });
-                }
+    /* GARAN — AL, karma momentum */
+    r('GARAN','al',168,141,0,4), r('GARAN','al',172,141,1,9), r('GARAN','tut',150,141,2,18),
+    r('GARAN','sat',128,141,3,32), r('GARAN','al',162,141,4,45), r('GARAN','tut',145,141,5,60),
 
-                renderSlider();
-                renderTable();
-                updateStats();
-            } catch(e) { console.error(e); }
-            icon.classList.remove('loading-spin');
-        }
+    /* ISCTR — SAT ağırlıklı, negatif momentum */
+    r('ISCTR','sat',9.2,13.4,0,3), r('ISCTR','sat',8.7,13.4,1,7), r('ISCTR','sat',9.0,13.4,2,16),
+    r('ISCTR','tut',11.8,13.4,3,35), r('ISCTR','sat',8.4,13.4,4,50),
 
-        function renderSlider() {
-            const slider = document.getElementById('top-picks-slider');
-            // En yüksek conviction ve pozitif upside olanları seç
-            const topPicks = [...globalStocks]
-                .filter(s => s.upside > 0)
-                .sort((a,b) => b.conviction - a.conviction)
-                .slice(0, 5);
+    /* YKBNK — TUT, düşük momentum */
+    r('YKBNK','tut',33,30.2,0,5), r('YKBNK','al',37,30.2,1,16), r('YKBNK','tut',31,30.2,2,34),
+    r('YKBNK','tut',30,30.2,3,52),
 
-            slider.innerHTML = topPicks.map(s => `
-                <div class="pick-card">
-                    <div class="pick-header">
-                        <span class="pick-symbol">${s.code}</span>
-                        <span class="badge sig-buy">ALPHA</span>
-                    </div>
-                    <div class="pick-upside">%${s.upside.toFixed(1)} Potansiyel</div>
-                    <div style="margin: 8px 0; height: 1px; background: var(--c-border);"></div>
-                    <div class="pick-stats">
-                        <span>Güven: <span class="pick-score">${s.conviction.toFixed(1)}</span></span>
-                        <span>Mom: <span style="color:var(--c-green)">%${s.momentum.toFixed(1)}</span></span>
-                    </div>
-                </div>
-            `).join('');
-        }
+    /* ASELS — SAVUNMA sektörü (ASELSAN alias) — skip, ASELS already done */
 
-        function renderTable() {
-            const term = document.getElementById('search').value.toLowerCase();
-            const tbody = document.getElementById('quant-tbody');
-            
-            const filtered = globalStocks
-                .filter(s => s.code.toLowerCase().includes(term))
-                .sort((a,b) => b.conviction - a.conviction);
+    /* KCHOL — Güçlü AL */
+    r('KCHOL','al',305,258,0,4), r('KCHOL','al',315,258,1,11), r('KCHOL','al',295,258,2,24),
+    r('KCHOL','tut',272,258,3,42),
 
-            tbody.innerHTML = filtered.map(s => {
-                const sig = getSignal(s);
-                return `
-                    <tr>
-                        <td style="font-weight:700; font-family:var(--font-mono);">${s.code}</td>
-                        <td><span class="badge ${sig.class}">${sig.label}</span></td>
-                        <td class="pick-score">${s.conviction.toFixed(2)}</td>
-                        <td style="color:${s.upside > 0 ? 'var(--c-green)':'var(--c-red)'}">%${s.upside.toFixed(1)}</td>
-                        <td>%${s.momentum.toFixed(1)}</td>
-                        <td>${s.zScore.toFixed(1)}</td>
-                        <td style="color:var(--c-muted)">%${s.volatility.toFixed(1)}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
+    /* SAHOL — AL */
+    r('SAHOL','al',90,67.5,0,3), r('SAHOL','al',86,67.5,1,10),
+    r('SAHOL','tut',76,67.5,2,28), r('SAHOL','al',83,67.5,3,46),
 
-        function updateStats() {
-            const avgUpside = globalStocks.reduce((a,b)=>a+b.upside,0) / globalStocks.length;
-            document.getElementById('stat-grid').innerHTML = `
-                <div class="stat-card"><div style="font-size:11px; color:var(--c-muted);">TARANAN HİSSE</div><div style="font-size:24px; font-weight:700;">${globalStocks.length}</div></div>
-                <div class="stat-card"><div style="font-size:11px; color:var(--c-muted);">PİYASA POTANSİYELİ</div><div style="font-size:24px; font-weight:700; color:var(--c-green);">%${avgUpside.toFixed(1)}</div></div>
-                <div class="stat-card"><div style="font-size:11px; color:var(--c-muted);">GÜÇLÜ AL SİNYALİ</div><div style="font-size:24px; font-weight:700; color:var(--c-blue);">${globalStocks.filter(s => getSignal(s).label === 'GÜÇLÜ AL').length}</div></div>
-            `;
-        }
+    /* EREGL — AL ağırlıklı */
+    r('EREGL','al',60,43.5,0,5), r('EREGL','al',57,43.5,1,14),
+    r('EREGL','tut',51,43.5,2,30), r('EREGL','tut',49,43.5,3,48),
 
-        document.addEventListener('DOMContentLoaded', fetchAndProcess);
-    </script>
+    /* KRDMD — AL (sanayi) */
+    r('KRDMD','al',29,22.1,0,3), r('KRDMD','al',31,22.1,1,13), r('KRDMD','tut',25,22.1,2,38),
+
+    /* TUPRS — SAT ağırlıklı */
+    r('TUPRS','sat',196,223,0,4), r('TUPRS','tut',211,223,1,14),
+    r('TUPRS','sat',190,223,2,28), r('TUPRS','sat',194,223,3,44),
+
+    /* PETKM — Güçlü SAT */
+    r('PETKM','sat',21.5,30.8,0,2), r('PETKM','sat',20.0,30.8,1,6),
+    r('PETKM','sat',21.0,30.8,2,15), r('PETKM','tut',27.0,30.8,3,33), r('PETKM','sat',19.5,30.8,4,50),
+
+    /* BIMAS — TUT */
+    r('BIMAS','tut',548,572,0,6), r('BIMAS','tut',535,572,1,20),
+    r('BIMAS','sat',492,572,2,38), r('BIMAS','tut',552,572,3,55),
+
+    /* MGROS — TUT/SAT */
+    r('MGROS','tut',585,612,0,8), r('MGROS','sat',542,612,1,22), r('MGROS','tut',598,612,2,45),
+
+    /* SOKM — AL */
+    r('SOKM','al',48,38.5,0,5), r('SOKM','al',50,38.5,1,18), r('SOKM','tut',42,38.5,2,40),
+
+    /* FROTO — AL */
+    r('FROTO','al',1460,1195,0,3), r('FROTO','al',1490,1195,1,11),
+    r('FROTO','tut',1310,1195,2,30), r('FROTO','al',1430,1195,3,48),
+
+    /* TOASO — AL */
+    r('TOASO','al',385,312,0,4), r('TOASO','al',375,312,1,15), r('TOASO','tut',335,312,2,38),
+
+    /* PGSUS — AL, pozitif momentum */
+    r('PGSUS','al',968,822,0,2), r('PGSUS','al',985,822,1,7),
+    r('PGSUS','tut',855,822,2,32), r('PGSUS','tut',842,822,3,55),
+
+    /* AKSEN — TUT/AL */
+    r('AKSEN','al',59,48.2,0,9), r('AKSEN','tut',53,48.2,1,24), r('AKSEN','tut',51,48.2,2,46),
+
+    /* ENKAI — AL */
+    r('ENKAI','al',78,62.5,0,6), r('ENKAI','al',82,62.5,1,18), r('ENKAI','tut',68,62.5,2,40)
+  ];
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   MATH HELPERS
+   ═══════════════════════════════════════════════════════════ */
+function mean(arr) {
+  if (!arr.length) return 0;
+  var s = 0; for (var i = 0; i < arr.length; i++) s += arr[i]; return s / arr.length;
+}
+function stddev(arr) {
+  if (arr.length < 2) return 0;
+  var m = mean(arr), s = 0;
+  for (var i = 0; i < arr.length; i++) s += (arr[i] - m) * (arr[i] - m);
+  return Math.sqrt(s / arr.length);
+}
+function normalize(val, minV, maxV) {
+  if (maxV === minV) return 0.5;
+  return Math.max(0, Math.min(1, (val - minV) / (maxV - minV)));
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+var TYPE_SCORE = { al: 3, tut: 1, sat: -4 };
+var DECAY = Math.LN2 / 28; /* half-life = 28 days */
+var NOW   = Date.now();
+
+/* ═══════════════════════════════════════════════════════════
+   CORE DATA PROCESSOR
+   ═══════════════════════════════════════════════════════════ */
+function processData(results) {
+  /* — STEP 1: aggregate raw data per stock — */
+  var agg = {};
+  var i, item, code, g;
+
+  for (i = 0; i < results.length; i++) {
+    item = results[i];
+    code = item.code || '?';
+    if (!agg[code]) {
+      agg[code] = {
+        code: code,
+        items: [],
+        current: 0
+      };
+    }
+    agg[code].items.push(item);
+    if (item.current_price && !agg[code].current) {
+      agg[code].current = Number(item.current_price);
+    }
+  }
+
+  /* — STEP 2: compute metrics per stock — */
+  var stocks = [];
+  var keys   = Object.keys(agg);
+
+  for (i = 0; i < keys.length; i++) {
+    g = agg[keys[i]];
+    var items  = g.items;
+    var n      = items.length;
+    var cur    = g.current;
+
+    /* time-decay weighted score */
+    var sumW  = 0, sumWS = 0;
+    var alC   = 0, tutC = 0, satC = 0;
+    var targets = [];
+
+    /* momentum buckets */
+    var recentScores = [], olderScores = [];
+
+    var j, it, daysAgo, w, ts, tgt;
+    for (j = 0; j < items.length; j++) {
+      it = items[j];
+      daysAgo = (NOW - new Date(it.published_at).getTime()) / 86400000;
+      daysAgo = Math.max(0, daysAgo);
+      w  = Math.exp(-DECAY * daysAgo);
+      ts = TYPE_SCORE[it.type] || 1;
+
+      sumW  += w;
+      sumWS += w * ts;
+
+      if (it.type === 'al') alC++;
+      else if (it.tut === 'tut') tutC++;
+      else if (it.type === 'sat') satC++;
+      else if (it.type === 'tut') tutC++;
+
+      tgt = Number(it.price_target);
+      if (tgt > 0) targets.push(tgt);
+
+      /* momentum: recent = ≤14d, older = 15-60d */
+      if (daysAgo <= 14) recentScores.push(ts);
+      else if (daysAgo <= 60) olderScores.push(ts);
+    }
+
+    /* fix count */
+    alC = 0; tutC = 0; satC = 0;
+    for (j = 0; j < items.length; j++) {
+      var t2 = items[j].type;
+      if (t2 === 'al') alC++;
+      else if (t2 === 'tut') tutC++;
+      else if (t2 === 'sat') satC++;
+    }
+
+    /* TWC: normalized weighted score × coverage × dominance */
+    var avgWS    = sumW > 0 ? sumWS / sumW : 0;
+    var coverage = 1 + Math.log10(n + 1);
+    var maxCnt   = Math.max(alC, tutC, satC);
+    var dominance = n > 0 ? maxCnt / n : 0;
+    var twc      = avgWS * coverage * dominance;
+
+    /* upside */
+    var avgTgt = targets.length ? mean(targets) : 0;
+    var upside = (cur > 0 && avgTgt > 0) ? ((avgTgt - cur) / cur) * 100 : 0;
+
+    /* rating momentum */
+    var momentum = 0;
+    if (recentScores.length > 0 && olderScores.length > 0) {
+      momentum = mean(recentScores) - mean(olderScores);
+    } else if (recentScores.length > 0) {
+      momentum = mean(recentScores) * 0.5; /* only recent data, partial signal */
+    }
+    /* momentum range ≈ −7 to +7 */
+
+    /* target dispersion (implied vol proxy) */
+    var dispersion = 0;
+    if (targets.length >= 2) {
+      var mt  = mean(targets);
+      var sdt = stddev(targets);
+      dispersion = mt > 0 ? (sdt / mt) * 100 : 0;
+    }
+
+    /* consensus */
+    var consensus = alC >= tutC && alC >= satC ? 'al' : satC >= alC && satC >= tutC ? 'sat' : 'tut';
+
+    stocks.push({
+      code: code,
+      n: n,
+      alC: alC, tutC: tutC, satC: satC,
+      twc: twc,
+      upside: upside,
+      avgTgt: avgTgt,
+      momentum: momentum,
+      dispersion: dispersion,
+      consensus: consensus,
+      sector: SECTOR_MAP[code] || 'Diğer',
+      /* alpha + sectorZ computed after normalization */
+      alpha: 0,
+      sectorZ: 0
+    });
+  }
+
+  /* — STEP 3: sector Z-scores — */
+  var sectorGroups = {};
+  for (i = 0; i < stocks.length; i++) {
+    var sec = stocks[i].sector;
+    if (!sectorGroups[sec]) sectorGroups[sec] = [];
+    sectorGroups[sec].push(stocks[i].upside);
+  }
+  for (i = 0; i < stocks.length; i++) {
+    var sg = sectorGroups[stocks[i].sector];
+    var sm = mean(sg);
+    var ss = stddev(sg);
+    stocks[i].sectorZ = ss > 0 ? (stocks[i].upside - sm) / ss : 0;
+  }
+
+  /* — STEP 4: normalize for alpha score — */
+  var twcVals  = stocks.map(function(s) { return s.twc; });
+  var upVals   = stocks.map(function(s) { return s.upside; });
+  var momVals  = stocks.map(function(s) { return s.momentum; });
+  var disVals  = stocks.map(function(s) { return s.dispersion; });
+
+  var twcMin  = Math.min.apply(null, twcVals), twcMax  = Math.max.apply(null, twcVals);
+  var upMin   = Math.min.apply(null, upVals),  upMax   = Math.max.apply(null, upVals);
+  var momMin  = Math.min.apply(null, momVals), momMax  = Math.max.apply(null, momVals);
+  var disMin  = Math.min.apply(null, disVals), disMax  = Math.max.apply(null, disVals);
+
+  for (i = 0; i < stocks.length; i++) {
+    var s = stocks[i];
+    var nTwc = normalize(s.twc,       twcMin, twcMax);
+    var nUp  = normalize(s.upside,    upMin,  upMax);
+    var nMom = normalize(s.momentum,  momMin, momMax);
+    var nDis = 1 - normalize(s.dispersion, disMin, disMax); /* lower dispersion = better */
+    s.alpha  = Math.round((0.40 * nTwc + 0.30 * nUp + 0.20 * nMom + 0.10 * nDis) * 100);
+  }
+
+  return stocks;
+}
+
+/* — SIGNAL from metrics — */
+function getSignal(s) {
+  if (s.alpha >= 65 && s.upside >= 12 && s.twc >= 2) return { label: 'GÜÇLÜ AL', cls: 'bp-gal' };
+  if (s.alpha >= 45 && s.upside >= 5  && s.twc >= 0.5) return { label: 'AL',      cls: 'bp-al'  };
+  if (s.alpha <= 25 && s.upside <= -10 && s.twc <= -2) return { label: 'GÜÇLÜ SAT', cls: 'bp-gsat' };
+  if (s.twc <= -1 || s.upside <= -5)                   return { label: 'SAT',     cls: 'bp-sat' };
+  return { label: 'TUT', cls: 'bp-tut' };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL STATE
+   ═══════════════════════════════════════════════════════════ */
+var stocks  = [];
+var rawData = [];
+var sortKey = 'alpha';
+var sortAsc = false;
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER: STAT CARDS
+   ═══════════════════════════════════════════════════════════ */
+function renderStats() {
+  var n  = stocks.length;
+  var avgUp = n ? mean(stocks.map(function(s) { return s.upside; })) : 0;
+  var bullish = stocks.filter(function(s) { return s.twc > 0; }).length;
+  var bearish = stocks.filter(function(s) { return s.twc < 0; }).length;
+  var alphaCount = stocks.filter(function(s) { return getSignal(s).label === 'GÜÇLÜ AL'; }).length;
+  var bullRatio  = n ? bullish / n : 0.5;
+  var egilim = bullRatio > 0.62 ? 'BOĞA' : bullRatio < 0.38 ? 'AYI' : 'NÖTR';
+  var egilimCol = bullRatio > 0.62 ? HEX.green : bullRatio < 0.38 ? HEX.red : HEX.amber;
+
+  function sc(lbl, val, cls, sub) {
+    return '<div class="stat-card">'
+      + '<div class="stat-kl">' + lbl + '</div>'
+      + '<div class="stat-val ' + cls + '">' + val + '</div>'
+      + '<div class="stat-sub">' + sub + '</div>'
+      + '</div>';
+  }
+
+  var egilimHtml = '<div class="stat-card"><div class="stat-kl">Piyasa Eğilimi</div>'
+    + '<div class="stat-val" style="color:' + egilimCol + '">' + egilim + '</div>'
+    + '<div class="stat-sub">' + bullish + ' boğa · ' + bearish + ' ayı</div></div>';
+
+  document.getElementById('stat-grid').innerHTML =
+    sc('Taranan Hisse', n, 'col-w', 'BIST takibi') +
+    sc('Ort. Upside', (avgUp >= 0 ? '+' : '') + avgUp.toFixed(1) + '%', avgUp >= 0 ? 'col-g' : 'col-r', 'konsensüs hedef') +
+    sc('Alpha Pick', alphaCount, 'col-b', 'Güçlü AL sinyali') +
+    egilimHtml +
+    sc('Toplam Öneri', rawData.length, 'col-p', 'analist raporu');
+
+  document.getElementById('total-count').textContent = rawData.length;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER: SLIDER
+   ═══════════════════════════════════════════════════════════ */
+function renderSlider() {
+  var top = stocks.slice().sort(function(a,b) { return b.alpha - a.alpha; }).slice(0, 6);
+  var html = '';
+
+  for (var i = 0; i < top.length; i++) {
+    var s   = top[i];
+    var sig = getSignal(s);
+    var upCol = s.upside >= 0 ? HEX.green : HEX.red;
+    var upPfx = s.upside >= 0 ? '+' : '';
+    var momStr = s.momentum > 0.3 ? '↑ Yükseliş' : s.momentum < -0.3 ? '↓ Düşüş' : '→ Yatay';
+    var momCol = s.momentum > 0.3 ? HEX.green : s.momentum < -0.3 ? HEX.red : HEX.muted;
+
+    html += '<div class="pick-card">'
+      + '<div class="pick-rank">#' + (i+1) + ' Alpha Pick</div>'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+      +   '<div class="pick-sym">' + s.code + '</div>'
+      +   '<span class="bp ' + sig.cls + '">' + sig.label + '</span>'
+      + '</div>'
+      + '<div class="pick-alpha-bar"><div class="pick-alpha-fill" style="width:' + s.alpha + '%"></div></div>'
+      + '<div style="font-size:9px;color:' + HEX.muted + ';margin-bottom:8px">Alpha: <span style="color:#a78bfa;font-weight:700">' + s.alpha + '</span></div>'
+      + '<div class="pick-metrics">'
+      +   '<div class="pick-metric">Upside<span style="color:' + upCol + '">' + upPfx + s.upside.toFixed(1) + '%</span></div>'
+      +   '<div class="pick-metric">Conviction<span>' + s.twc.toFixed(2) + '</span></div>'
+      +   '<div class="pick-metric">Momentum<span style="color:' + momCol + '">' + momStr + '</span></div>'
+      +   '<div class="pick-metric">Sektör<span style="color:' + HEX.muted + '">' + s.sector + '</span></div>'
+      + '</div></div>';
+  }
+
+  document.getElementById('alpha-slider').innerHTML = html || '<div class="empty-slide">Yeterli veri yok</div>';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER: MAIN TABLE
+   ═══════════════════════════════════════════════════════════ */
+function renderTable() {
+  var term = (document.getElementById('search').value || '').toLowerCase();
+  var sf   = document.getElementById('sig-filter').value;
+  var secf = document.getElementById('sec-filter').value;
+
+  var filtered = stocks.filter(function(s) {
+    var sig = getSignal(s);
+    var matchT   = !term || s.code.toLowerCase().indexOf(term) !== -1
+                         || s.sector.toLowerCase().indexOf(term) !== -1;
+    var matchSig = !sf   || sig.label === sf;
+    var matchSec = !secf || s.sector === secf;
+    return matchT && matchSig && matchSec;
+  });
+
+  /* sort */
+  var asc = sortAsc;
+  filtered.sort(function(a, b) {
+    var va = a[sortKey] !== undefined ? a[sortKey] : -Infinity;
+    var vb = b[sortKey] !== undefined ? b[sortKey] : -Infinity;
+    if (typeof va === 'string') return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return asc ? va - vb : vb - va;
+  });
+
+  /* update sort arrow classes */
+  var ths = document.querySelectorAll('#main-table thead th');
+  for (var ti = 0; ti < ths.length; ti++) {
+    ths[ti].classList.remove('sorted');
+    var arrow = ths[ti].querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = '↕';
+  }
+  var sortMap = { code:0, alpha:2, conviction:3, upside:4, momentum:5, sectorZ:6, dispersion:7, count:8 };
+  var si = sortMap[sortKey];
+  if (si !== undefined && ths[si]) {
+    ths[si].classList.add('sorted');
+    var a2 = ths[si].querySelector('.sort-arrow');
+    if (a2) a2.textContent = asc ? '↑' : '↓';
+  }
+
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var s   = filtered[i];
+    var sig = getSignal(s);
+    var upCol  = s.upside >= 0 ? HEX.green : HEX.red;
+    var upPfx  = s.upside >= 0 ? '+' : '';
+    var twcCol = s.twc > 0 ? HEX.green : s.twc < 0 ? HEX.red : HEX.muted;
+    var twcPfx = s.twc >= 0 ? '+' : '';
+    var zCol   = s.sectorZ > 0 ? HEX.green : s.sectorZ < 0 ? HEX.red : HEX.muted;
+    var zPfx   = s.sectorZ >= 0 ? '+' : '';
+    var disCol = s.dispersion > 15 ? HEX.red : s.dispersion > 8 ? HEX.amber : HEX.muted;
+
+    /* momentum icon */
+    var momIcon, momCol;
+    if (s.momentum > 0.5) { momIcon = '↑'; momCol = HEX.green; }
+    else if (s.momentum > 0.1) { momIcon = '↗'; momCol = HEX.green; }
+    else if (s.momentum < -0.5) { momIcon = '↓'; momCol = HEX.red; }
+    else if (s.momentum < -0.1) { momIcon = '↘'; momCol = HEX.red; }
+    else { momIcon = '→'; momCol = HEX.muted; }
+
+    /* alpha bar */
+    var alphaFill = s.alpha;
+    var alphaBarCls = s.alpha >= 65 ? 'sf-g' : s.alpha >= 45 ? 'sf-b' : s.alpha >= 25 ? 'sf-a' : 'sf-r';
+    var alphaCol = s.alpha >= 65 ? HEX.green : s.alpha >= 45 ? HEX.blue : s.alpha >= 25 ? HEX.amber : HEX.red;
+
+    /* twc bar */
+    var twcNorm = clamp((s.twc + 5) / 10 * 100, 0, 100);
+    var twcBarCls = s.twc > 0 ? 'sf-g' : 'sf-r';
+
+    html += '<tr>'
+      + '<td class="td-sym">' + s.code + '</td>'
+      + '<td><span class="bp ' + sig.cls + '">' + sig.label + '</span></td>'
+      + '<td>'
+      +   '<div class="score-bar">'
+      +     '<div class="score-bg"><div class="score-fill ' + alphaBarCls + '" style="width:' + alphaFill + '%"></div></div>'
+      +     '<span style="color:' + alphaCol + ';font-weight:700">' + s.alpha + '</span>'
+      +   '</div>'
+      + '</td>'
+      + '<td>'
+      +   '<div class="score-bar">'
+      +     '<div class="score-bg"><div class="score-fill ' + twcBarCls + '" style="width:' + twcNorm + '%"></div></div>'
+      +     '<span style="color:' + twcCol + '">' + twcPfx + s.twc.toFixed(2) + '</span>'
+      +   '</div>'
+      + '</td>'
+      + '<td style="color:' + upCol + ';font-weight:700">' + upPfx + s.upside.toFixed(1) + '%</td>'
+      + '<td style="color:' + momCol + ';font-size:14px;font-weight:700">' + momIcon
+      +   '&nbsp;<span style="font-size:10px;color:' + momCol + '">' + (s.momentum >= 0 ? '+' : '') + s.momentum.toFixed(2) + '</span></td>'
+      + '<td style="color:' + zCol + '">' + zPfx + s.sectorZ.toFixed(2) + '</td>'
+      + '<td style="color:' + disCol + '">' + s.dispersion.toFixed(1) + '%</td>'
+      + '<td style="color:' + HEX.muted + '">' + s.n + '</td>'
+      + '<td class="td-muted hide-sm" style="font-size:10px">' + s.sector + '</td>'
+      + '</tr>';
+  }
+
+  document.getElementById('main-tbody').innerHTML = html;
+  document.getElementById('table-count').textContent = filtered.length;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTOR FILTER POPULATION
+   ═══════════════════════════════════════════════════════════ */
+function populateSectors() {
+  var seen = {}, secs = [];
+  for (var i = 0; i < stocks.length; i++) {
+    var sec = stocks[i].sector;
+    if (!seen[sec]) { seen[sec] = 1; secs.push(sec); }
+  }
+  secs.sort();
+  var sel = document.getElementById('sec-filter');
+  for (var j = 0; j < secs.length; j++) {
+    var opt = document.createElement('option');
+    opt.value = secs[j]; opt.textContent = secs[j];
+    sel.appendChild(opt);
+  }
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortAsc = !sortAsc;
+  else { sortKey = key; sortAsc = false; }
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('search').value = '';
+  document.getElementById('sig-filter').value = '';
+  document.getElementById('sec-filter').value = '';
+  renderTable();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FETCH — timeout + graceful fallback (no sequential loops)
+   ═══════════════════════════════════════════════════════════ */
+function fetchData() {
+  return new Promise(function(resolve) {
+    var settled = false;
+    function finish(data) {
+      if (settled) return;
+      settled = true;
+      resolve(data);
+    }
+
+    var timer = setTimeout(function() {
+      console.warn('[Alpha] API timeout → demo');
+      showToast();
+      finish(DEMO_DATA);
+    }, 8000);
+
+    try {
+      fetch(API_URL, { headers: { Accept: 'application/json' } })
+        .then(function(res) {
+          clearTimeout(timer);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          var results = data.results || data || [];
+          if (!results.length) { showToast(); finish(DEMO_DATA); }
+          else finish(results);
+        })
+        .catch(function(err) {
+          clearTimeout(timer);
+          console.warn('[Alpha] Fetch err:', err.message);
+          showToast();
+          finish(DEMO_DATA);
+        });
+    } catch(e) {
+      clearTimeout(timer);
+      showToast();
+      finish(DEMO_DATA);
+    }
+  });
+}
+
+function showToast() {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 5000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER PIPELINE — try/finally guarantees overlay hides
+   ═══════════════════════════════════════════════════════════ */
+function renderAll(results) {
+  try {
+    rawData = results;
+    stocks  = processData(results);
+    renderStats();
+    renderSlider();
+    populateSectors();
+    renderTable();
+    var now = new Date();
+    document.getElementById('last-update').textContent =
+      now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    var tp = document.getElementById('time-pill');
+    if (tp) tp.style.display = 'inline-flex';
+  } catch(err) {
+    console.error('[Alpha] Render error:', err);
+  } finally {
+    var ov = document.getElementById('loading-overlay');
+    if (ov) ov.classList.add('hidden');
+  }
+}
+
+function run() {
+  var ov = document.getElementById('loading-overlay');
+  if (ov) ov.classList.remove('hidden');
+  document.getElementById('ld-txt').textContent = 'Analist verileri işleniyor…';
+  fetchData().then(function(results) { renderAll(results); });
+}
+
+function refreshData() {
+  var icon = document.getElementById('sync-icon');
+  if (icon) icon.style.animation = 'spin .7s linear infinite';
+  var ov = document.getElementById('loading-overlay');
+  if (ov) ov.classList.remove('hidden');
+
+  fetchData().then(function(results) {
+    renderAll(results);
+    if (icon) icon.style.animation = '';
+  });
+}
+
+function openModal()  { var m = document.getElementById('modal'); if(m) m.classList.add('open'); }
+function closeModal() { var m = document.getElementById('modal'); if(m) m.classList.remove('open'); }
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+   ═══════════════════════════════════════════════════════════ */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', run);
+} else {
+  run();
+}
+</script>
+
 </body>
 </html>
