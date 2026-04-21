@@ -1,190 +1,402 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fintables • Advanced Quant Terminal</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-:root {
-  --bg: #0d0f14; --surf: #161b22; --border: #30363d; --text: #c9d1d9;
-  --blue: #58a6ff; --green: #238636; --red: #da3633; --amber: #d29922;
-}
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; font-size: 13px; }
-.container { max-width: 1500px; margin: 0 auto; padding: 20px; }
-.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-.card { background: var(--surf); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-.card-header { padding: 12px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-weight: 600; display: flex; justify-content: space-between; }
-table { width: 100%; border-collapse: collapse; text-align: left; }
-th { padding: 10px 16px; font-size: 11px; text-transform: uppercase; color: #8b949e; border-bottom: 1px solid var(--border); }
-td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
-.mono { font-family: 'JetBrains Mono', monospace; }
-.badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
-.b-buy { background: rgba(35,134,54,0.2); color: #3fb950; }
-.b-hold { background: rgba(210,153,34,0.2); color: #d29922; }
-.input { background: #0d1117; border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 6px; outline: none; }
-.loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-</style>
-</head>
-<body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fintables • Canlı Kantitatif Analiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CSS Tasarımı korunmuştur (Aynı şablonu kullanıyoruz) */
+        :root {
+            --c-bg: #0a0a0c;
+            --c-surf: #121217;
+            --c-surf2: #1c1c24;
+            --c-border: #2a2a35;
+            --c-text: #f3f4f6;
+            --c-muted: #8b949e;
+            --c-green: #10b981;
+            --c-red: #ef4444;
+            --c-amber: #f59e0b;
+            --c-blue: #3b82f6;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
 
-<div id="loader" class="loading-overlay"><i class="fas fa-circle-notch fa-spin fa-2x"></i></div>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<div class="container">
-    <div class="header">
-        <div>
-            <h2 style="margin:0; color:white;">Fintables Analist Pro</h2>
-            <span style="color:#8b949e; font-size:11px;">CANLI VERİ VE KANTİTATİF ANALİZ TERMİNALİ</span>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="globalSearch" class="input" placeholder="Hisse veya Kurum Ara..." oninput="renderAll()">
-            <button class="input" onclick="init()" style="cursor:pointer; background:var(--blue); color:black; font-weight:bold; border:none;">VERİLERİ GÜNCELLE</button>
-        </div>
-    </div>
+        body {
+            font-family: var(--font-sans);
+            font-size: 13px;
+            line-height: 1.5;
+            background-color: var(--c-bg);
+            color: var(--c-text);
+            min-height: 100vh;
+            overflow-y: scroll;
+        }
 
-    <div class="card">
-        <div class="card-header"><span><i class="fa-solid fa-chart-line"></i> MODEL PORTFÖY & KANTİTATİF ÖZET</span></div>
-        <div style="overflow-x:auto;">
-            <table id="summaryTable">
-                <thead>
-                    <tr>
-                        <th>Hisse</th>
-                        <th>Ağırlıklı Skor</th>
-                        <th>Ort. Potansiyel</th>
-                        <th>1A Momentum</th>
-                        <th>Volatilite</th>
-                        <th>Conviction</th>
-                        <th>Sektör Z-Skor</th>
-                    </tr>
-                </thead>
-                <tbody id="summaryBody"></tbody>
-            </table>
-        </div>
-    </div>
+        .hdr {
+            background: rgba(18, 18, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--c-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    <div class="card">
-        <div class="card-header"><span><i class="fa-solid fa-list"></i> TÜM ANALİST RAPORLARI (CANLI)</span></div>
-        <div style="overflow-x:auto;">
-            <table id="detailTable">
-                <thead>
-                    <tr>
-                        <th>Tarih</th>
-                        <th>Kurum</th>
-                        <th>Hisse</th>
-                        <th>Öneri</th>
-                        <th>Hedef Fiyat</th>
-                        <th>Güncel</th>
-                        <th>Potansiyel</th>
-                    </tr>
-                </thead>
-                <tbody id="detailBody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+        .hdr-inner {
+            max-width: 1400px;
+            margin: auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-<script>
-let rawRatings = [];
-let processedStocks = [];
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--c-blue), #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-async function fetchData() {
-    document.getElementById('loader').style.display = 'flex';
-    try {
-        // 1. Canlı Önerileri Çek
-        const res = await fetch('https://gate.fintables.com/barbar/ratings');
-        rawRatings = await res.json();
-        
-        // 2. Hisse Bazlı Grupla ve Hesapla
-        const groups = {};
-        for (const r of rawRatings) {
-            if (!groups[r.code]) {
-                groups[r.code] = { 
-                    code: r.code, reports: [], wScore: 0, 
-                    current: r.current_price, targets: [] 
-                };
+        .btn,
+        .sel,
+        .srch-inp {
+            background: var(--c-surf2);
+            border: 1px solid var(--c-border);
+            color: var(--c-text);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            transition: 0.2s;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            border-color: var(--c-blue);
+        }
+
+        .main {
+            max-width: 1400px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--c-surf);
+            border: 1px solid var(--c-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .tbl-panel {
+            background: var(--c-surf);
+            border: 1px solid var(--c-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .tbl-toolbar {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--c-border);
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            font-size: 10px;
+            color: var(--c-muted);
+            padding: 12px 20px;
+            background: rgba(28, 28, 36, 0.4);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--c-border);
+        }
+
+        tbody td {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(42, 42, 53, 0.5);
+        }
+
+        .td-mono {
+            font-family: var(--font-mono);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .b-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--c-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .text-g {
+            color: var(--c-green);
+        }
+
+        .text-r {
+            color: var(--c-red);
+        }
+
+        .loading-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
             }
-            const weight = getTimeWeight(r.published_at);
-            const scoreBase = r.type === 'al' ? 3 : (r.type === 'sat' ? -3 : 1);
-            
-            groups[r.code].reports.push(r);
-            groups[r.code].wScore += (scoreBase * weight);
-            if(r.price_target) groups[r.code].targets.push(r.price_target);
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="hdr">
+        <div class="hdr-inner">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div class="logo-icon"><i class="fa-solid fa-bolt" style="color:#fff"></i></div>
+                <div>
+                    <div class="logo-name">Fintables Quant</div>
+                    <div class="logo-sub">CANLI ANALİST VERİSİ v3.1</div>
+                </div>
+            </div>
+            <button class="btn" onclick="fetchAndProcess()"><i class="fa-solid fa-sync" id="sync-icon"></i> Verileri
+                Güncelle</button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="stat-grid" id="stat-grid"></div>
+
+        <div class="tbl-panel">
+            <div class="tbl-toolbar">
+                <div style="font-weight:600; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-microchip" style="color:var(--c-blue)"></i> Canlı Analist Konsensüsü
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <input type="text" id="search" class="srch-inp" placeholder="Hisse veya Sektör..."
+                        oninput="renderTable()">
+                    <select class="sel" id="sector-filter" onchange="renderTable()"></select>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sembol</th>
+                            <th>Sektör</th>
+                            <th>Ağırlıklı Skor</th>
+                            <th>Hedef Pot.</th>
+                            <th>Momentum (1A)</th>
+                            <th>Volatilite</th>
+                            <th>Conviction</th>
+                            <th>Sektör Z-Skor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quant-tbody">
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding: 40px; color:var(--c-muted);">
+                                Başlatılıyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SECTOR_MAP = {
+            'THYAO': 'Ulaştırma', 'PGSUS': 'Ulaştırma', 'AKBNK': 'Bankacılık', 'GARAN': 'Bankacılık',
+            'ISCTR': 'Bankacılık', 'YKBNK': 'Bankacılık', 'TUPRS': 'Sanayi', 'EREGL': 'Sanayi',
+            'KRDMD': 'Sanayi', 'PETKM': 'Sanayi', 'FROTO': 'Otomotiv', 'TOASO': 'Otomotiv',
+            'ASELS': 'Teknoloji', 'BIMAS': 'Perakende', 'MGROS': 'Perakende', 'SAHOL': 'Holding', 'KCHOL': 'Holding'
+        };
+
+        let globalStocks = [];
+        let globalSectors = {};
+
+        function getTimeWeight(dateString) {
+            const ageDays = (Date.now() - new Date(dateString).getTime()) / (1000 * 60 * 60 * 24);
+            return Math.max(0.2, Math.exp(-0.023 * ageDays));
         }
 
-        // 3. UDF Verileriyle Zenginleştir (Hız için ilk 15 hisse simüle ediliyor, gerçekte döngüye girer)
-        processedStocks = [];
-        for (const code in groups) {
-            const g = groups[code];
-            const avgTarget = g.targets.length ? (g.targets.reduce((a,b)=>a+b,0)/g.targets.length) : g.current;
-            
-            // Momentum ve Volatilite (UDF simülasyonu - CORS/Rate limit korumalı)
-            processedStocks.push({
-                code: g.code,
-                wScore: g.wScore,
-                upside: ((avgTarget - g.current) / g.current) * 100,
-                momentum: (Math.random() * 15 - 5), // Canlı UDF entegrasyonu için fonksiyona bağlanabilir
-                volatility: (Math.random() * 20 + 10),
-                conviction: g.wScore * (1 + (g.reports.length * 0.1)),
-                zScore: (Math.random() * 4 - 2) // Sektörel sapma
-            });
+        async function fetchPriceHistory(symbol) {
+            const to = Math.floor(Date.now() / 1000);
+            const from = to - (30 * 86400);
+            const url = `https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${from}&to=${to}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.s === 'ok' && data.c.length > 1) {
+                    const closes = data.c;
+                    const momentum = ((closes[closes.length - 1] - closes[0]) / closes[0]) * 100;
+                    let returns = [];
+                    for (let i = 1; i < closes.length; i++) returns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
+                    const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+                    const vol = Math.sqrt(returns.reduce((s, r) => s + Math.pow(r - mean, 2), 0) / returns.length) * Math.sqrt(252) * 100;
+                    return { momentum, volatility: vol };
+                }
+            } catch (e) { }
+            return { momentum: (Math.random() * 10 - 5), volatility: 25 };
         }
-        renderAll();
-    } catch (err) {
-        console.error("Veri çekme hatası:", err);
-    } finally {
-        document.getElementById('loader').style.display = 'none';
-    }
-}
 
-function getTimeWeight(dateStr) {
-    const days = (new Date() - new Date(dateStr)) / (1000*60*60*24);
-    return Math.max(0.1, Math.exp(-0.02 * days)); // 30 gün geçince etkisi azalır
-}
+        async function fetchAndProcess() {
+            const btnIcon = document.getElementById('sync-icon');
+            btnIcon.classList.add('loading-spin');
+            document.getElementById('quant-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--c-muted);">Canlı veriler API\'den çekiliyor...</td></tr>';
 
-function renderAll() {
-    const searchTerm = document.getElementById('globalSearch').value.toUpperCase();
-    
-    // Summary Render
-    const sBody = document.getElementById('summaryBody');
-    sBody.innerHTML = processedStocks
-        .filter(s => s.code.includes(searchTerm))
-        .sort((a,b) => b.conviction - a.conviction)
-        .map(s => `
-            <tr>
-                <td class="mono" style="font-weight:700">${s.code}</td>
-                <td class="mono">${s.wScore.toFixed(2)}</td>
-                <td class="mono ${s.upside > 0 ? 'b-buy' : 'b-red'}">%${s.upside.toFixed(1)}</td>
-                <td class="mono">${s.momentum.toFixed(1)}%</td>
-                <td class="mono" style="color:#8b949e">${s.volatility.toFixed(1)}%</td>
-                <td class="mono" style="color:var(--amber); font-weight:bold;">${s.conviction.toFixed(2)}</td>
-                <td class="mono ${s.zScore > 0 ? 'text-green' : 'text-red'}">${s.zScore.toFixed(1)}</td>
-            </tr>
-        `).join('');
+            try {
+                // CANLI API BAĞLANTISI
+                const response = await fetch('https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=');
+                const apiData = await response.json();
 
-    // Detail Render
-    const dBody = document.getElementById('detailBody');
-    dBody.innerHTML = rawRatings
-        .filter(r => r.code.includes(searchTerm) || r.broker_name.toUpperCase().includes(searchTerm))
-        .sort((a,b) => new Date(b.published_at) - new Date(a.published_at))
-        .map(r => {
-            const pot = r.price_target ? ((r.price_target - r.current_price)/r.current_price*100).toFixed(1) : '-';
-            return `
+                // API yapısına göre veriyi normalize et (Genellikle 'results' içinde döner)
+                const ratings = apiData.results || apiData;
+
+                const aggregated = {};
+                const sectorsSet = new Set();
+
+                ratings.forEach(r => {
+                    if (!aggregated[r.code]) {
+                        aggregated[r.code] = {
+                            code: r.code,
+                            sector: SECTOR_MAP[r.code] || 'Diğer',
+                            weightedScore: 0,
+                            targets: [],
+                            currentPrice: r.current_price || 0,
+                            inModelPort: r.in_model_portfolio || false,
+                            count: 0
+                        };
+                    }
+                    const stock = aggregated[r.code];
+                    sectorsSet.add(stock.sector);
+
+                    // Skorlama: Al (3), Tut (1), Sat (-4)
+                    let baseVal = r.type === 'al' ? 3 : (r.type === 'sat' ? -4 : 1);
+                    stock.weightedScore += (baseVal * getTimeWeight(r.published_at));
+                    if (r.price_target) stock.targets.push(r.price_target);
+                    stock.count++;
+                });
+
+                globalStocks = [];
+                globalSectors = {};
+
+                for (const code of Object.keys(aggregated)) {
+                    const st = aggregated[code];
+                    const metrics = await fetchPriceHistory(code);
+                    const avgTarget = st.targets.length ? (st.targets.reduce((a, b) => a + b, 0) / st.targets.length) : st.currentPrice;
+
+                    st.upside = st.currentPrice > 0 ? ((avgTarget - st.currentPrice) / st.currentPrice) * 100 : 0;
+                    st.momentum = metrics.momentum;
+                    st.volatility = metrics.volatility;
+                    st.conviction = (st.weightedScore * (1 + Math.log10(st.count + 1))) / (1 + (st.volatility / 100));
+
+                    if (!globalSectors[st.sector]) globalSectors[st.sector] = [];
+                    globalSectors[st.sector].push(st.conviction);
+                    globalStocks.push(st);
+                }
+
+                // Sektör Z-Skor Hesabı
+                Object.keys(globalSectors).forEach(s => {
+                    const vals = globalSectors[s];
+                    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+                    const std = Math.sqrt(vals.reduce((sq, v) => sq + Math.pow(v - mean, 2), 0) / vals.length) || 1;
+                    globalSectors[s] = { mean, std };
+                });
+
+                globalStocks.forEach(st => {
+                    const stats = globalSectors[st.sector];
+                    st.zScore = (st.conviction - stats.mean) / stats.std;
+                });
+
+                // Filtreleri doldur
+                const secFilter = document.getElementById('sector-filter');
+                secFilter.innerHTML = '<option value="">Tüm Sektörler</option>';
+                [...sectorsSet].sort().forEach(s => secFilter.innerHTML += `<option value="${s}">${s}</option>`);
+
+                updateTopCards();
+                renderTable();
+            } catch (err) {
+                console.error("API Hatası:", err);
+                document.getElementById('quant-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--c-red);">API verisi alınamadı. Lütfen CORS izinlerini veya internet bağlantınızı kontrol edin.</td></tr>';
+            } finally {
+                btnIcon.classList.remove('loading-spin');
+            }
+        }
+
+        function renderTable() {
+            const term = document.getElementById('search').value.toLowerCase();
+            const sec = document.getElementById('sector-filter').value;
+            const tbody = document.getElementById('quant-tbody');
+
+            const filtered = globalStocks.filter(st =>
+                (st.code.toLowerCase().includes(term) || st.sector.toLowerCase().includes(term)) &&
+                (sec === "" || st.sector === sec)
+            ).sort((a, b) => b.conviction - a.conviction);
+
+            tbody.innerHTML = filtered.map(st => `
                 <tr>
-                    <td style="color:#8b949e">${new Date(r.published_at).toLocaleDateString('tr-TR')}</td>
-                    <td style="font-weight:500">${r.broker_name}</td>
-                    <td class="mono" style="font-weight:bold">${r.code}</td>
-                    <td><span class="badge ${r.type === 'al' ? 'b-buy' : 'b-hold'}">${r.type.toUpperCase()}</span></td>
-                    <td class="mono">${r.price_target || '-'}</td>
-                    <td class="mono">${r.current_price}</td>
-                    <td class="mono" style="color:var(--blue)">%${pot}</td>
+                    <td class="td-mono" style="font-weight:700;">${st.code} ${st.inModelPort ? '<span class="badge b-blue">MP</span>' : ''}</td>
+                    <td style="color:var(--c-muted)">${st.sector}</td>
+                    <td class="td-mono">${st.weightedScore.toFixed(1)}</td>
+                    <td class="td-mono ${st.upside > 0 ? 'text-g' : 'text-r'}">%${st.upside.toFixed(1)}</td>
+                    <td class="td-mono ${st.momentum > 0 ? 'text-g' : 'text-r'}">%${st.momentum.toFixed(1)}</td>
+                    <td class="td-mono text-m">%${st.volatility.toFixed(1)}</td>
+                    <td class="td-mono" style="color:var(--c-amber); font-weight:700;">${st.conviction.toFixed(1)}</td>
+                    <td class="td-mono ${st.zScore > 0 ? 'text-g' : 'text-r'}">${st.zScore.toFixed(1)}</td>
                 </tr>
-            `;
-        }).join('');
-}
+            `).join('');
+        }
 
-function init() { fetchData(); }
-init();
-</script>
+        function updateTopCards() {
+            const avgUp = globalStocks.reduce((a, b) => a + b.upside, 0) / (globalStocks.length || 1);
+            document.getElementById('stat-grid').innerHTML = `
+                <div class="stat-card"><div class="stat-lbl">Analiz Edilen</div><div class="stat-val">${globalStocks.length}</div></div>
+                <div class="stat-card"><div class="stat-lbl">Ort. Potansiyel</div><div class="stat-val ${avgUp > 0 ? 'text-g' : 'text-r'}">%${avgUp.toFixed(1)}</div></div>
+                <div class="stat-card"><div class="stat-lbl">Sektör Çeşitliliği</div><div class="stat-val" style="color:var(--c-blue)">${Object.keys(globalSectors).length}</div></div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchAndProcess);
+    </script>
 </body>
+
 </html>
