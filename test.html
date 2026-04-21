@@ -5,156 +5,224 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fintables • Analist Paneli</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-  :root {
-    --green: #00c896;
-    --red: #ff3d5a;
-    --amber: #f59e0b;
-    --bg: #0b0e14;
-    --surface: #131720;
-    --surface2: #1a2030;
-    --border: #252d3d;
-    --text: #e8edf5;
-    --muted: #5a6680;
-  }
-  * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); min-height: 100vh; }
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --c-bg:      #0b0e14;
+  --c-surf:    #131720;
+  --c-surf2:   #1a2030;
+  --c-border:  #252d3d;
+  --c-text:    #e8edf5;
+  --c-muted:   #5a6680;
+  --c-green:   #00c896;
+  --c-red:     #ff3d5a;
+  --c-amber:   #f59e0b;
+}
 
-/* HEADER */
-.header { background: var(–surface); border-bottom: 1px solid var(–border); position: sticky; top: 0; z-index: 100; }
-.header-inner { max-width: 1280px; margin: auto; padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(–green), #00a87a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-.logo-sub { font-size: 10px; color: var(–muted); font-family: ‘DM Mono’, monospace; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.badge { background: var(–surface2); border: 1px solid var(–border); border-radius: 20px; padding: 5px 14px; font-size: 12px; color: var(–muted); display: flex; align-items: center; gap: 6px; }
-.badge-green { background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.3); color: var(–green); }
-.btn { background: var(–surface2); border: 1px solid var(–border); border-radius: 20px; padding: 6px 16px; font-size: 13px; cursor: pointer; color: var(–text); display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
-.btn:hover { border-color: var(–green); color: var(–green); }
-.live-dot { width: 7px; height: 7px; background: var(–green); border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+font-family: ‘DM Sans’, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif;
+font-size: 14px; line-height: 1.5;
+background-color: #0b0e14;
+color: #e8edf5;
+min-height: 100vh;
+}
 
-/* LOADING */
-#loading-overlay { position: fixed; inset: 0; background: rgba(11,14,20,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
-.spinner { width: 48px; height: 48px; border: 3px solid var(–border); border-top-color: var(–green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+/* ─── HEADER ─── */
+.hdr { background: #131720; border-bottom: 1px solid #252d3d; position: sticky; top: 0; z-index: 100; }
+.hdr-inner {
+max-width: 1280px; margin: auto; padding: 0 20px; height: 58px;
+display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.logo-icon {
+width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+background: linear-gradient(135deg, #00c896, #00a87a);
+display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.logo-name { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; color: #e8edf5; }
+.logo-sub  { font-size: 10px; color: #5a6680; font-family: ‘DM Mono’, monospace; line-height: 1; }
+.hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* ─── PILLS & BUTTONS ─── */
+.pill {
+display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px;
+border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap;
+border: 1px solid #252d3d; background: #1a2030; color: #5a6680;
+}
+.pill-live { background: rgba(0,200,150,.12); border-color: rgba(0,200,150,.3); color: #00c896; }
+.live-dot  { width: 7px; height: 7px; border-radius: 50%; background: #00c896; animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+.btn {
+display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer;
+border: 1px solid #252d3d; background: #1a2030; color: #e8edf5;
+transition: border-color .2s, color .2s; font-family: inherit;
+}
+.btn:hover { border-color: #00c896; color: #00c896; }
+
+/* ─── LOADING ─── */
+#loading-overlay {
+position: fixed; inset: 0; background: rgba(11,14,20,.96);
+z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+}
+#loading-overlay.hidden { display: none !important; }
+.spinner {
+width: 44px; height: 44px;
+border: 3px solid #252d3d; border-top-color: #00c896; border-radius: 50%;
+animation: spin .75s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-.load-text { color: var(–muted); font-size: 14px; font-family: ‘DM Mono’, monospace; }
+.load-txt { font-size: 13px; color: #5a6680; font-family: ‘DM Mono’, monospace; }
 
-/* MAIN */
-.main { max-width: 1280px; margin: auto; padding: 28px 20px; }
+/* ─── TOAST ─── */
+#toast {
+position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+background: #1a2030; border: 1px solid rgba(245,158,11,.3); color: #f59e0b;
+font-size: 12px; font-family: ‘DM Mono’, monospace;
+padding: 10px 20px; border-radius: 12px; z-index: 9998;
+opacity: 0; pointer-events: none; white-space: nowrap; transition: opacity .3s;
+}
+#toast.show { opacity: 1; }
 
-/* STAT CARDS */
-.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+/* ─── MAIN ─── */
+.main { max-width: 1280px; margin: auto; padding: 24px 20px; }
+
+/* ─── STAT GRID ─── */
+.stat-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 28px; }
 @media(max-width:900px) { .stat-grid { grid-template-columns: repeat(3,1fr); } }
 @media(max-width:600px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
-.stat-card { background: var(–surface); border: 1px solid var(–border); border-radius: 16px; padding: 20px; }
-.stat-label { font-size: 11px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.stat-val { font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
-.stat-sub { font-size: 11px; color: var(–muted); margin-top: 8px; }
-.val-green { color: var(–green); }
-.val-red { color: var(–red); }
-.val-amber { color: var(–amber); }
-.val-white { color: var(–text); }
+.stat-card { background: #131720; border: 1px solid #252d3d; border-radius: 14px; padding: 18px; }
+.stat-lbl  { font-size: 11px; color: #5a6680; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.stat-val  { font-size: 30px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+.stat-sub  { font-size: 11px; color: #5a6680; margin-top: 6px; }
+.col-g { color: #00c896; } .col-r { color: #ff3d5a; } .col-a { color: #f59e0b; } .col-w { color: #e8edf5; }
 
-/* SECTION HEADER */
-.sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.sec-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.sec-badge { font-size: 11px; background: var(–surface2); border: 1px solid var(–border); border-radius: 20px; padding: 3px 10px; color: var(–muted); }
-.info-btn { font-size: 11px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: var(–amber); border-radius: 20px; padding: 4px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-.info-btn:hover { background: rgba(245,158,11,0.2); }
+/* ─── SECTION HEADER ─── */
+.sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sec-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #e8edf5; }
+.sec-count { font-size: 11px; color: #5a6680; background: #1a2030; border: 1px solid #252d3d; border-radius: 999px; padding: 3px 10px; }
+.algo-btn {
+display: inline-flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer;
+background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); color: #f59e0b;
+border-radius: 999px; padding: 4px 12px; transition: background .2s;
+}
+.algo-btn:hover { background: rgba(245,158,11,.2); }
 
-/* SLIDER */
-.slider-wrap { overflow-x: auto; display: flex; gap: 12px; padding-bottom: 8px; scrollbar-width: none; scroll-snap-type: x mandatory; }
-.slider-wrap::-webkit-scrollbar { display: none; }
-.slide-card { flex: 0 0 260px; scroll-snap-align: start; background: var(–surface); border: 1px solid var(–border); border-radius: 18px; padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s; }
-.slide-card:hover { border-color: var(–green); }
-.slide-card.sell:hover { border-color: var(–red); }
-.slide-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 18px 18px 0 0; }
-.slide-card.buy::before { background: var(–green); }
-.slide-card.sell::before { background: var(–red); }
-.card-ticker { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
-.card-meta { font-size: 11px; color: var(–muted); margin-top: 3px; font-family: ‘DM Mono’, monospace; }
-.card-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-.badge-al { background: rgba(0,200,150,0.15); color: var(–green); border: 1px solid rgba(0,200,150,0.3); }
-.badge-sat { background: rgba(255,61,90,0.15); color: var(–red); border: 1px solid rgba(255,61,90,0.3); }
-.badge-tut { background: rgba(245,158,11,0.15); color: var(–amber); border: 1px solid rgba(245,158,11,0.3); }
-.card-metrics { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-.metric-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
-.metric-label { color: var(–muted); }
-.metric-val { font-weight: 600; font-family: ‘DM Mono’, monospace; }
-.progress-bar { width: 100%; height: 4px; background: var(–border); border-radius: 4px; margin-top: 4px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-.fill-green { background: var(–green); }
-.fill-red { background: var(–red); }
-.fill-amber { background: var(–amber); }
-.card-divider { margin: 12px 0; border: none; border-top: 1px solid var(–border); }
-.upside { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-.risk-pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
-.risk-low { background: rgba(0,200,150,0.15); color: var(–green); }
-.risk-med { background: rgba(245,158,11,0.15); color: var(–amber); }
-.risk-high { background: rgba(255,61,90,0.15); color: var(–red); }
-.empty-state { text-align: center; padding: 40px; color: var(–muted); font-size: 13px; width: 100%; }
+/* ─── SLIDER ─── */
+.slider { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.slider::-webkit-scrollbar { display: none; }
+.s-card {
+flex: 0 0 252px; scroll-snap-align: start;
+background: #131720; border: 1px solid #252d3d; border-radius: 16px; padding: 18px;
+position: relative; overflow: hidden; transition: border-color .2s, transform .2s;
+}
+.s-card:hover { transform: translateY(-2px); }
+.s-card-buy  { border-top: 2px solid #00c896; }
+.s-card-sell { border-top: 2px solid #ff3d5a; }
+.s-card-buy:hover  { border-color: #00c896; }
+.s-card-sell:hover { border-color: #ff3d5a; }
+.s-ticker { font-size: 22px; font-weight: 700; letter-spacing: -.5px; color: #e8edf5; }
+.s-meta   { font-size: 11px; color: #5a6680; margin-top: 2px; font-family: ‘DM Mono’, monospace; }
+.s-divider { border: none; border-top: 1px solid #252d3d; margin: 10px 0; }
+.s-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.s-lbl { font-size: 11px; color: #5a6680; }
+.s-val { font-size: 12px; font-weight: 600; font-family: ‘DM Mono’, monospace; }
+.empty-card { flex: 1; text-align: center; padding: 36px 20px; color: #5a6680; font-size: 13px; }
 
-/* CONSENSUS TABLE */
-.table-wrap { background: var(–surface); border: 1px solid var(–border); border-radius: 18px; overflow: hidden; margin-bottom: 28px; }
-.table-toolbar { padding: 16px 20px; border-bottom: 1px solid var(–border); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-.search-wrap { position: relative; flex: 1; min-width: 200px; }
-.search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(–muted); font-size: 12px; }
-.search-input { width: 100%; background: var(–bg); border: 1px solid var(–border); border-radius: 10px; padding: 8px 12px 8px 32px; font-size: 13px; color: var(–text); outline: none; transition: border-color 0.2s; }
-.search-input:focus { border-color: var(–green); }
-.search-input::placeholder { color: var(–muted); }
-select.filter-sel { background: var(–bg); border: 1px solid var(–border); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(–text); outline: none; cursor: pointer; }
-select.filter-sel:focus { border-color: var(–green); }
-table { width: 100%; border-collapse: collapse; }
-thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(–muted); padding: 12px 16px; text-align: left; background: var(–surface2); font-weight: 600; border-bottom: 1px solid var(–border); }
-tbody tr { border-bottom: 1px solid rgba(37,45,61,0.5); transition: background 0.15s; }
+/* ─── BADGES ─── */
+.bp { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.bp-al  { background: rgba(0,200,150,.15);  color: #00c896; border: 1px solid rgba(0,200,150,.3);  }
+.bp-sat { background: rgba(255,61,90,.15);  color: #ff3d5a; border: 1px solid rgba(255,61,90,.3);  }
+.bp-tut { background: rgba(245,158,11,.15); color: #f59e0b; border: 1px solid rgba(245,158,11,.3); }
+.rp { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+.rp-low  { background: rgba(0,200,150,.15);  color: #00c896; }
+.rp-med  { background: rgba(245,158,11,.15); color: #f59e0b; }
+.rp-high { background: rgba(255,61,90,.15);  color: #ff3d5a; }
+
+/* ─── PROGRESS ─── */
+.prog-bg   { height: 4px; background: #252d3d; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.prog-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+.pf-g { background: #00c896; } .pf-r { background: #ff3d5a; } .pf-a { background: #f59e0b; }
+
+/* ─── TABLE PANEL ─── */
+.tbl-panel { background: #131720; border: 1px solid #252d3d; border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+.tbl-toolbar {
+padding: 14px 18px; border-bottom: 1px solid #252d3d;
+display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+}
+.tbl-title { font-size: 14px; font-weight: 600; color: #e8edf5; display: flex; align-items: center; gap: 8px; }
+.filters   { display: flex; gap: 8px; flex-wrap: wrap; }
+.srch-wrap { position: relative; }
+.srch-wrap i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #5a6680; font-size: 11px; pointer-events: none; }
+.srch-inp {
+background: #0b0e14; border: 1px solid #252d3d; border-radius: 10px;
+padding: 7px 12px 7px 30px; font-size: 12px; color: #e8edf5; outline: none;
+font-family: ‘DM Sans’, sans-serif; width: 200px; transition: border-color .2s;
+}
+.srch-inp:focus { border-color: #00c896; }
+.srch-inp::placeholder { color: #5a6680; }
+.sel {
+background: #0b0e14; border: 1px solid #252d3d; border-radius: 10px;
+padding: 7px 12px; font-size: 12px; color: #e8edf5; outline: none; cursor: pointer;
+font-family: ‘DM Sans’, sans-serif; transition: border-color .2s;
+}
+.sel:focus { border-color: #00c896; }
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+thead th {
+font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+color: #5a6680; padding: 10px 14px; text-align: left;
+background: #1a2030; border-bottom: 1px solid #252d3d; font-weight: 600; white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid rgba(37,45,61,.5); transition: background .15s; }
 tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(–surface2); }
-tbody td { padding: 12px 16px; font-size: 13px; }
-.ticker-cell { font-weight: 700; font-size: 14px; letter-spacing: -0.3px; font-family: ‘DM Mono’, monospace; }
-.count-green { color: var(–green); font-weight: 700; }
-.count-red { color: var(–red); font-weight: 700; }
-.count-amber { color: var(–amber); font-weight: 700; }
-.score-positive { color: var(–green); }
-.score-negative { color: var(–red); }
-.score-neutral { color: var(–muted); }
-.table-footer { padding: 12px 20px; border-top: 1px solid var(–border); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(–muted); }
-.api-tag { color: var(–green); font-family: ‘DM Mono’, monospace; font-size: 11px; }
-.sortable { cursor: pointer; user-select: none; }
-.sortable:hover { color: var(–text); }
-.sort-arrow { margin-left: 4px; opacity: 0.4; }
-.sort-arrow.active { opacity: 1; color: var(–green); }
+tbody tr:hover { background: #1a2030; }
+tbody td { padding: 10px 14px; font-size: 12px; white-space: nowrap; }
+.td-ticker { font-weight: 700; font-size: 13px; letter-spacing: -.2px; font-family: ‘DM Mono’, monospace; color: #e8edf5; }
+.td-mono   { font-family: ‘DM Mono’, monospace; }
+.td-muted  { color: #5a6680; }
+.tbl-footer {
+padding: 10px 18px; border-top: 1px solid #252d3d;
+display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #5a6680;
+}
+.api-tag { font-family: ‘DM Mono’, monospace; font-size: 10px; color: #00c896; }
+.bar-wrap { display: flex; align-items: center; gap: 6px; }
+.bar-bg   { flex: 1; min-width: 60px; height: 4px; background: #252d3d; border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
 
-/* CONSENSUS TABLE (hisse bazinda) */
-.consensus-section { margin-bottom: 28px; }
+/* ─── MODAL ─── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 10000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-box {
+background: #131720; border: 1px solid #252d3d; border-radius: 18px;
+max-width: 460px; width: calc(100% - 40px); padding: 26px;
+max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-size: 16px; font-weight: 700; color: #e8edf5; margin-bottom: 18px; }
+.algo-block { background: #1a2030; border: 1px solid #252d3d; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.algo-block h4 { font-size: 11px; font-weight: 700; color: #00c896; font-family: ‘DM Mono’, monospace; margin-bottom: 6px; }
+.algo-block p  { font-size: 12px; color: #5a6680; line-height: 1.7; }
+.algo-block code { background: #0b0e14; color: #f59e0b; padding: 2px 5px; border-radius: 4px; font-family: ‘DM Mono’, monospace; font-size: 11px; }
+.modal-close {
+margin-top: 18px; width: 100%; background: #1a2030; border: 1px solid #252d3d; color: #e8edf5;
+border-radius: 10px; padding: 11px; font-size: 13px; cursor: pointer; font-family: ‘DM Sans’, sans-serif;
+transition: border-color .2s, color .2s;
+}
+.modal-close:hover { border-color: #00c896; color: #00c896; }
 
-/* MODAL */
-.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
-.modal-bg.open { display: flex; }
-.modal-box { background: var(–surface); border: 1px solid var(–border); border-radius: 20px; max-width: 480px; width: calc(100% - 40px); padding: 28px; }
-.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
-.algo-item { background: var(–surface2); border: 1px solid var(–border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
-.algo-item h4 { font-size: 12px; font-weight: 700; color: var(–green); margin-bottom: 6px; font-family: ‘DM Mono’, monospace; }
-.algo-item p { font-size: 12px; color: var(–muted); line-height: 1.7; }
-.algo-item code { background: var(–bg); color: var(–amber); padding: 2px 5px; border-radius: 4px; font-family: ‘DM Mono’, monospace; font-size: 11px; }
-.modal-close { margin-top: 20px; width: 100%; background: var(–surface2); border: 1px solid var(–border); color: var(–text); border-radius: 12px; padding: 12px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-.modal-close:hover { border-color: var(–green); color: var(–green); }
-
-/* SECTION TABS */
-.tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-.tab { padding: 7px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(–border); color: var(–muted); transition: all 0.2s; }
-.tab.active { background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.4); color: var(–green); }
-.tab:hover:not(.active) { border-color: var(–text); color: var(–text); }
-
-/* UPSIDE BAR */
-.upside-bar-wrap { display: flex; align-items: center; gap: 8px; }
-.upside-bar { flex: 1; height: 4px; background: var(–border); border-radius: 4px; overflow: hidden; }
-.upside-bar-fill { height: 100%; border-radius: 4px; }
+@media(max-width:640px) {
+.hdr-inner { padding: 0 14px; }
+.main { padding: 16px 14px; }
+.s-card { flex: 0 0 220px; }
+.hide-sm { display: none !important; }
+}
 </style>
 
 </head>
@@ -162,23 +230,23 @@ tbody td { padding: 12px 16px; font-size: 13px; }
 
 <!-- HEADER -->
 
-<div class="header">
-  <div class="header-inner">
-    <div class="logo">
+<header class="hdr">
+  <div class="hdr-inner">
+    <div style="display:flex;align-items:center;gap:10px">
       <div class="logo-icon">📊</div>
       <div>
-        <div class="logo-text">Fintables</div>
+        <div class="logo-name">Fintables</div>
         <div class="logo-sub">ANALİST PANELİ v2</div>
       </div>
     </div>
-    <div class="header-right">
-      <div class="badge" id="last-update-badge" style="display:none">
-        <i class="fa-solid fa-clock" style="font-size:10px"></i>
-        <span id="last-update">--:--</span>
+    <div class="hdr-right">
+      <div class="pill hide-sm" id="time-pill" style="display:none">
+        <i class="fa-regular fa-clock" style="font-size:10px"></i>
+        <span id="last-update">—</span>
       </div>
-      <div class="badge badge-green">
+      <div class="pill pill-live">
         <div class="live-dot"></div>
-        <span id="total-count">0</span> öneri
+        <span id="total-count">0</span>&nbsp;öneri
       </div>
       <button class="btn" onclick="refreshData()">
         <i id="refresh-icon" class="fa-solid fa-rotate"></i>
@@ -186,581 +254,632 @@ tbody td { padding: 12px 16px; font-size: 13px; }
       </button>
     </div>
   </div>
-</div>
+</header>
 
 <!-- LOADING -->
 
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <div class="load-text" id="loading-text">Veri çekiliyor...</div>
+  <p class="load-txt" id="load-txt">Analist önerileri çekiliyor…</p>
 </div>
 
-<div class="main">
+<!-- TOAST -->
+
+<div id="toast">⚠ API erişilemedi — demo verisi gösteriliyor</div>
+
+<!-- MAIN -->
+
+<main class="main">
 
   <!-- STAT CARDS -->
 
   <div class="stat-grid" id="stat-grid"></div>
 
-  <!-- ANALYST SLIDERS -->
+  <!-- ANALYST SIGNALS -->
 
   <div style="margin-bottom:28px">
-    <div class="sec-header">
+    <div class="sec-hdr">
       <div class="sec-title">
-        <i class="fa-solid fa-lightbulb" style="color:var(--amber)"></i>
+        <i class="fa-solid fa-lightbulb" style="color:#f59e0b"></i>
         Veri Analisti Sinyalleri
       </div>
-      <button class="info-btn" onclick="showModal()">
+      <div class="algo-btn" onclick="openModal()">
         <i class="fa-solid fa-circle-info"></i> Algoritma
-      </button>
+      </div>
     </div>
 
 ```
-<!-- STRONG BUY -->
 <div style="margin-bottom:20px">
-  <div class="sec-header" style="margin-bottom:10px">
-    <div class="sec-title" style="color:var(--green); font-size:13px">
-      <i class="fa-solid fa-arrow-trend-up"></i> GÜÇLÜ AL — Low-Risk
+  <div class="sec-hdr" style="margin-bottom:10px">
+    <div class="sec-title" style="color:#00c896;font-size:13px">
+      <i class="fa-solid fa-arrow-trend-up"></i> GÜÇLÜ AL — Low Risk
     </div>
-    <div class="sec-badge" id="buy-count">0 sinyal</div>
+    <div class="sec-count" id="buy-count">0 sinyal</div>
   </div>
-  <div class="slider-wrap" id="buy-slider"></div>
+  <div class="slider" id="buy-slider"></div>
 </div>
 
-<!-- STRONG SELL -->
 <div>
-  <div class="sec-header" style="margin-bottom:10px">
-    <div class="sec-title" style="color:var(--red); font-size:13px">
+  <div class="sec-hdr" style="margin-bottom:10px">
+    <div class="sec-title" style="color:#ff3d5a;font-size:13px">
       <i class="fa-solid fa-arrow-trend-down"></i> GÜÇLÜ SAT
     </div>
-    <div class="sec-badge" id="sell-count">0 sinyal</div>
+    <div class="sec-count" id="sell-count">0 sinyal</div>
   </div>
-  <div class="slider-wrap" id="sell-slider"></div>
+  <div class="slider" id="sell-slider"></div>
 </div>
 ```
 
   </div>
 
-  <!-- CONSENSUS TABLE (hisse bazında) -->
+  <!-- CONSENSUS TABLE -->
 
-  <div class="consensus-section">
-    <div class="sec-header">
-      <div class="sec-title">
-        <i class="fa-solid fa-chart-pie" style="color:var(--green)"></i>
+  <div class="tbl-panel">
+    <div class="tbl-toolbar">
+      <div class="tbl-title">
+        <i class="fa-solid fa-chart-pie" style="color:#00c896"></i>
         Hisse Bazında Konsensüs
       </div>
-    </div>
-    <div class="table-wrap">
-      <div class="table-toolbar">
-        <div class="search-wrap" style="max-width:280px">
+      <div class="filters">
+        <div class="srch-wrap">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input class="search-input" id="stock-search" type="text" placeholder="Hisse ara..." oninput="filterStockTable()">
+          <input class="srch-inp" id="stock-search" type="text" placeholder="Hisse ara…" oninput="renderStockTable()">
         </div>
-        <div style="display:flex;gap:8px">
-          <select class="filter-sel" id="consensus-filter" onchange="filterStockTable()">
-            <option value="">Tümü</option>
-            <option value="al">AL</option>
-            <option value="tut">TUT</option>
-            <option value="sat">SAT</option>
-          </select>
-          <select class="filter-sel" id="sort-col" onchange="filterStockTable()">
-            <option value="analystScore">Analyst Skoru</option>
-            <option value="riskScore">Risk Skoru</option>
-            <option value="upside">Hedef Potansiyel</option>
-            <option value="total">Kurum Sayısı</option>
-            <option value="confidence">Güven</option>
-            <option value="convictionScore">Conviction</option>
-          </select>
-        </div>
+        <select class="sel" id="cons-filter" onchange="renderStockTable()">
+          <option value="">Tüm Konsensüs</option>
+          <option value="al">AL</option>
+          <option value="tut">TUT</option>
+          <option value="sat">SAT</option>
+        </select>
+        <select class="sel" id="sort-col" onchange="renderStockTable()">
+          <option value="analystScore">Analyst Skoru</option>
+          <option value="convictionScore">Conviction</option>
+          <option value="riskScore">Risk (Artan)</option>
+          <option value="upside">Potansiyel</option>
+          <option value="total">Kurum Sayısı</option>
+        </select>
       </div>
-      <div style="overflow-x:auto">
-        <table id="stock-table">
-          <thead>
-            <tr>
-              <th>HİSSE</th>
-              <th>KONSENSÜS</th>
-              <th>AL</th><th>TUT</th><th>SAT</th>
-              <th>KURUM</th>
-              <th>ORT. HEDEF</th>
-              <th>POTANSİYEL</th>
-              <th>ANALİST SKORU</th>
-              <th>RİSK</th>
-              <th>GÜVENİLİRLİK</th>
-              <th>CONVİCTİON</th>
-            </tr>
-          </thead>
-          <tbody id="stock-tbody"></tbody>
-        </table>
-      </div>
-      <div class="table-footer">
-        <span><span id="stock-row-count">0</span> hisse</span>
-        <span class="api-tag">api.fintables.com</span>
-      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>HİSSE</th><th>KONSENSÜS</th>
+            <th>AL</th><th>TUT</th><th>SAT</th>
+            <th>KURUM</th><th>ORT. HEDEF</th><th>POTANSİYEL</th>
+            <th>ANALİST SKORU</th><th>CONVİCTİON</th><th>RİSK</th><th>GÜVENİLİRLİK</th>
+          </tr>
+        </thead>
+        <tbody id="stock-tbody"></tbody>
+      </table>
+    </div>
+    <div class="tbl-footer">
+      <span><span id="stock-row-count">0</span> hisse</span>
+      <span class="api-tag">api.fintables.com</span>
     </div>
   </div>
 
-  <!-- ALL RECOMMENDATIONS TABLE -->
+  <!-- ALL RATINGS TABLE -->
 
-  <div class="table-wrap">
-    <div class="table-toolbar">
-      <div class="sec-title" style="font-size:14px">
-        <i class="fa-solid fa-table-list" style="color:var(--muted)"></i>
+  <div class="tbl-panel">
+    <div class="tbl-toolbar">
+      <div class="tbl-title">
+        <i class="fa-solid fa-table-list" style="color:#5a6680"></i>
         Tüm Analist Önerileri
       </div>
-      <div style="display:flex;gap:8px;flex:1;justify-content:flex-end;flex-wrap:wrap">
-        <div class="search-wrap" style="max-width:260px">
+      <div class="filters">
+        <div class="srch-wrap">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input class="search-input" id="main-search" type="text" placeholder="Hisse / kurum ara..." oninput="filterMainTable()">
+          <input class="srch-inp" id="main-search" type="text" placeholder="Hisse / kurum ara…" oninput="renderMainTable()">
         </div>
-        <select class="filter-sel" id="type-filter" onchange="filterMainTable()">
+        <select class="sel" id="type-filter" onchange="renderMainTable()">
           <option value="">Tüm Öneriler</option>
           <option value="al">AL</option>
           <option value="tut">TUT</option>
           <option value="sat">SAT</option>
         </select>
-        <button class="btn" onclick="resetFilters()" style="padding:6px 12px">
+        <button class="btn" onclick="resetFilters()" title="Sıfırla" style="padding:6px 10px">
           <i class="fa-solid fa-rotate-left"></i>
         </button>
       </div>
     </div>
-    <div style="overflow-x:auto">
-      <table id="main-table">
+    <div class="tbl-scroll">
+      <table>
         <thead>
           <tr>
-            <th>TARİH</th>
-            <th>KURUM</th>
-            <th>HİSSE</th>
-            <th>GÜNCEL FİYAT</th>
-            <th>HEDEF FİYAT</th>
-            <th>POTANSİYEL</th>
-            <th>ÖNERİ</th>
+            <th>TARİH</th><th>KURUM</th><th>HİSSE</th>
+            <th>GÜNCEL FİYAT</th><th>HEDEF FİYAT</th><th>POTANSİYEL</th><th>ÖNERİ</th>
           </tr>
         </thead>
         <tbody id="main-tbody"></tbody>
       </table>
     </div>
-    <div class="table-footer">
-      <span><span id="main-row-count">0</span> kayıt gösteriliyor</span>
+    <div class="tbl-footer">
+      <span><span id="main-row-count">0</span> kayıt</span>
       <span class="api-tag">api.fintables.com</span>
     </div>
   </div>
 
-</div>
+</main>
 
-<!-- ALGORITHM MODAL -->
+<!-- MODAL -->
 
-<div class="modal-bg" id="algo-modal" onclick="if(event.target===this)hideModal()">
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div class="modal-title">⚙️ Algoritma &amp; Risk Metodolojisi</div>
-
-```
-<div class="algo-item">
-  <h4>1. ANALİST SKORU (Weighted Consensus)</h4>
-  <p>Her kurum eşit ağırlıklı değil. Denklem:<br>
-  <code>(AL × 3) + (TUT × 1) − (SAT × 4)</code><br>
-  SAT cezası ağır tutulur (−4) çünkü analist SAT vermek kurumsal itibar açısından daha maliyetlidir; bu nedenle güçlü downside sinyalidir.</p>
-</div>
-
-<div class="algo-item">
-  <h4>2. RİSK SKORU (0–100)</h4>
-  <p><code>SAT% + (Anlaşmazlık × 0.6)</code><br>
-  Anlaşmazlık = 100 − konsensüs hakimiyet%. Düşük &lt;35 | Orta 35–65 | Yüksek &gt;65.<br>
-  Bu ölçek "piyasa görüş ayrılığını" price risk olarak modeller.</p>
-</div>
-
-<div class="algo-item">
-  <h4>3. CONVİCTİON SKORU (Yeni)</h4>
-  <p><code>Güven × (1 + log10(Kurum Sayısı)) × (1 − Risk/200)</code><br>
-  Hem güven hem kurum sayısını hem de riski dengeler. Gerçek portföy kararlarında tek boyutlu metrikler yanıltır.</p>
-</div>
-
-<div class="algo-item">
-  <h4>4. GÜÇLÜ AL / SAT KRİTERLERİ</h4>
-  <p>
-    <strong>AL:</strong> Konsensüs=AL, Analyst Score ≥ 8, Risk ≤ 40, ≥3 kurum<br>
-    <strong>SAT:</strong> Konsensüs=SAT, Analyst Score ≤ −8, Risk ≤ 55, ≥3 kurum<br>
-    Risk eşiği SAT için daha yüksek: SAT önerileri doğası gereği daha az yaygın ve kurumsal engellere karşı konur.
-  </p>
-</div>
-
-<p style="font-size:11px;color:var(--muted);margin-top:12px">
-  ⚠️ Bu metrikler yatırım tavsiyesi değildir. Yalnızca mevcut analist verilerini analitik olarak özetler.
-</p>
-<button class="modal-close" onclick="hideModal()">Kapat</button>
-```
-
+    <div class="algo-block">
+      <h4>1. ANALİST SKORU (Weighted Consensus)</h4>
+      <p>SAT daha yüksek cezalı — SAT vermek kurumsal itibar açısından maliyetli olduğundan güçlü downside sinyalidir.<br>
+      <code>(AL × 3) + (TUT × 1) − (SAT × 4)</code></p>
+    </div>
+    <div class="algo-block">
+      <h4>2. RİSK SKORU (0–100)</h4>
+      <p>Görüş ayrılığını price risk olarak modeller.<br>
+      <code>SAT% + (Anlaşmazlık × 0.6)</code><br>
+      Düşük &lt;35 · Orta 35–65 · Yüksek &gt;65</p>
+    </div>
+    <div class="algo-block">
+      <h4>3. CONVİCTİON SKORU</h4>
+      <p>Güven, kurum sayısı ve riski birleştirir.<br>
+      <code>Güven × (1 + log₁₀N) × (1 − Risk/200)</code></p>
+    </div>
+    <div class="algo-block">
+      <h4>4. SİNYAL KRİTERLERİ</h4>
+      <p>
+        <strong style="color:#00c896">GÜÇLÜ AL:</strong> Konsensüs=AL · Score ≥ 8 · Risk ≤ 40 · ≥3 kurum<br>
+        <strong style="color:#ff3d5a">GÜÇLÜ SAT:</strong> Konsensüs=SAT · Score ≤ −8 · Risk ≤ 55 · ≥3 kurum
+      </p>
+    </div>
+    <p style="font-size:11px;color:#5a6680;margin-top:12px">⚠ Yatırım tavsiyesi değildir. Yalnızca mevcut analist verilerini özetler.</p>
+    <button class="modal-close" onclick="closeModal()">Kapat</button>
   </div>
 </div>
 
 <script>
-const API_URL = 'https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=';
+/*
+  BUG FIXES in this version:
+  1. No semicolons inside template-literal ${} expressions (was causing SyntaxError → script never ran → loading never hid)
+  2. All colors are hex strings in JS constants, never CSS var() in innerHTML (fixes cross-env color drift)
+  3. try/finally in render pipeline guarantees overlay always hides
+  4. Using traditional function syntax / string concat instead of arrow fns with complex templates (avoids nesting bugs)
+  5. DOMContentLoaded guard ensures elements exist before access
+*/
 
-// ─── DEMO DATA (CORS engellenmesi durumunda fallback) ───────────────────────
-const DEMO_DATA = [
-  // ASELS
-  ...[...Array(6)].map((_,i)=>({code:'ASELS',type:['al','al','al','al','tut','al'][i],price_target:[125,130,128,135,120,132][i],current_price:108,published_at:'2025-04-10T09:00:00Z',brokerage:{short_title:['İş Yatırım','Ata Yat.','Oyak','Denizbank','Yapı Kredi','QNB'][i]}})),
-  // THYAO
-  ...[...Array(7)].map((_,i)=>({code:'THYAO',type:['al','al','al','tut','al','al','tut'][i],price_target:[420,440,410,390,430,445,385][i],current_price:360,published_at:'2025-04-09T11:00:00Z',brokerage:{short_title:['İş Yatırım','Ata Yat.','Garanti','Akbank','Oyak','Denizbank','TEB'][i]}})),
-  // EREGL
-  ...[...Array(5)].map((_,i)=>({code:'EREGL',type:['al','al','tut','al','al'][i],price_target:[55,58,50,60,57][i],current_price:44,published_at:'2025-04-08T10:00:00Z',brokerage:{short_title:['İş Yat.','Ata Yat.','Yapı Kredi','QNB','Oyak'][i]}})),
-  // GARAN
-  ...[...Array(8)].map((_,i)=>({code:'GARAN',type:['al','al','tut','al','tut','al','al','sat'][i],price_target:[160,165,145,170,148,162,168,130][i],current_price:140,published_at:'2025-04-07T09:30:00Z',brokerage:{short_title:['Garanti','İş Yat.','Ata','Oyak','Yapı Kredi','Deniz','QNB','TEB'][i]}})),
-  // TUPRS
-  ...[...Array(6)].map((_,i)=>({code:'TUPRS',type:['al','tut','sat','sat','tut','sat'][i],price_target:[225,210,180,185,205,175][i],current_price:220,published_at:'2025-04-06T14:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Garanti','Oyak','QNB','Yapı Kredi'][i]}})),
-  // KCHOL
-  ...[...Array(5)].map((_,i)=>({code:'KCHOL',type:['al','al','al','tut','al'][i],price_target:[290,300,310,275,305][i],current_price:258,published_at:'2025-04-05T10:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Oyak','Denizbank','TEB'][i]}})),
-  // BIMAS
-  ...[...Array(4)].map((_,i)=>({code:'BIMAS',type:['tut','tut','sat','tut'][i],price_target:[550,540,490,530][i],current_price:580,published_at:'2025-04-04T09:00:00Z',brokerage:{short_title:['İş Yat.','Garanti','Ata','QNB'][i]}})),
-  // PETKM
-  ...[...Array(5)].map((_,i)=>({code:'PETKM',type:['sat','sat','sat','tut','sat'][i],price_target:[22,20,19,25,21][i],current_price:30,published_at:'2025-04-03T11:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Oyak','Denizbank','TEB'][i]}})),
-  // AKBNK
-  ...[...Array(6)].map((_,i)=>({code:'AKBNK',type:['al','al','al','tut','al','tut'][i],price_target:[72,75,70,65,78,63][i],current_price:58,published_at:'2025-04-02T10:00:00Z',brokerage:{short_title:['İş Yat.','Garanti','Ata','Oyak','QNB','TEB'][i]}})),
-  // FROTO
-  ...[...Array(4)].map((_,i)=>({code:'FROTO',type:['al','al','tut','al'][i],price_target:[1400,1450,1300,1480][i],current_price:1200,published_at:'2025-04-01T09:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Garanti','Oyak'][i]}})),
-  // SAHOL
-  ...[...Array(5)].map((_,i)=>({code:'SAHOL',type:['al','tut','al','al','tut'][i],price_target:[82,75,85,88,72][i],current_price:68,published_at:'2025-03-31T10:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Oyak','Garanti','TEB'][i]}})),
-  // ISCTR
-  ...[...Array(4)].map((_,i)=>({code:'ISCTR',type:['sat','sat','tut','sat'][i],price_target:[9,8,11,8.5][i],current_price:13,published_at:'2025-03-30T09:30:00Z',brokerage:{short_title:['İş Yat.','Ata','QNB','Denizbank'][i]}})),
-];
+/* ─── COLOR CONSTANTS (hex only — never use CSS var() inside JS-generated HTML) ─── */
+var HEX = {
+  green : '#00c896',
+  red   : '#ff3d5a',
+  amber : '#f59e0b',
+  muted : '#5a6680',
+  text  : '#e8edf5'
+};
 
-let allResults = [];
-let groupedData = {};
+/* ─── API ─── */
+var API_URL = 'https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=';
 
-// ─── PROCESS DATA ────────────────────────────────────────────────────────────
+/* ─── DEMO DATA (realistic BIST data, used as fallback) ─── */
+var DEMO_DATA = (function() {
+  var kurumlar = ['İş Yatırım','Ata Yat.','Oyak Yat.','Garanti BBVA','Yapı Kredi','QNB Fin.','Denizbank','TEB Yat.','Meksa Yat.','GCM Yat.'];
+  function r(code, type, target, current, brokerIdx, daysAgo) {
+    var d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    return { code: code, type: type, price_target: target, current_price: current,
+             published_at: d.toISOString(), brokerage: { short_title: kurumlar[brokerIdx % kurumlar.length] } };
+  }
+  return [
+    /* ASELS — Güçlü AL (score=17, risk low) */
+    r('ASELS','al',125,108,0,1), r('ASELS','al',130,108,1,2), r('ASELS','al',128,108,2,3),
+    r('ASELS','al',135,108,3,4), r('ASELS','tut',120,108,4,5), r('ASELS','al',132,108,5,6),
+    /* THYAO — Güçlü AL */
+    r('THYAO','al',420,360,0,1), r('THYAO','al',440,360,1,2), r('THYAO','al',410,360,2,3),
+    r('THYAO','tut',390,360,3,4), r('THYAO','al',435,360,4,5), r('THYAO','al',445,360,5,6), r('THYAO','al',450,360,6,7),
+    /* KCHOL — Güçlü AL */
+    r('KCHOL','al',290,255,0,1), r('KCHOL','al',300,255,1,2), r('KCHOL','al',310,255,2,3),
+    r('KCHOL','tut',275,255,3,4), r('KCHOL','al',305,255,4,5),
+    /* AKBNK — Güçlü AL */
+    r('AKBNK','al',72,57,0,2), r('AKBNK','al',75,57,1,3), r('AKBNK','al',70,57,2,4),
+    r('AKBNK','tut',65,57,3,5), r('AKBNK','al',78,57,5,6),
+    /* FROTO — AL */
+    r('FROTO','al',1400,1190,0,2), r('FROTO','al',1450,1190,1,3),
+    r('FROTO','tut',1300,1190,2,5), r('FROTO','al',1480,1190,3,7),
+    /* EREGL — AL */
+    r('EREGL','al',55,43,0,3), r('EREGL','al',58,43,1,4),
+    r('EREGL','tut',50,43,2,5), r('EREGL','al',60,43,3,6), r('EREGL','al',57,43,4,7),
+    /* SAHOL — AL */
+    r('SAHOL','al',82,67,0,2), r('SAHOL','tut',75,67,1,3),
+    r('SAHOL','al',85,67,2,4), r('SAHOL','al',88,67,3,5), r('SAHOL','tut',72,67,4,6),
+    /* GARAN — Karışık */
+    r('GARAN','al',160,140,0,1), r('GARAN','al',165,140,1,2), r('GARAN','tut',145,140,2,3),
+    r('GARAN','al',170,140,3,4), r('GARAN','tut',148,140,4,5), r('GARAN','al',162,140,5,6),
+    r('GARAN','sat',130,140,6,7), r('GARAN','al',168,140,7,8),
+    /* BIMAS — TUT */
+    r('BIMAS','tut',550,570,0,4), r('BIMAS','tut',540,570,1,5),
+    r('BIMAS','sat',490,570,2,6), r('BIMAS','tut',530,570,3,7),
+    /* TUPRS — SAT ağırlıklı */
+    r('TUPRS','sat',200,225,0,3), r('TUPRS','tut',210,225,1,4),
+    r('TUPRS','sat',185,225,2,5), r('TUPRS','sat',190,225,3,6), r('TUPRS','tut',205,225,4,8),
+    /* PETKM — Güçlü SAT */
+    r('PETKM','sat',22,31,0,1), r('PETKM','sat',20,31,1,2), r('PETKM','sat',19,31,2,3),
+    r('PETKM','tut',25,31,3,5), r('PETKM','sat',21,31,4,6),
+    /* ISCTR — Güçlü SAT */
+    r('ISCTR','sat',9,13.5,0,2), r('ISCTR','sat',8,13.5,1,3),
+    r('ISCTR','sat',8.5,13.5,2,4), r('ISCTR','tut',11,13.5,3,6), r('ISCTR','sat',8.2,13.5,4,7)
+  ];
+})();
+
+var allResults = [];
+var grouped    = {};
+
+/* ─── PROCESS DATA ─── */
 function processData(results) {
-  const grouped = {};
-
-  results.forEach(item => {
-    const code = item.code || '?';
-    if (!grouped[code]) {
-      grouped[code] = {
-        code,
-        items: [],
-        counts: { al: 0, tut: 0, sat: 0 },
-        totalTarget: 0,
-        totalCurrent: 0,
-        currentCount: 0,
-      };
+  var g = {};
+  var i, item, code, d;
+  for (i = 0; i < results.length; i++) {
+    item = results[i];
+    code = item.code || '?';
+    if (!g[code]) {
+      g[code] = { code: code, items: [], counts: { al:0, tut:0, sat:0 },
+                  totalTarget: 0, totalCurrent: 0, currentCount: 0 };
     }
-    const g = grouped[code];
-    g.items.push(item);
-    g.totalTarget += Number(item.price_target) || 0;
-    if (item.current_price) { g.totalCurrent += item.current_price; g.currentCount++; }
-    g.counts[(item.type || 'tut')]++;
-  });
+    d = g[code];
+    d.items.push(item);
+    d.totalTarget += Number(item.price_target) || 0;
+    if (item.current_price) { d.totalCurrent += Number(item.current_price); d.currentCount++; }
+    var t = item.type || 'tut';
+    if (d.counts[t] !== undefined) d.counts[t]++;
+    else d.counts.tut++;
+  }
 
-  Object.keys(grouped).forEach(key => {
-    const g = grouped[key];
-    const total = g.items.length;
-    g.total = total;
+  var keys = Object.keys(g);
+  for (i = 0; i < keys.length; i++) {
+    d = g[keys[i]];
+    var n = d.items.length;
+    d.total      = n;
+    d.avgTarget  = n ? Math.round(d.totalTarget / n) : 0;
+    d.avgCurrent = d.currentCount ? d.totalCurrent / d.currentCount : 0;
+    d.upside     = d.avgCurrent > 0
+      ? Math.round(((d.avgTarget - d.avgCurrent) / d.avgCurrent) * 100)
+      : null;
 
-    g.avgTarget = total ? Math.round(g.totalTarget / total) : 0;
-    g.avgCurrent = g.currentCount ? g.totalCurrent / g.currentCount : 0;
-    g.upside = g.avgCurrent > 0 ? Math.round(((g.avgTarget - g.avgCurrent) / g.avgCurrent) * 100) : null;
+    var maxC = 0, cons = 'tut', t2;
+    for (t2 in d.counts) {
+      if (d.counts[t2] > maxC) { maxC = d.counts[t2]; cons = t2; }
+    }
+    d.consensus          = cons;
+    d.consensusDominance = n ? maxC / n : 0;
 
-    g.alPct  = total ? (g.counts.al  / total) * 100 : 0;
-    g.tutPct = total ? (g.counts.tut / total) * 100 : 0;
-    g.satPct = total ? (g.counts.sat / total) * 100 : 0;
+    d.analystScore = (d.counts.al * 3) + (d.counts.tut * 1) - (d.counts.sat * 4);
+    var satPct       = n ? (d.counts.sat / n) * 100 : 0;
+    var disagreement = 100 - (d.consensusDominance * 100);
+    d.riskScore      = Math.min(100, Math.round(satPct + (disagreement * 0.6)));
+    d.confidence     = Math.min(100, Math.round(d.consensusDominance * 100 * Math.min(n / 8, 1.5)));
 
-    // Consensus
-    let maxCount = 0, consensusType = 'tut';
-    Object.entries(g.counts).forEach(([t, c]) => { if (c > maxCount) { maxCount = c; consensusType = t; } });
-    g.consensus = consensusType;
-    g.consensusDominance = total ? maxCount / total : 0;
+    var coverage      = 1 + Math.log10(Math.max(1, n));
+    var riskPenalty   = 1 - (d.riskScore / 200);
+    d.convictionScore = Math.round(d.confidence * coverage * riskPenalty);
 
-    // Analyst Score: AL*3 + TUT*1 - SAT*4
-    g.analystScore = (g.counts.al * 3) + (g.counts.tut * 1) - (g.counts.sat * 4);
-
-    // Risk Score: disagreement-weighted
-    const disagreement = 100 - (g.consensusDominance * 100);
-    g.riskScore = Math.min(100, Math.round(g.satPct + (disagreement * 0.6)));
-
-    // Confidence: dominance × coverage factor
-    g.confidence = Math.min(100, Math.round(g.consensusDominance * 100 * Math.min(total / 8, 1.5)));
-
-    // Conviction Score: composite metric
-    const coverageFactor = 1 + Math.log10(Math.max(1, total));
-    const riskPenalty = 1 - (g.riskScore / 200);
-    g.convictionScore = Math.round(g.confidence * coverageFactor * riskPenalty);
-
-    g.riskLabel = g.riskScore < 35 ? 'DÜŞÜK' : g.riskScore < 65 ? 'ORTA' : 'YÜKSEK';
-    g.riskClass = g.riskScore < 35 ? 'risk-low' : g.riskScore < 65 ? 'risk-med' : 'risk-high';
-  });
-
-  return grouped;
+    d.riskLabel = d.riskScore < 35 ? 'DÜŞÜK' : d.riskScore < 65 ? 'ORTA' : 'YÜKSEK';
+    d.riskCls   = d.riskScore < 35 ? 'rp-low' : d.riskScore < 65 ? 'rp-med' : 'rp-high';
+  }
+  return g;
 }
 
-// ─── RENDER STAT CARDS ───────────────────────────────────────────────────────
-function renderStats(results, grouped) {
-  const total = results.length;
-  let al = 0, tut = 0, sat = 0;
-  const brokers = new Set();
-  results.forEach(r => {
-    if (r.type === 'al') al++;
-    else if (r.type === 'tut') tut++;
-    else if (r.type === 'sat') sat++;
-    if (r.brokerage?.short_title) brokers.add(r.brokerage.short_title);
-  });
-  const stocks = Object.keys(grouped).length;
-  const buyPct = total ? Math.round(al/total*100) : 0;
+/* ─── HTML HELPERS (string concat only — no template literals with nested ternaries) ─── */
+function consBadge(cons) {
+  var cls = cons === 'al' ? 'bp-al' : cons === 'sat' ? 'bp-sat' : 'bp-tut';
+  return '<span class="bp ' + cls + '">' + cons.toUpperCase() + '</span>';
+}
+function riskBadge(d) {
+  return '<span class="rp ' + d.riskCls + '">' + d.riskLabel + ' ' + d.riskScore + '</span>';
+}
+function upsideSm(val) {
+  if (val === null) return '<span style="color:' + HEX.muted + '">—</span>';
+  var col    = val >= 0 ? HEX.green : HEX.red;
+  var prefix = val >= 0 ? '+' : '';
+  return '<span style="color:' + col + ';font-family:DM Mono,monospace;font-weight:600">' + prefix + val + '%</span>';
+}
+function upsideLg(val, avgTarget) {
+  if (val === null) return '<div style="font-size:14px;color:' + HEX.muted + ';margin:10px 0">Hedef: ' + avgTarget + '₺</div>';
+  var col    = val >= 0 ? HEX.green : HEX.red;
+  var prefix = val >= 0 ? '+' : '';
+  return '<div style="font-size:20px;font-weight:700;letter-spacing:-.5px;color:' + col + ';margin:10px 0">' + prefix + val + '%</div>';
+}
+function scoreHtml(score) {
+  var col    = score > 0 ? HEX.green : score < 0 ? HEX.red : HEX.muted;
+  var prefix = score >= 0 ? '+' : '';
+  return '<span style="color:' + col + ';font-family:DM Mono,monospace;font-weight:700">' + prefix + score + '</span>';
+}
+function progBar(pct, clsFill) {
+  return '<div class="prog-bg"><div class="prog-fill ' + clsFill + '" style="width:' + pct + '%"></div></div>';
+}
+function confBar(pct) {
+  var cls = pct > 65 ? 'pf-g' : pct > 35 ? 'pf-a' : 'pf-r';
+  return '<div class="bar-wrap">'
+    + '<div class="bar-bg"><div class="bar-fill ' + cls + '" style="width:' + pct + '%"></div></div>'
+    + '<span style="font-size:11px;font-family:DM Mono,monospace;color:' + HEX.muted + ';min-width:30px">' + pct + '%</span>'
+    + '</div>';
+}
+function convBar(score) {
+  var pct = Math.min(100, score);
+  var cls = score > 100 ? 'pf-g' : score > 50 ? 'pf-a' : 'pf-r';
+  return '<div class="bar-wrap">'
+    + '<div class="bar-bg"><div class="bar-fill ' + cls + '" style="width:' + pct + '%"></div></div>'
+    + '<span style="font-size:11px;font-family:DM Mono,monospace;color:' + HEX.amber + ';min-width:30px">' + score + '</span>'
+    + '</div>';
+}
 
-  document.getElementById('stat-grid').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">Toplam Öneri</div>
-      <div class="stat-val val-white">${total}</div>
-      <div class="stat-sub">${brokers.size} aracı kurum</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">AL Önerisi</div>
-      <div class="stat-val val-green">${al}</div>
-      <div class="stat-sub">%${buyPct} oran</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">TUT Önerisi</div>
-      <div class="stat-val val-amber">${tut}</div>
-      <div class="stat-sub">%${total?Math.round(tut/total*100):0} oran</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">SAT Önerisi</div>
-      <div class="stat-val val-red">${sat}</div>
-      <div class="stat-sub">%${total?Math.round(sat/total*100):0} oran</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Takip Hissesi</div>
-      <div class="stat-val val-white">${stocks}</div>
-      <div class="stat-sub">unique ticker</div>
-    </div>
-  `;
+/* ─── RENDER STATS ─── */
+function renderStats(results, g) {
+  var total = results.length, al = 0, tut = 0, sat = 0, i, r2;
+  var brokers = {};
+  for (i = 0; i < results.length; i++) {
+    r2 = results[i];
+    if (r2.type === 'al') al++;
+    else if (r2.type === 'tut') tut++;
+    else if (r2.type === 'sat') sat++;
+    if (r2.brokerage && r2.brokerage.short_title) brokers[r2.brokerage.short_title] = 1;
+  }
+  var nb  = Object.keys(brokers).length;
+  var ns  = Object.keys(g).length;
+  var alp = total ? Math.round(al / total * 100) : 0;
+  var sp  = total ? Math.round(sat / total * 100) : 0;
+  var tp  = total ? Math.round(tut / total * 100) : 0;
+
+  function sc(lbl, val, cls, sub) {
+    return '<div class="stat-card"><div class="stat-lbl">' + lbl + '</div>'
+         + '<div class="stat-val ' + cls + '">' + val + '</div>'
+         + '<div class="stat-sub">' + sub + '</div></div>';
+  }
+  document.getElementById('stat-grid').innerHTML =
+    sc('Toplam Öneri', total, 'col-w', nb + ' aracı kurum') +
+    sc('AL Önerisi',   al,    'col-g', '%' + alp + ' oran') +
+    sc('TUT Önerisi',  tut,   'col-a', '%' + tp  + ' oran') +
+    sc('SAT Önerisi',  sat,   'col-r', '%' + sp  + ' oran') +
+    sc('Takip Hissesi',ns,    'col-w', 'unique ticker');
+
   document.getElementById('total-count').textContent = total;
 }
 
-// ─── RENDER SLIDERS ──────────────────────────────────────────────────────────
-function renderSliders(grouped) {
-  const buyEl  = document.getElementById('buy-slider');
-  const sellEl = document.getElementById('sell-slider');
-  let buys = [], sells = [];
-
-  Object.values(grouped).forEach(g => {
-    if (g.total < 3) return;
-    const isStrongBuy  = g.consensus === 'al'  && g.analystScore >= 8  && g.riskScore <= 40;
-    const isStrongSell = g.consensus === 'sat' && g.analystScore <= -8 && g.riskScore <= 55;
-    if (isStrongBuy)  buys.push(g);
-    if (isStrongSell) sells.push(g);
-  });
-
-  // Sort by conviction
-  buys.sort((a,b) => b.convictionScore - a.convictionScore);
-  sells.sort((a,b) => a.analystScore - b.analystScore);
-
-  function makeCard(g, type) {
-    const upsideHtml = g.upside !== null
-      ? `<div style="color:${g.upside>=0?'var(--green)':'var(--red)'};font-size:20px;font-weight:700;letter-spacing:-0.5px">${g.upside>=0?'+':''}${g.upside}%</div>`
-      : `<div style="color:var(--muted);font-size:13px">Hedef: ${g.avgTarget}₺</div>`;
-
-    const confColor = g.confidence > 65 ? 'var(--green)' : g.confidence > 35 ? 'var(--amber)' : 'var(--red)';
-
-    return `
-    <div class="slide-card ${type}">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
-        <div>
-          <div class="card-ticker">${g.code}</div>
-          <div class="card-meta">${g.total} kurum · ${g.avgTarget}₺ hedef</div>
-        </div>
-        <span class="card-badge badge-${g.consensus}">${g.consensus.toUpperCase()}</span>
-      </div>
-
-      ${upsideHtml}
-
-      <hr class="card-divider">
-
-      <div class="card-metrics">
-        <div class="metric-row">
-          <span class="metric-label">Güven Skoru</span>
-          <span class="metric-val" style="color:${confColor}">${g.confidence}%</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill ${type==='buy'?'fill-green':'fill-red'}" style="width:${g.confidence}%"></div></div>
-
-        <div class="metric-row" style="margin-top:6px">
-          <span class="metric-label">Risk</span>
-          <span class="risk-pill ${g.riskClass}">${g.riskLabel} · ${g.riskScore}</span>
-        </div>
-
-        <div class="metric-row">
-          <span class="metric-label">Analyst Skoru</span>
-          <span class="metric-val" style="color:${g.analystScore>=0?'var(--green)':'var(--red)'}">${g.analystScore>=0?'+':''}${g.analystScore}</span>
-        </div>
-
-        <div class="metric-row">
-          <span class="metric-label">Conviction</span>
-          <span class="metric-val" style="color:var(--amber)">${g.convictionScore}</span>
-        </div>
-
-        <div class="metric-row" style="margin-top:4px">
-          <span class="metric-val" style="color:var(--green);font-size:12px">${g.counts.al}AL</span>
-          <span class="metric-val" style="color:var(--amber);font-size:12px">${g.counts.tut}TUT</span>
-          <span class="metric-val" style="color:var(--red);font-size:12px">${g.counts.sat}SAT</span>
-        </div>
-      </div>
-    </div>`;
+/* ─── RENDER SLIDERS ─── */
+function renderSliders(g) {
+  var buys = [], sells = [], keys = Object.keys(g), i, d;
+  for (i = 0; i < keys.length; i++) {
+    d = g[keys[i]];
+    if (d.total < 3) continue;
+    if (d.consensus === 'al'  && d.analystScore >= 8   && d.riskScore <= 40) buys.push(d);
+    if (d.consensus === 'sat' && d.analystScore <= -8  && d.riskScore <= 55) sells.push(d);
   }
+  buys.sort(function(a,b)  { return b.convictionScore - a.convictionScore; });
+  sells.sort(function(a,b) { return a.analystScore - b.analystScore; });
 
-  buyEl.innerHTML  = buys.length  ? buys.map(g=>makeCard(g,'buy')).join('') : `<div class="empty-state">Güçlü AL sinyali tespit edilmedi</div>`;
-  sellEl.innerHTML = sells.length ? sells.map(g=>makeCard(g,'sell')).join('') : `<div class="empty-state">Güçlü SAT sinyali tespit edilmedi</div>`;
-  document.getElementById('buy-count').textContent  = `${buys.length} sinyal`;
-  document.getElementById('sell-count').textContent = `${sells.length} sinyal`;
+  document.getElementById('buy-slider').innerHTML  = buys.length
+    ? buys.map(function(d2)  { return makeCard(d2, 'buy');  }).join('')
+    : '<div class="empty-card">Güçlü AL sinyali tespit edilmedi</div>';
+  document.getElementById('sell-slider').innerHTML = sells.length
+    ? sells.map(function(d2) { return makeCard(d2, 'sell'); }).join('')
+    : '<div class="empty-card">Güçlü SAT sinyali tespit edilmedi</div>';
+
+  document.getElementById('buy-count').textContent  = buys.length  + ' sinyal';
+  document.getElementById('sell-count').textContent = sells.length + ' sinyal';
 }
 
-// ─── RENDER STOCK TABLE ──────────────────────────────────────────────────────
-let stockSortDir = -1;
-function renderStockTable(grouped) {
-  const term = (document.getElementById('stock-search')?.value || '').toLowerCase();
-  const cf   = document.getElementById('consensus-filter')?.value || '';
-  const sortKey = document.getElementById('sort-col')?.value || 'analystScore';
+function makeCard(d, type) {
+  var pfCls  = type === 'buy' ? 'pf-g' : 'pf-r';
+  var cfCol  = d.confidence > 65 ? HEX.green : d.confidence > 35 ? HEX.amber : HEX.red;
 
-  let rows = Object.values(grouped).filter(g => {
-    const matchCode = !term || g.code.toLowerCase().includes(term);
-    const matchCons = !cf || g.consensus === cf;
-    return matchCode && matchCons;
+  return '<div class="s-card s-card-' + type + '">'
+    + '<div style="display:flex;align-items:flex-start;justify-content:space-between">'
+    +   '<div><div class="s-ticker">' + d.code + '</div>'
+    +       '<div class="s-meta">' + d.total + ' kurum · ' + d.avgTarget + '₺ ort. hedef</div></div>'
+    +   consBadge(d.consensus)
+    + '</div>'
+    + upsideLg(d.upside, d.avgTarget)
+    + '<hr class="s-divider">'
+    + '<div class="s-row"><span class="s-lbl">Güven Skoru</span>'
+    +   '<span class="s-val" style="color:' + cfCol + '">' + d.confidence + '%</span></div>'
+    + progBar(d.confidence, pfCls)
+    + '<div class="s-row" style="margin-top:10px"><span class="s-lbl">Risk</span>'
+    +   riskBadge(d) + '</div>'
+    + '<div class="s-row"><span class="s-lbl">Analyst Skoru</span>'
+    +   scoreHtml(d.analystScore) + '</div>'
+    + '<div class="s-row"><span class="s-lbl">Conviction</span>'
+    +   '<span class="s-val" style="color:' + HEX.amber + '">' + d.convictionScore + '</span></div>'
+    + '<div class="s-row" style="margin-top:4px">'
+    +   '<span class="s-val" style="color:' + HEX.green + '">' + d.counts.al  + ' AL</span>'
+    +   '<span class="s-val" style="color:' + HEX.amber + '">' + d.counts.tut + ' TUT</span>'
+    +   '<span class="s-val" style="color:' + HEX.red   + '">' + d.counts.sat + ' SAT</span>'
+    + '</div></div>';
+}
+
+/* ─── RENDER STOCK TABLE ─── */
+function renderStockTable() {
+  var term    = document.getElementById('stock-search').value.toLowerCase();
+  var cf      = document.getElementById('cons-filter').value;
+  var sortKey = document.getElementById('sort-col').value;
+
+  var rows = Object.values(grouped).filter(function(d) {
+    return (!term || d.code.toLowerCase().indexOf(term) !== -1)
+        && (!cf   || d.consensus === cf);
   });
 
-  rows.sort((a,b) => {
-    const dir = sortKey === 'riskScore' ? 1 : -1; // risk: ascending
-    return (b[sortKey] - a[sortKey]) * dir;
+  var asc = (sortKey === 'riskScore');
+  rows.sort(function(a, b) {
+    var va = (a[sortKey] !== null && a[sortKey] !== undefined) ? a[sortKey] : (asc ? Infinity : -Infinity);
+    var vb = (b[sortKey] !== null && b[sortKey] !== undefined) ? b[sortKey] : (asc ? Infinity : -Infinity);
+    return asc ? va - vb : vb - va;
   });
 
-  const tbody = document.getElementById('stock-tbody');
-  tbody.innerHTML = rows.map(g => {
-    const uHtml = g.upside !== null
-      ? `<span style="color:${g.upside>=0?'var(--green)':'var(--red)';};font-weight:600;font-family:'DM Mono',monospace">${g.upside>=0?'+':''}${g.upside}%</span>`
-      : `<span style="color:var(--muted)">—</span>`;
-
-    const scoreColor = g.analystScore > 0 ? 'var(--green)' : g.analystScore < 0 ? 'var(--red)' : 'var(--muted)';
-
-    return `<tr>
-      <td class="ticker-cell">${g.code}</td>
-      <td><span class="card-badge badge-${g.consensus}">${g.consensus.toUpperCase()}</span></td>
-      <td class="count-green">${g.counts.al}</td>
-      <td class="count-amber">${g.counts.tut}</td>
-      <td class="count-red">${g.counts.sat}</td>
-      <td style="font-family:'DM Mono',monospace">${g.total}</td>
-      <td style="font-family:'DM Mono',monospace">${g.avgTarget}₺</td>
-      <td>${uHtml}</td>
-      <td><span style="color:${scoreColor};font-weight:700;font-family:'DM Mono',monospace">${g.analystScore>=0?'+':''}${g.analystScore}</span></td>
-      <td><span class="risk-pill ${g.riskClass}">${g.riskLabel}</span></td>
-      <td>
-        <div class="upside-bar-wrap">
-          <div class="upside-bar"><div class="upside-bar-fill ${g.confidence>65?'fill-green':g.confidence>35?'fill-amber':'fill-red'}" style="width:${g.confidence}%"></div></div>
-          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);min-width:28px">${g.confidence}%</span>
-        </div>
-      </td>
-      <td style="font-family:'DM Mono',monospace;color:var(--amber);font-weight:600">${g.convictionScore}</td>
-    </tr>`;
+  document.getElementById('stock-tbody').innerHTML = rows.map(function(d) {
+    return '<tr>'
+      + '<td class="td-ticker">' + d.code + '</td>'
+      + '<td>' + consBadge(d.consensus) + '</td>'
+      + '<td style="color:' + HEX.green + ';font-weight:700">' + d.counts.al  + '</td>'
+      + '<td style="color:' + HEX.amber + ';font-weight:700">' + d.counts.tut + '</td>'
+      + '<td style="color:' + HEX.red   + ';font-weight:700">' + d.counts.sat + '</td>'
+      + '<td class="td-mono td-muted">' + d.total + '</td>'
+      + '<td class="td-mono">' + d.avgTarget + '₺</td>'
+      + '<td>' + upsideSm(d.upside) + '</td>'
+      + '<td>' + scoreHtml(d.analystScore) + '</td>'
+      + '<td>' + convBar(d.convictionScore) + '</td>'
+      + '<td>' + riskBadge(d) + '</td>'
+      + '<td>' + confBar(d.confidence) + '</td>'
+      + '</tr>';
   }).join('');
 
   document.getElementById('stock-row-count').textContent = rows.length;
 }
 
-function filterStockTable() { renderStockTable(groupedData); }
+/* ─── RENDER MAIN TABLE ─── */
+function renderMainTable() {
+  var term = document.getElementById('main-search').value.toLowerCase();
+  var tf   = document.getElementById('type-filter').value;
 
-// ─── RENDER MAIN TABLE ───────────────────────────────────────────────────────
-function renderMainTable(results) {
-  const term = (document.getElementById('main-search')?.value || '').toLowerCase();
-  const tf   = document.getElementById('type-filter')?.value || '';
-
-  const filtered = results.filter(r => {
-    const matchSearch = !term || (r.code||'').toLowerCase().includes(term) || (r.brokerage?.short_title||'').toLowerCase().includes(term);
-    return matchSearch && (!tf || r.type === tf);
+  var filtered = allResults.filter(function(r2) {
+    var matchS = !term
+      || (r2.code || '').toLowerCase().indexOf(term) !== -1
+      || ((r2.brokerage && r2.brokerage.short_title) || '').toLowerCase().indexOf(term) !== -1;
+    return matchS && (!tf || r2.type === tf);
   });
 
-  const tbody = document.getElementById('main-tbody');
-  tbody.innerHTML = filtered.map(item => {
-    const dateStr = new Date(item.published_at).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const upside = (item.current_price && item.price_target)
-      ? Math.round(((item.price_target - item.current_price) / item.current_price) * 100)
-      : null;
-    const upHtml = upside !== null
-      ? `<span style="color:${upside>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace;font-size:12px">${upside>=0?'+':''}${upside}%</span>`
-      : '—';
+  var typeLabel = { al:'AL', tut:'TUT', sat:'SAT' };
+  var typeCls   = { al:'bp-al', tut:'bp-tut', sat:'bp-sat' };
 
-    const typeLabels = {al:'AL',tut:'TUT',sat:'SAT'};
-    const typeBadge = `<span class="card-badge badge-${item.type||'tut'}">${typeLabels[item.type||'tut']||'?'}</span>`;
+  document.getElementById('main-tbody').innerHTML = filtered.map(function(item) {
+    var d = new Date(item.published_at);
+    var dateStr = isNaN(d.getTime()) ? '—' : d.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    var cur = Number(item.current_price) || 0;
+    var tgt = Number(item.price_target)  || 0;
+    var up  = (cur > 0 && tgt > 0) ? Math.round(((tgt - cur) / cur) * 100) : null;
+    var t   = item.type || 'tut';
+    var cls = typeCls[t] || 'bp-tut';
+    var lbl = typeLabel[t] || t.toUpperCase();
 
-    return `<tr>
-      <td style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">${dateStr}</td>
-      <td style="font-size:12px">${item.brokerage?.short_title||'—'}</td>
-      <td class="ticker-cell">${item.code||'—'}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${item.current_price?item.current_price+'₺':'—'}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${item.price_target?item.price_target+'₺':'—'}</td>
-      <td>${upHtml}</td>
-      <td>${typeBadge}</td>
-    </tr>`;
+    return '<tr>'
+      + '<td class="td-mono td-muted">' + dateStr + '</td>'
+      + '<td>' + ((item.brokerage && item.brokerage.short_title) || '—') + '</td>'
+      + '<td class="td-ticker">' + (item.code || '—') + '</td>'
+      + '<td class="td-mono">' + (cur ? cur + '₺' : '—') + '</td>'
+      + '<td class="td-mono">' + (tgt ? tgt + '₺' : '—') + '</td>'
+      + '<td>' + upsideSm(up) + '</td>'
+      + '<td><span class="bp ' + cls + '">' + lbl + '</span></td>'
+      + '</tr>';
   }).join('');
 
   document.getElementById('main-row-count').textContent = filtered.length;
 }
 
-function filterMainTable() { renderMainTable(allResults); }
 function resetFilters() {
   document.getElementById('main-search').value = '';
   document.getElementById('type-filter').value = '';
-  filterMainTable();
+  renderMainTable();
 }
 
-// ─── FETCH ───────────────────────────────────────────────────────────────────
-async function fetchData() {
+/* ─── FETCH (with 7s timeout, always resolves) ─── */
+function fetchData() {
+  return new Promise(function(resolve) {
+    var done = false;
+    function finish(data) {
+      if (done) return;
+      done = true;
+      resolve(data);
+    }
+
+    var timer = setTimeout(function() {
+      console.warn('[Fintables] API timeout → demo verisi kullanılıyor');
+      showToast();
+      finish(DEMO_DATA);
+    }, 7000);
+
+    try {
+      fetch(API_URL, { headers: { 'Accept': 'application/json' } })
+        .then(function(res) {
+          clearTimeout(timer);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          var results = data.results || [];
+          if (results.length === 0) {
+            console.warn('[Fintables] API boş döndü → demo verisi');
+            showToast();
+            finish(DEMO_DATA);
+          } else {
+            finish(results);
+          }
+        })
+        .catch(function(err) {
+          clearTimeout(timer);
+          console.warn('[Fintables] Fetch hatası:', err.message, '→ demo verisi');
+          showToast();
+          finish(DEMO_DATA);
+        });
+    } catch(err) {
+      clearTimeout(timer);
+      console.warn('[Fintables] Fetch başlatılamadı:', err.message);
+      showToast();
+      finish(DEMO_DATA);
+    }
+  });
+}
+
+function showToast() {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 5000);
+}
+
+/* ─── RENDER PIPELINE ─── */
+function renderAll(results) {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(API_URL, {
-      signal: controller.signal,
-      headers: { Accept: 'application/json' }
-    });
-    clearTimeout(timeout);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return data.results || [];
-  } catch (e) {
-    console.warn('[Fintables] API erişim hatası (CORS/ağ), demo verisi kullanılıyor.', e.message);
-    // Show API warning banner
-    const banner = document.createElement('div');
-    banner.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1a2030;border:1px solid rgba(245,158,11,0.3);color:var(--amber);font-size:12px;padding:10px 20px;border-radius:12px;z-index:9998;white-space:nowrap;font-family:DM Mono,monospace';
-    banner.textContent='⚠ API erişilemedi → Demo verisi gösteriliyor';
-    document.body.appendChild(banner);
-    setTimeout(()=>banner.remove(), 6000);
-    return DEMO_DATA;
+    allResults = results;
+    grouped    = processData(results);
+    renderStats(results, grouped);
+    renderSliders(grouped);
+    renderStockTable();
+    renderMainTable();
+    var now = new Date();
+    document.getElementById('last-update').textContent =
+      now.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    var tp = document.getElementById('time-pill');
+    if (tp) tp.style.display = 'inline-flex';
+  } catch(err) {
+    console.error('[Fintables] Render hatası:', err);
+  } finally {
+    /* ALWAYS hide loading — this is the fix for the stuck spinner */
+    var ov = document.getElementById('loading-overlay');
+    if (ov) ov.classList.add('hidden');
   }
 }
 
-async function initAll() {
-  document.getElementById('loading-overlay').style.display = 'flex';
-  document.getElementById('loading-text').textContent = 'Analist önerileri çekiliyor...';
-
-  const results = await fetchData();
-  allResults = results;
-  groupedData = processData(results);
-
-  renderStats(results, groupedData);
-  renderSliders(groupedData);
-  renderStockTable(groupedData);
-  renderMainTable(results);
-
-  // Update time
-  document.getElementById('last-update').textContent = new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('last-update-badge').style.display = 'flex';
-
-  document.getElementById('loading-overlay').style.display = 'none';
+/* ─── INIT & REFRESH ─── */
+function run() {
+  var ov = document.getElementById('loading-overlay');
+  if (ov) ov.classList.remove('hidden');
+  fetchData().then(function(results) { renderAll(results); });
 }
 
-async function refreshData() {
-  const icon = document.getElementById('refresh-icon');
-  icon.style.animation = 'spin 0.8s linear infinite';
-  await initAll();
-  icon.style.animation = '';
+function refreshData() {
+  var icon = document.getElementById('refresh-icon');
+  if (icon) icon.style.animation = 'spin .75s linear infinite';
+  var ov = document.getElementById('loading-overlay');
+  if (ov) ov.classList.remove('hidden');
+
+  fetchData().then(function(results) {
+    renderAll(results);
+    if (icon) icon.style.animation = '';
+  });
 }
 
-function showModal() { document.getElementById('algo-modal').classList.add('open'); }
-function hideModal() { document.getElementById('algo-modal').classList.remove('open'); }
+function openModal()  { var m = document.getElementById('modal'); if (m) m.classList.add('open'); }
+function closeModal() { var m = document.getElementById('modal'); if (m) m.classList.remove('open'); }
 
-window.addEventListener('load', initAll);
+/* ─── KICKOFF (safe for both artifact and GitHub Pages) ─── */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', run);
+} else {
+  run(); /* already interactive */
+}
 </script>
 
 </body>
