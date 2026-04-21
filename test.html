@@ -1,462 +1,767 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Fintables Analist Önerileri - Canlı API + Gelişmiş Veri Analisti Önerileri">
-    <title>Fintables • Canlı Analist Önerileri</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        
-        :root { --tw-color-primary: #10b981; }
-        
-        * { font-family: 'Inter', system-ui, sans-serif; }
-        
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-        
-        .table-row { transition: all 0.2s ease; }
-        .table-row:hover { background-color: #f8fafc; }
-        
-        .status-al { background-color: #10b981; color: white; }
-        .status-tut { background-color: #eab308; color: white; }
-        .status-sat { background-color: #ef4444; color: white; }
-        
-        .risk-low { background-color: #10b981; }
-        .risk-med { background-color: #eab308; }
-        .risk-high { background-color: #ef4444; }
-        
-        .loader { animation: spin 1.5s linear infinite; }
-        
-        @media (max-width: 640px) {
-            .desktop-only { display: none; }
-            .mobile-table thead { display: none; }
-            .mobile-table tr { display: block; margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; background: white; }
-            .mobile-table td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted #e2e8f0; }
-            .mobile-table td:last-child { border-bottom: none; }
-            .mobile-table td::before { content: attr(data-label); font-weight: 600; color: #64748b; width: 48%; }
-        }
-        
-        .animate-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .slider-container { scrollbar-width: none; }
-        .slider-container::-webkit-scrollbar { display: none; }
-        .slide-card { flex: 0 0 300px; scroll-snap-align: start; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fintables • Analist Paneli</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --green: #00c896;
+    --red: #ff3d5a;
+    --amber: #f59e0b;
+    --bg: #0b0e14;
+    --surface: #131720;
+    --surface2: #1a2030;
+    --border: #252d3d;
+    --text: #e8edf5;
+    --muted: #5a6680;
+  }
+  * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(–surface); border-bottom: 1px solid var(–border); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1280px; margin: auto; padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(–green), #00a87a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+.logo-sub { font-size: 10px; color: var(–muted); font-family: ‘DM Mono’, monospace; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.badge { background: var(–surface2); border: 1px solid var(–border); border-radius: 20px; padding: 5px 14px; font-size: 12px; color: var(–muted); display: flex; align-items: center; gap: 6px; }
+.badge-green { background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.3); color: var(–green); }
+.btn { background: var(–surface2); border: 1px solid var(–border); border-radius: 20px; padding: 6px 16px; font-size: 13px; cursor: pointer; color: var(–text); display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.btn:hover { border-color: var(–green); color: var(–green); }
+.live-dot { width: 7px; height: 7px; background: var(–green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+/* LOADING */
+#loading-overlay { position: fixed; inset: 0; background: rgba(11,14,20,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.spinner { width: 48px; height: 48px; border: 3px solid var(–border); border-top-color: var(–green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-text { color: var(–muted); font-size: 14px; font-family: ‘DM Mono’, monospace; }
+
+/* MAIN */
+.main { max-width: 1280px; margin: auto; padding: 28px 20px; }
+
+/* STAT CARDS */
+.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+@media(max-width:900px) { .stat-grid { grid-template-columns: repeat(3,1fr); } }
+@media(max-width:600px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
+.stat-card { background: var(–surface); border: 1px solid var(–border); border-radius: 16px; padding: 20px; }
+.stat-label { font-size: 11px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.stat-val { font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+.stat-sub { font-size: 11px; color: var(–muted); margin-top: 8px; }
+.val-green { color: var(–green); }
+.val-red { color: var(–red); }
+.val-amber { color: var(–amber); }
+.val-white { color: var(–text); }
+
+/* SECTION HEADER */
+.sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.sec-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.sec-badge { font-size: 11px; background: var(–surface2); border: 1px solid var(–border); border-radius: 20px; padding: 3px 10px; color: var(–muted); }
+.info-btn { font-size: 11px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: var(–amber); border-radius: 20px; padding: 4px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.info-btn:hover { background: rgba(245,158,11,0.2); }
+
+/* SLIDER */
+.slider-wrap { overflow-x: auto; display: flex; gap: 12px; padding-bottom: 8px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.slider-wrap::-webkit-scrollbar { display: none; }
+.slide-card { flex: 0 0 260px; scroll-snap-align: start; background: var(–surface); border: 1px solid var(–border); border-radius: 18px; padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+.slide-card:hover { border-color: var(–green); }
+.slide-card.sell:hover { border-color: var(–red); }
+.slide-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 18px 18px 0 0; }
+.slide-card.buy::before { background: var(–green); }
+.slide-card.sell::before { background: var(–red); }
+.card-ticker { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.card-meta { font-size: 11px; color: var(–muted); margin-top: 3px; font-family: ‘DM Mono’, monospace; }
+.card-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge-al { background: rgba(0,200,150,0.15); color: var(–green); border: 1px solid rgba(0,200,150,0.3); }
+.badge-sat { background: rgba(255,61,90,0.15); color: var(–red); border: 1px solid rgba(255,61,90,0.3); }
+.badge-tut { background: rgba(245,158,11,0.15); color: var(–amber); border: 1px solid rgba(245,158,11,0.3); }
+.card-metrics { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.metric-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+.metric-label { color: var(–muted); }
+.metric-val { font-weight: 600; font-family: ‘DM Mono’, monospace; }
+.progress-bar { width: 100%; height: 4px; background: var(–border); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.fill-green { background: var(–green); }
+.fill-red { background: var(–red); }
+.fill-amber { background: var(–amber); }
+.card-divider { margin: 12px 0; border: none; border-top: 1px solid var(–border); }
+.upside { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+.risk-pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+.risk-low { background: rgba(0,200,150,0.15); color: var(–green); }
+.risk-med { background: rgba(245,158,11,0.15); color: var(–amber); }
+.risk-high { background: rgba(255,61,90,0.15); color: var(–red); }
+.empty-state { text-align: center; padding: 40px; color: var(–muted); font-size: 13px; width: 100%; }
+
+/* CONSENSUS TABLE */
+.table-wrap { background: var(–surface); border: 1px solid var(–border); border-radius: 18px; overflow: hidden; margin-bottom: 28px; }
+.table-toolbar { padding: 16px 20px; border-bottom: 1px solid var(–border); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(–muted); font-size: 12px; }
+.search-input { width: 100%; background: var(–bg); border: 1px solid var(–border); border-radius: 10px; padding: 8px 12px 8px 32px; font-size: 13px; color: var(–text); outline: none; transition: border-color 0.2s; }
+.search-input:focus { border-color: var(–green); }
+.search-input::placeholder { color: var(–muted); }
+select.filter-sel { background: var(–bg); border: 1px solid var(–border); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(–text); outline: none; cursor: pointer; }
+select.filter-sel:focus { border-color: var(–green); }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(–muted); padding: 12px 16px; text-align: left; background: var(–surface2); font-weight: 600; border-bottom: 1px solid var(–border); }
+tbody tr { border-bottom: 1px solid rgba(37,45,61,0.5); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(–surface2); }
+tbody td { padding: 12px 16px; font-size: 13px; }
+.ticker-cell { font-weight: 700; font-size: 14px; letter-spacing: -0.3px; font-family: ‘DM Mono’, monospace; }
+.count-green { color: var(–green); font-weight: 700; }
+.count-red { color: var(–red); font-weight: 700; }
+.count-amber { color: var(–amber); font-weight: 700; }
+.score-positive { color: var(–green); }
+.score-negative { color: var(–red); }
+.score-neutral { color: var(–muted); }
+.table-footer { padding: 12px 20px; border-top: 1px solid var(–border); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(–muted); }
+.api-tag { color: var(–green); font-family: ‘DM Mono’, monospace; font-size: 11px; }
+.sortable { cursor: pointer; user-select: none; }
+.sortable:hover { color: var(–text); }
+.sort-arrow { margin-left: 4px; opacity: 0.4; }
+.sort-arrow.active { opacity: 1; color: var(–green); }
+
+/* CONSENSUS TABLE (hisse bazinda) */
+.consensus-section { margin-bottom: 28px; }
+
+/* MODAL */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal-box { background: var(–surface); border: 1px solid var(–border); border-radius: 20px; max-width: 480px; width: calc(100% - 40px); padding: 28px; }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+.algo-item { background: var(–surface2); border: 1px solid var(–border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.algo-item h4 { font-size: 12px; font-weight: 700; color: var(–green); margin-bottom: 6px; font-family: ‘DM Mono’, monospace; }
+.algo-item p { font-size: 12px; color: var(–muted); line-height: 1.7; }
+.algo-item code { background: var(–bg); color: var(–amber); padding: 2px 5px; border-radius: 4px; font-family: ‘DM Mono’, monospace; font-size: 11px; }
+.modal-close { margin-top: 20px; width: 100%; background: var(–surface2); border: 1px solid var(–border); color: var(–text); border-radius: 12px; padding: 12px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.modal-close:hover { border-color: var(–green); color: var(–green); }
+
+/* SECTION TABS */
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.tab { padding: 7px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(–border); color: var(–muted); transition: all 0.2s; }
+.tab.active { background: rgba(0,200,150,0.12); border-color: rgba(0,200,150,0.4); color: var(–green); }
+.tab:hover:not(.active) { border-color: var(–text); color: var(–text); }
+
+/* UPSIDE BAR */
+.upside-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.upside-bar { flex: 1; height: 4px; background: var(–border); border-radius: 4px; overflow: hidden; }
+.upside-bar-fill { height: 100%; border-radius: 4px; }
+</style>
+
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body>
 
-    <!-- HEADER -->
-    <div class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-x-3">
-                    <div class="w-9 h-9 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl">📊</div>
-                    <div>
-                        <h1 class="text-2xl font-semibold tracking-tight text-slate-900">Fintables</h1>
-                        <p class="text-[10px] text-slate-500 -mt-1">Canlı API • Veri Analisti Paneli</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-x-4">
-                    <div id="last-update-badge" class="hidden sm:flex items-center bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1 rounded-3xl">
-                        <i class="fa-solid fa-clock mr-1"></i>
-                        Son güncelleme: <span id="last-update" class="ml-1 font-semibold"></span>
-                    </div>
-                    <div id="total-count-badge" class="flex items-center gap-x-1 bg-emerald-100 text-emerald-700 text-sm font-semibold px-4 h-9 rounded-3xl">
-                        <i class="fa-solid fa-chart-bar"></i>
-                        <span id="total-count">0</span> öneri
-                    </div>
-                    <button onclick="refreshData()" class="flex items-center gap-x-2 px-5 h-9 bg-white border border-slate-300 hover:border-emerald-400 rounded-3xl text-slate-700 text-sm font-medium">
-                        <i id="refresh-icon" class="fa-solid fa-rotate"></i>
-                        <span class="hidden sm:inline">Yenile</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+<!-- HEADER -->
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">📊</div>
+      <div>
+        <div class="logo-text">Fintables</div>
+        <div class="logo-sub">ANALİST PANELİ v2</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="badge" id="last-update-badge" style="display:none">
+        <i class="fa-solid fa-clock" style="font-size:10px"></i>
+        <span id="last-update">--:--</span>
+      </div>
+      <div class="badge badge-green">
+        <div class="live-dot"></div>
+        <span id="total-count">0</span> öneri
+      </div>
+      <button class="btn" onclick="refreshData()">
+        <i id="refresh-icon" class="fa-solid fa-rotate"></i>
+        <span>Yenile</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="load-text" id="loading-text">Veri çekiliyor...</div>
+</div>
+
+<div class="main">
+
+  <!-- STAT CARDS -->
+
+  <div class="stat-grid" id="stat-grid"></div>
+
+  <!-- ANALYST SLIDERS -->
+
+  <div style="margin-bottom:28px">
+    <div class="sec-header">
+      <div class="sec-title">
+        <i class="fa-solid fa-lightbulb" style="color:var(--amber)"></i>
+        Veri Analisti Sinyalleri
+      </div>
+      <button class="info-btn" onclick="showModal()">
+        <i class="fa-solid fa-circle-info"></i> Algoritma
+      </button>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- LOADING -->
-        <div id="loading-overlay" class="hidden fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex items-center justify-center">
-            <div class="text-center">
-                <i class="fa-solid fa-spinner loader text-6xl text-emerald-600 mb-4"></i>
-                <p id="loading-text" class="text-slate-600 font-medium">1177+ öneri çekiliyor...</p>
-            </div>
-        </div>
-
-        <!-- ÖZET KARTLARI -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8" id="summary-cards"></div>
-
-        <!-- GELİŞMİŞ VERİ ANALİSTİ SLIDER + RİSK METRİKLERİ -->
-        <div class="mb-12">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-semibold text-slate-900 flex items-center gap-x-3">
-                    <i class="fa-solid fa-lightbulb text-amber-500"></i>
-                    Veri Analisti Önerileri
-                </h2>
-                <button onclick="showAlgorithmModal()" class="cursor-pointer text-xs flex items-center gap-x-1 bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 h-8 rounded-3xl">
-                    <i class="fa-solid fa-info-circle"></i>
-                    <span>Algoritma + Risk Mantığı</span>
-                </button>
-            </div>
-            
-            <!-- GÜÇLÜ AL -->
-            <div class="mb-8">
-                <div class="flex justify-between items-baseline mb-3">
-                    <h3 class="font-semibold text-emerald-700 flex items-center gap-x-2">
-                        <i class="fa-solid fa-arrow-trend-up"></i>
-                        GÜÇLÜ AL ÖNERİSİ (Low-Risk)
-                    </h3>
-                    <span id="buy-count" class="text-emerald-600 text-sm font-medium"></span>
-                </div>
-                <div id="buy-slider" class="slider-container flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory"></div>
-            </div>
-            
-            <!-- GÜÇLÜ SAT -->
-            <div>
-                <div class="flex justify-between items-baseline mb-3">
-                    <h3 class="font-semibold text-red-700 flex items-center gap-x-2">
-                        <i class="fa-solid fa-arrow-trend-down"></i>
-                        GÜÇLÜ SAT ÖNERİSİ
-                    </h3>
-                    <span id="sell-count" class="text-red-600 text-sm font-medium"></span>
-                </div>
-                <div id="sell-slider" class="slider-container flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory"></div>
-            </div>
-        </div>
-
-        <!-- HİSSE BAZINDA KONSENSÜS -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-slate-900">📌 Hisse Bazında Ortak Öneriler</h2>
-                <div onclick="toggleView()" class="flex items-center gap-x-2 text-sm text-slate-500 cursor-pointer hover:text-slate-900">
-                    <i class="fa-solid fa-table-list"></i>
-                    <span id="view-mode-text">Kart Görünümü</span>
-                </div>
-            </div>
-            <div id="stock-cards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
-            <div id="stock-table-view" class="hidden bg-white rounded-3xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table id="stock-table" class="w-full min-w-full mobile-table"></table>
-                </div>
-            </div>
-        </div>
-
-        <!-- DETAYLI ANA TABLO -->
-        <div class="bg-white rounded-3xl shadow-sm overflow-hidden">
-            <div class="px-6 py-5 border-b flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <h2 class="text-xl font-semibold text-slate-900">Tüm Analist Önerileri</h2>
-                <div class="flex flex-wrap gap-3 w-full sm:w-auto">
-                    <div class="relative flex-1 min-w-[220px]">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input id="search-input" onkeyup="filterMainTable()" type="text" placeholder="Hisse veya kurum ara..." class="w-full bg-slate-100 border border-transparent focus:border-emerald-300 focus:bg-white pl-11 py-3 rounded-3xl text-sm outline-none">
-                    </div>
-                    <select onchange="filterMainTable()" id="type-filter" class="bg-slate-100 border border-transparent focus:border-emerald-300 rounded-3xl px-5 py-3 text-sm outline-none">
-                        <option value="">Tüm Öneriler</option>
-                        <option value="al">Sadece AL</option>
-                        <option value="tut">Sadece TUT</option>
-                        <option value="sat">Sadece SAT</option>
-                    </select>
-                    <button onclick="resetFilters()" class="px-5 py-3 text-sm text-slate-500 hover:text-slate-700 border border-slate-200 rounded-3xl">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table id="main-table" class="w-full min-w-full mobile-table"></table>
-            </div>
-            <div class="px-6 py-4 text-xs text-slate-400 flex justify-between">
-                <div>Toplam <span id="table-row-count" class="font-medium text-slate-600">0</span> kayıt</div>
-                <div class="text-emerald-600">Veriler anlık olarak api.fintables.com adresinden çekiliyor</div>
-            </div>
-        </div>
+```
+<!-- STRONG BUY -->
+<div style="margin-bottom:20px">
+  <div class="sec-header" style="margin-bottom:10px">
+    <div class="sec-title" style="color:var(--green); font-size:13px">
+      <i class="fa-solid fa-arrow-trend-up"></i> GÜÇLÜ AL — Low-Risk
     </div>
+    <div class="sec-badge" id="buy-count">0 sinyal</div>
+  </div>
+  <div class="slider-wrap" id="buy-slider"></div>
+</div>
 
-    <!-- ALGORİTMA MODAL -->
-    <div onclick="if(event.target.id==='algorithm-modal')hideAlgorithmModal()" id="algorithm-modal" class="hidden fixed inset-0 bg-black/70 z-[10000] flex items-center justify-center">
-        <div onclick="event.stopImmediatePropagation()" class="bg-white max-w-lg w-full mx-4 rounded-3xl p-8">
-            <h3 class="text-xl font-semibold mb-6">Veri Analisti Algoritması &amp; Risk Metrikleri</h3>
-            <div class="space-y-6 text-sm">
-                <div><strong>1. Analyst Score</strong><br>(AL × 3) + (TUT × 1) − (SAT × 4)</div>
-                <div><strong>2. Risk Score (0-100)</strong><br>SAT yüzdesi + (Anlaşmazlık cezası × 0.6)<br><span class="text-slate-500">Düşük &lt;35 | Orta 35-65 | Yüksek &gt;65</span></div>
-                <div><strong>3. Güçlü AL Kriteri</strong><br>• Konsensüs = AL<br>• Analyst Score ≥ 8<br>• Risk Score ≤ 40<br>• En az 3 kurum</div>
-                <div><strong>4. Güçlü SAT Kriteri</strong><br>• Konsensüs = SAT<br>• Analyst Score ≤ -8<br>• Risk Score ≤ 55<br>• En az 3 kurum</div>
-                <p class="text-xs text-slate-400">Bu metrikler sadece mevcut analist verilerinden hesaplanır.</p>
-            </div>
-            <button onclick="hideAlgorithmModal()" class="mt-8 w-full h-12 bg-slate-900 text-white rounded-3xl">Kapat</button>
-        </div>
+<!-- STRONG SELL -->
+<div>
+  <div class="sec-header" style="margin-bottom:10px">
+    <div class="sec-title" style="color:var(--red); font-size:13px">
+      <i class="fa-solid fa-arrow-trend-down"></i> GÜÇLÜ SAT
     </div>
+    <div class="sec-badge" id="sell-count">0 sinyal</div>
+  </div>
+  <div class="slider-wrap" id="sell-slider"></div>
+</div>
+```
 
-    <script>
-        const API_URL = 'https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=';
-        
-        const typeConfig = {
-            "al": { label: "AL", class: "status-al", icon: "📈" },
-            "tut": { label: "TUT", class: "status-tut", icon: "📊" },
-            "sat": { label: "SAT", class: "status-sat", icon: "📉" }
-        };
+  </div>
 
-        let allResults = [];
+  <!-- CONSENSUS TABLE (hisse bazında) -->
 
-        // ====================== VERİ İŞLEME (Risk + Skor) ======================
-        function processData(results) {
-            const grouped = {};
-            results.forEach(item => {
-                const code = item.code || 'Bilinmiyor';
-                if (!grouped[code]) {
-                    grouped[code] = { code, items: [], counts: { al: 0, tut: 0, sat: 0 }, totalTarget: 0 };
-                }
-                const g = grouped[code];
-                g.items.push(item);
-                g.totalTarget += Number(item.price_target) || 0;
-                const t = item.type || 'tut';
-                g.counts[t]++;
-            });
+  <div class="consensus-section">
+    <div class="sec-header">
+      <div class="sec-title">
+        <i class="fa-solid fa-chart-pie" style="color:var(--green)"></i>
+        Hisse Bazında Konsensüs
+      </div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-wrap" style="max-width:280px">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="search-input" id="stock-search" type="text" placeholder="Hisse ara..." oninput="filterStockTable()">
+        </div>
+        <div style="display:flex;gap:8px">
+          <select class="filter-sel" id="consensus-filter" onchange="filterStockTable()">
+            <option value="">Tümü</option>
+            <option value="al">AL</option>
+            <option value="tut">TUT</option>
+            <option value="sat">SAT</option>
+          </select>
+          <select class="filter-sel" id="sort-col" onchange="filterStockTable()">
+            <option value="analystScore">Analyst Skoru</option>
+            <option value="riskScore">Risk Skoru</option>
+            <option value="upside">Hedef Potansiyel</option>
+            <option value="total">Kurum Sayısı</option>
+            <option value="confidence">Güven</option>
+            <option value="convictionScore">Conviction</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="stock-table">
+          <thead>
+            <tr>
+              <th>HİSSE</th>
+              <th>KONSENSÜS</th>
+              <th>AL</th><th>TUT</th><th>SAT</th>
+              <th>KURUM</th>
+              <th>ORT. HEDEF</th>
+              <th>POTANSİYEL</th>
+              <th>ANALİST SKORU</th>
+              <th>RİSK</th>
+              <th>GÜVENİLİRLİK</th>
+              <th>CONVİCTİON</th>
+            </tr>
+          </thead>
+          <tbody id="stock-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span><span id="stock-row-count">0</span> hisse</span>
+        <span class="api-tag">api.fintables.com</span>
+      </div>
+    </div>
+  </div>
 
-            Object.keys(grouped).forEach(key => {
-                const g = grouped[key];
-                const total = g.items.length;
-                g.avgTarget = total ? Math.round(g.totalTarget / total) : 0;
+  <!-- ALL RECOMMENDATIONS TABLE -->
 
-                g.alPct = total ? (g.counts.al / total) * 100 : 0;
-                g.satPct = total ? (g.counts.sat / total) * 100 : 0;
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <div class="sec-title" style="font-size:14px">
+        <i class="fa-solid fa-table-list" style="color:var(--muted)"></i>
+        Tüm Analist Önerileri
+      </div>
+      <div style="display:flex;gap:8px;flex:1;justify-content:flex-end;flex-wrap:wrap">
+        <div class="search-wrap" style="max-width:260px">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="search-input" id="main-search" type="text" placeholder="Hisse / kurum ara..." oninput="filterMainTable()">
+        </div>
+        <select class="filter-sel" id="type-filter" onchange="filterMainTable()">
+          <option value="">Tüm Öneriler</option>
+          <option value="al">AL</option>
+          <option value="tut">TUT</option>
+          <option value="sat">SAT</option>
+        </select>
+        <button class="btn" onclick="resetFilters()" style="padding:6px 12px">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="main-table">
+        <thead>
+          <tr>
+            <th>TARİH</th>
+            <th>KURUM</th>
+            <th>HİSSE</th>
+            <th>GÜNCEL FİYAT</th>
+            <th>HEDEF FİYAT</th>
+            <th>POTANSİYEL</th>
+            <th>ÖNERİ</th>
+          </tr>
+        </thead>
+        <tbody id="main-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <span><span id="main-row-count">0</span> kayıt gösteriliyor</span>
+      <span class="api-tag">api.fintables.com</span>
+    </div>
+  </div>
 
-                let maxCount = 0, consensusType = 'tut';
-                Object.keys(g.counts).forEach(t => {
-                    if (g.counts[t] > maxCount) { maxCount = g.counts[t]; consensusType = t; }
-                });
-                g.consensus = consensusType;
-                g.consensusDominance = total ? maxCount / total : 0;
+</div>
 
-                g.analystScore = (g.counts.al * 3) + (g.counts.tut * 1) - (g.counts.sat * 4);
-                const disagreement = 100 - (g.consensusDominance * 100);
-                g.riskScore = Math.min(100, Math.round(g.satPct + (disagreement * 0.6)));
-                g.confidence = Math.min(100, Math.round(g.consensusDominance * 100 * Math.min(total / 8, 1.5)));
-            });
-            return { results, grouped };
-        }
+<!-- ALGORITHM MODAL -->
 
-        function getRiskBadge(riskScore) {
-            if (riskScore < 35) return `<span class="risk-low text-white text-[10px] px-3 py-px rounded-3xl">DÜŞÜK RİSK</span>`;
-            if (riskScore < 65) return `<span class="risk-med text-white text-[10px] px-3 py-px rounded-3xl">ORTA RİSK</span>`;
-            return `<span class="risk-high text-white text-[10px] px-3 py-px rounded-3xl">YÜKSEK RİSK</span>`;
-        }
+<div class="modal-bg" id="algo-modal" onclick="if(event.target===this)hideModal()">
+  <div class="modal-box">
+    <div class="modal-title">⚙️ Algoritma &amp; Risk Metodolojisi</div>
 
-        // ====================== SLIDER (OPTİMİZE + RİSK) ======================
-        function renderAnalystSliders(grouped) {
-            const buyContainer = document.getElementById('buy-slider');
-            const sellContainer = document.getElementById('sell-slider');
-            buyContainer.innerHTML = '';
-            sellContainer.innerHTML = '';
+```
+<div class="algo-item">
+  <h4>1. ANALİST SKORU (Weighted Consensus)</h4>
+  <p>Her kurum eşit ağırlıklı değil. Denklem:<br>
+  <code>(AL × 3) + (TUT × 1) − (SAT × 4)</code><br>
+  SAT cezası ağır tutulur (−4) çünkü analist SAT vermek kurumsal itibar açısından daha maliyetlidir; bu nedenle güçlü downside sinyalidir.</p>
+</div>
 
-            let strongBuyHTML = [], strongSellHTML = [];
+<div class="algo-item">
+  <h4>2. RİSK SKORU (0–100)</h4>
+  <p><code>SAT% + (Anlaşmazlık × 0.6)</code><br>
+  Anlaşmazlık = 100 − konsensüs hakimiyet%. Düşük &lt;35 | Orta 35–65 | Yüksek &gt;65.<br>
+  Bu ölçek "piyasa görüş ayrılığını" price risk olarak modeller.</p>
+</div>
 
-            Object.keys(grouped).forEach(code => {
-                const g = grouped[code];
-                if (g.items.length < 3) return;
+<div class="algo-item">
+  <h4>3. CONVİCTİON SKORU (Yeni)</h4>
+  <p><code>Güven × (1 + log10(Kurum Sayısı)) × (1 − Risk/200)</code><br>
+  Hem güven hem kurum sayısını hem de riski dengeler. Gerçek portföy kararlarında tek boyutlu metrikler yanıltır.</p>
+</div>
 
-                const cardHTML = `
-                <div class="slide-card bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col h-full">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-4xl font-bold text-slate-900">${code}</span>
-                            <div class="text-xs text-slate-400 mt-1">${g.items.length} kurum • Ort. Hedef ${g.avgTarget} ₺</div>
-                        </div>
-                        <span class="${typeConfig[g.consensus].class} text-xs font-bold px-5 h-8 rounded-3xl flex items-center">
-                            ${typeConfig[g.consensus].icon} ${typeConfig[g.consensus].label}
-                        </span>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <div class="flex justify-between text-xs mb-1"><span class="text-slate-500">Güven Skoru</span><span class="font-semibold">${g.confidence}%</span></div>
-                        <div class="h-2 bg-slate-100 rounded-3xl overflow-hidden"><div class="h-2 bg-emerald-500 rounded-3xl" style="width: ${g.confidence}%"></div></div>
-                    </div>
-                    
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="text-xs text-slate-500">Risk Endeksi</span>
-                        ${getRiskBadge(g.riskScore)}
-                        <span class="text-xs font-medium">${g.riskScore}</span>
-                    </div>
-                    
-                    <div class="mt-auto pt-4 text-[10px] flex items-center justify-between border-t">
-                        <span class="text-slate-400">Analyst Skoru</span>
-                        <span class="font-semibold ${g.analystScore >= 0 ? 'text-emerald-600' : 'text-red-600'}">${g.analystScore}</span>
-                    </div>
-                </div>`;
+<div class="algo-item">
+  <h4>4. GÜÇLÜ AL / SAT KRİTERLERİ</h4>
+  <p>
+    <strong>AL:</strong> Konsensüs=AL, Analyst Score ≥ 8, Risk ≤ 40, ≥3 kurum<br>
+    <strong>SAT:</strong> Konsensüs=SAT, Analyst Score ≤ −8, Risk ≤ 55, ≥3 kurum<br>
+    Risk eşiği SAT için daha yüksek: SAT önerileri doğası gereği daha az yaygın ve kurumsal engellere karşı konur.
+  </p>
+</div>
 
-                if (g.consensus === 'al' && g.analystScore >= 8 && g.riskScore <= 40) strongBuyHTML.push(cardHTML);
-                if (g.consensus === 'sat' && g.analystScore <= -8 && g.riskScore <= 55) strongSellHTML.push(cardHTML);
-            });
+<p style="font-size:11px;color:var(--muted);margin-top:12px">
+  ⚠️ Bu metrikler yatırım tavsiyesi değildir. Yalnızca mevcut analist verilerini analitik olarak özetler.
+</p>
+<button class="modal-close" onclick="hideModal()">Kapat</button>
+```
 
-            buyContainer.innerHTML = strongBuyHTML.length ? strongBuyHTML.join('') : `<div class="flex-1 text-center py-12 text-slate-400">Şu anda güçlü AL sinyali tespit edilmedi</div>`;
-            sellContainer.innerHTML = strongSellHTML.length ? strongSellHTML.join('') : `<div class="flex-1 text-center py-12 text-slate-400">Şu anda güçlü SAT sinyali tespit edilmedi</div>`;
+  </div>
+</div>
 
-            document.getElementById('buy-count').innerHTML = `<span class="font-semibold">${strongBuyHTML.length}</span> güçlü AL`;
-            document.getElementById('sell-count').innerHTML = `<span class="font-semibold">${strongSellHTML.length}</span> güçlü SAT`;
-        }
+<script>
+const API_URL = 'https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=';
 
-        // ====================== ÖZET KARTLARI ======================
-        function renderSummary(results) {
-            const total = results.length;
-            let al = 0, tut = 0, sat = 0;
-            const brokers = new Set();
-            results.forEach(r => {
-                if (r.type === 'al') al++;
-                else if (r.type === 'tut') tut++;
-                else if (r.type === 'sat') sat++;
-                if (r.brokerage?.short_title) brokers.add(r.brokerage.short_title);
-            });
+// ─── DEMO DATA (CORS engellenmesi durumunda fallback) ───────────────────────
+const DEMO_DATA = [
+  // ASELS
+  ...[...Array(6)].map((_,i)=>({code:'ASELS',type:['al','al','al','al','tut','al'][i],price_target:[125,130,128,135,120,132][i],current_price:108,published_at:'2025-04-10T09:00:00Z',brokerage:{short_title:['İş Yatırım','Ata Yat.','Oyak','Denizbank','Yapı Kredi','QNB'][i]}})),
+  // THYAO
+  ...[...Array(7)].map((_,i)=>({code:'THYAO',type:['al','al','al','tut','al','al','tut'][i],price_target:[420,440,410,390,430,445,385][i],current_price:360,published_at:'2025-04-09T11:00:00Z',brokerage:{short_title:['İş Yatırım','Ata Yat.','Garanti','Akbank','Oyak','Denizbank','TEB'][i]}})),
+  // EREGL
+  ...[...Array(5)].map((_,i)=>({code:'EREGL',type:['al','al','tut','al','al'][i],price_target:[55,58,50,60,57][i],current_price:44,published_at:'2025-04-08T10:00:00Z',brokerage:{short_title:['İş Yat.','Ata Yat.','Yapı Kredi','QNB','Oyak'][i]}})),
+  // GARAN
+  ...[...Array(8)].map((_,i)=>({code:'GARAN',type:['al','al','tut','al','tut','al','al','sat'][i],price_target:[160,165,145,170,148,162,168,130][i],current_price:140,published_at:'2025-04-07T09:30:00Z',brokerage:{short_title:['Garanti','İş Yat.','Ata','Oyak','Yapı Kredi','Deniz','QNB','TEB'][i]}})),
+  // TUPRS
+  ...[...Array(6)].map((_,i)=>({code:'TUPRS',type:['al','tut','sat','sat','tut','sat'][i],price_target:[225,210,180,185,205,175][i],current_price:220,published_at:'2025-04-06T14:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Garanti','Oyak','QNB','Yapı Kredi'][i]}})),
+  // KCHOL
+  ...[...Array(5)].map((_,i)=>({code:'KCHOL',type:['al','al','al','tut','al'][i],price_target:[290,300,310,275,305][i],current_price:258,published_at:'2025-04-05T10:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Oyak','Denizbank','TEB'][i]}})),
+  // BIMAS
+  ...[...Array(4)].map((_,i)=>({code:'BIMAS',type:['tut','tut','sat','tut'][i],price_target:[550,540,490,530][i],current_price:580,published_at:'2025-04-04T09:00:00Z',brokerage:{short_title:['İş Yat.','Garanti','Ata','QNB'][i]}})),
+  // PETKM
+  ...[...Array(5)].map((_,i)=>({code:'PETKM',type:['sat','sat','sat','tut','sat'][i],price_target:[22,20,19,25,21][i],current_price:30,published_at:'2025-04-03T11:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Oyak','Denizbank','TEB'][i]}})),
+  // AKBNK
+  ...[...Array(6)].map((_,i)=>({code:'AKBNK',type:['al','al','al','tut','al','tut'][i],price_target:[72,75,70,65,78,63][i],current_price:58,published_at:'2025-04-02T10:00:00Z',brokerage:{short_title:['İş Yat.','Garanti','Ata','Oyak','QNB','TEB'][i]}})),
+  // FROTO
+  ...[...Array(4)].map((_,i)=>({code:'FROTO',type:['al','al','tut','al'][i],price_target:[1400,1450,1300,1480][i],current_price:1200,published_at:'2025-04-01T09:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Garanti','Oyak'][i]}})),
+  // SAHOL
+  ...[...Array(5)].map((_,i)=>({code:'SAHOL',type:['al','tut','al','al','tut'][i],price_target:[82,75,85,88,72][i],current_price:68,published_at:'2025-03-31T10:00:00Z',brokerage:{short_title:['İş Yat.','Ata','Oyak','Garanti','TEB'][i]}})),
+  // ISCTR
+  ...[...Array(4)].map((_,i)=>({code:'ISCTR',type:['sat','sat','tut','sat'][i],price_target:[9,8,11,8.5][i],current_price:13,published_at:'2025-03-30T09:30:00Z',brokerage:{short_title:['İş Yat.','Ata','QNB','Denizbank'][i]}})),
+];
 
-            const html = `
-                <div class="bg-white rounded-3xl p-6 card-hover border border-slate-100">
-                    <p class="text-slate-500 text-sm">Toplam Öneri</p>
-                    <p class="text-5xl font-semibold mt-2">${total}</p>
-                    <p class="text-emerald-600 text-sm mt-6">${brokers.size} kurum</p>
-                </div>
-                <div class="bg-white rounded-3xl p-6 card-hover border border-slate-100">
-                    <p class="text-slate-500 text-sm">AL</p>
-                    <p class="text-5xl font-semibold text-emerald-600 mt-2">${al}</p>
-                </div>
-                <div class="bg-white rounded-3xl p-6 card-hover border border-slate-100">
-                    <p class="text-slate-500 text-sm">TUT</p>
-                    <p class="text-5xl font-semibold text-amber-500 mt-2">${tut}</p>
-                </div>
-                <div class="bg-white rounded-3xl p-6 card-hover border border-slate-100">
-                    <p class="text-slate-500 text-sm">SAT</p>
-                    <p class="text-5xl font-semibold text-red-500 mt-2">${sat}</p>
-                </div>
-            `;
-            document.getElementById('summary-cards').innerHTML = html;
-            document.getElementById('last-update').textContent = new Date().toLocaleString('tr-TR', {hour:'2-digit', minute:'2-digit'});
-        }
+let allResults = [];
+let groupedData = {};
 
-        // ====================== HİSSE KARTLARI ======================
-        function renderStockCards(grouped) {
-            const container = document.getElementById('stock-cards');
-            let html = '';
-            Object.keys(grouped).forEach(code => {
-                const g = grouped[code];
-                html += `
-                <div class="bg-white rounded-3xl p-6 card-hover border border-slate-100">
-                    <div class="flex justify-between items-center">
-                        <span class="text-3xl font-bold">${code}</span>
-                        <span class="${typeConfig[g.consensus].class} px-4 h-7 rounded-3xl flex items-center text-xs">${typeConfig[g.consensus].icon} ${typeConfig[g.consensus].label}</span>
-                    </div>
-                    <div class="mt-6 grid grid-cols-3 gap-4 text-center">
-                        <div><div class="text-emerald-600 text-3xl">${g.counts.al}</div><div class="text-xs text-slate-400">AL</div></div>
-                        <div><div class="text-amber-500 text-3xl">${g.counts.tut}</div><div class="text-xs text-slate-400">TUT</div></div>
-                        <div><div class="text-red-500 text-3xl">${g.counts.sat}</div><div class="text-xs text-slate-400">SAT</div></div>
-                    </div>
-                    <div class="mt-6 text-sm text-slate-400">Ort. Hedef: <span class="font-semibold text-slate-900">${g.avgTarget} ₺</span></div>
-                </div>`;
-            });
-            container.innerHTML = html || '<div class="col-span-full text-center py-12 text-slate-400">Veri yok</div>';
-        }
+// ─── PROCESS DATA ────────────────────────────────────────────────────────────
+function processData(results) {
+  const grouped = {};
 
-        // ====================== ANA TABLO ======================
-        function renderMainTable(results) {
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-            results.forEach(item => {
-                const date = new Date(item.published_at).toLocaleDateString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-                const cfg = typeConfig[item.type] || typeConfig.tut;
-                const row = `
-                <tr class="table-row">
-                    <td class="px-6 py-5" data-label="Tarih">${date}</td>
-                    <td class="px-6 py-5" data-label="Kurum">${item.brokerage?.short_title || '-'}</td>
-                    <td class="px-6 py-5 font-bold" data-label="Hisse">${item.code}</td>
-                    <td class="px-6 py-5" data-label="Hedef">${item.price_target} ₺</td>
-                    <td class="px-6 py-5" data-label="Öneri"><span class="${cfg.class} px-6 py-1 text-xs rounded-3xl">${cfg.icon} ${cfg.label}</span></td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-            document.getElementById('table-row-count').textContent = results.length;
-        }
+  results.forEach(item => {
+    const code = item.code || '?';
+    if (!grouped[code]) {
+      grouped[code] = {
+        code,
+        items: [],
+        counts: { al: 0, tut: 0, sat: 0 },
+        totalTarget: 0,
+        totalCurrent: 0,
+        currentCount: 0,
+      };
+    }
+    const g = grouped[code];
+    g.items.push(item);
+    g.totalTarget += Number(item.price_target) || 0;
+    if (item.current_price) { g.totalCurrent += item.current_price; g.currentCount++; }
+    g.counts[(item.type || 'tut')]++;
+  });
 
-        // ====================== FİLTRE & SORT (basit) ======================
-        function filterMainTable() {
-            const term = document.getElementById('search-input').value.toLowerCase().trim();
-            const typeFilter = document.getElementById('type-filter').value;
-            const filtered = allResults.filter(r => {
-                const matchSearch = !term || (r.code || '').toLowerCase().includes(term) || (r.brokerage?.short_title || '').toLowerCase().includes(term);
-                return matchSearch && (!typeFilter || r.type === typeFilter);
-            });
-            renderMainTable(filtered);
-        }
+  Object.keys(grouped).forEach(key => {
+    const g = grouped[key];
+    const total = g.items.length;
+    g.total = total;
 
-        function resetFilters() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('type-filter').value = '';
-            renderMainTable(allResults);
-        }
+    g.avgTarget = total ? Math.round(g.totalTarget / total) : 0;
+    g.avgCurrent = g.currentCount ? g.totalCurrent / g.currentCount : 0;
+    g.upside = g.avgCurrent > 0 ? Math.round(((g.avgTarget - g.avgCurrent) / g.avgCurrent) * 100) : null;
 
-        function toggleView() {
-            const cards = document.getElementById('stock-cards');
-            const tableView = document.getElementById('stock-table-view');
-            if (cards.classList.contains('hidden')) {
-                cards.classList.remove('hidden'); tableView.classList.add('hidden');
-                document.getElementById('view-mode-text').textContent = 'Kart Görünümü';
-            } else {
-                cards.classList.add('hidden'); tableView.classList.remove('hidden');
-                document.getElementById('view-mode-text').textContent = 'Tablo Görünümü';
-            }
-        }
+    g.alPct  = total ? (g.counts.al  / total) * 100 : 0;
+    g.tutPct = total ? (g.counts.tut / total) * 100 : 0;
+    g.satPct = total ? (g.counts.sat / total) * 100 : 0;
 
-        function showAlgorithmModal() { document.getElementById('algorithm-modal').classList.remove('hidden'); }
-        function hideAlgorithmModal() { document.getElementById('algorithm-modal').classList.add('hidden'); }
+    // Consensus
+    let maxCount = 0, consensusType = 'tut';
+    Object.entries(g.counts).forEach(([t, c]) => { if (c > maxCount) { maxCount = c; consensusType = t; } });
+    g.consensus = consensusType;
+    g.consensusDominance = total ? maxCount / total : 0;
 
-        // ====================== YENİLE & BAŞLAT ======================
-        async function fetchLiveData() {
-            const overlay = document.getElementById('loading-overlay');
-            overlay.classList.remove('hidden');
-            try {
-                const res = await fetch(API_URL, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                return data.results || [];
-            } catch (e) {
-                alert('API hatası – CORS için Vercel/Netlify/GitHub Pages üzerinden açın.');
-                return [];
-            } finally {
-                // overlay kapatmayı render sonunda yapıyoruz
-            }
-        }
+    // Analyst Score: AL*3 + TUT*1 - SAT*4
+    g.analystScore = (g.counts.al * 3) + (g.counts.tut * 1) - (g.counts.sat * 4);
 
-        async function refreshData() {
-            const icon = document.getElementById('refresh-icon');
-            icon.classList.add('animate-spin');
-            const results = await fetchLiveData();
-            allResults = results;
-            const processed = processData(results);
-            
-            renderSummary(results);
-            renderStockCards(processed.grouped);
-            renderMainTable(results);
-            renderAnalystSliders(processed.grouped);   // ← ANALİST ÖNERİLERİ BURADA ÇALIŞIYOR
-            
-            document.getElementById('loading-overlay').classList.add('hidden');
-            icon.classList.remove('animate-spin');
-        }
+    // Risk Score: disagreement-weighted
+    const disagreement = 100 - (g.consensusDominance * 100);
+    g.riskScore = Math.min(100, Math.round(g.satPct + (disagreement * 0.6)));
 
-        async function init() {
-            const results = await fetchLiveData();
-            allResults = results;
-            const processed = processData(results);
-            
-            renderSummary(results);
-            renderStockCards(processed.grouped);
-            renderMainTable(results);
-            renderAnalystSliders(processed.grouped);   // ← ANALİST ÖNERİLERİ BURADA ÇALIŞIYOR
-            
-            document.getElementById('loading-overlay').classList.add('hidden');
-            console.log('%c✅ Analist önerileri + risk metrikleri yüklendi!', 'color:#10b981; font-weight:700');
-        }
-        
-        window.onload = init;
-    </script>
+    // Confidence: dominance × coverage factor
+    g.confidence = Math.min(100, Math.round(g.consensusDominance * 100 * Math.min(total / 8, 1.5)));
+
+    // Conviction Score: composite metric
+    const coverageFactor = 1 + Math.log10(Math.max(1, total));
+    const riskPenalty = 1 - (g.riskScore / 200);
+    g.convictionScore = Math.round(g.confidence * coverageFactor * riskPenalty);
+
+    g.riskLabel = g.riskScore < 35 ? 'DÜŞÜK' : g.riskScore < 65 ? 'ORTA' : 'YÜKSEK';
+    g.riskClass = g.riskScore < 35 ? 'risk-low' : g.riskScore < 65 ? 'risk-med' : 'risk-high';
+  });
+
+  return grouped;
+}
+
+// ─── RENDER STAT CARDS ───────────────────────────────────────────────────────
+function renderStats(results, grouped) {
+  const total = results.length;
+  let al = 0, tut = 0, sat = 0;
+  const brokers = new Set();
+  results.forEach(r => {
+    if (r.type === 'al') al++;
+    else if (r.type === 'tut') tut++;
+    else if (r.type === 'sat') sat++;
+    if (r.brokerage?.short_title) brokers.add(r.brokerage.short_title);
+  });
+  const stocks = Object.keys(grouped).length;
+  const buyPct = total ? Math.round(al/total*100) : 0;
+
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Toplam Öneri</div>
+      <div class="stat-val val-white">${total}</div>
+      <div class="stat-sub">${brokers.size} aracı kurum</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">AL Önerisi</div>
+      <div class="stat-val val-green">${al}</div>
+      <div class="stat-sub">%${buyPct} oran</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">TUT Önerisi</div>
+      <div class="stat-val val-amber">${tut}</div>
+      <div class="stat-sub">%${total?Math.round(tut/total*100):0} oran</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">SAT Önerisi</div>
+      <div class="stat-val val-red">${sat}</div>
+      <div class="stat-sub">%${total?Math.round(sat/total*100):0} oran</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Takip Hissesi</div>
+      <div class="stat-val val-white">${stocks}</div>
+      <div class="stat-sub">unique ticker</div>
+    </div>
+  `;
+  document.getElementById('total-count').textContent = total;
+}
+
+// ─── RENDER SLIDERS ──────────────────────────────────────────────────────────
+function renderSliders(grouped) {
+  const buyEl  = document.getElementById('buy-slider');
+  const sellEl = document.getElementById('sell-slider');
+  let buys = [], sells = [];
+
+  Object.values(grouped).forEach(g => {
+    if (g.total < 3) return;
+    const isStrongBuy  = g.consensus === 'al'  && g.analystScore >= 8  && g.riskScore <= 40;
+    const isStrongSell = g.consensus === 'sat' && g.analystScore <= -8 && g.riskScore <= 55;
+    if (isStrongBuy)  buys.push(g);
+    if (isStrongSell) sells.push(g);
+  });
+
+  // Sort by conviction
+  buys.sort((a,b) => b.convictionScore - a.convictionScore);
+  sells.sort((a,b) => a.analystScore - b.analystScore);
+
+  function makeCard(g, type) {
+    const upsideHtml = g.upside !== null
+      ? `<div style="color:${g.upside>=0?'var(--green)':'var(--red)'};font-size:20px;font-weight:700;letter-spacing:-0.5px">${g.upside>=0?'+':''}${g.upside}%</div>`
+      : `<div style="color:var(--muted);font-size:13px">Hedef: ${g.avgTarget}₺</div>`;
+
+    const confColor = g.confidence > 65 ? 'var(--green)' : g.confidence > 35 ? 'var(--amber)' : 'var(--red)';
+
+    return `
+    <div class="slide-card ${type}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+        <div>
+          <div class="card-ticker">${g.code}</div>
+          <div class="card-meta">${g.total} kurum · ${g.avgTarget}₺ hedef</div>
+        </div>
+        <span class="card-badge badge-${g.consensus}">${g.consensus.toUpperCase()}</span>
+      </div>
+
+      ${upsideHtml}
+
+      <hr class="card-divider">
+
+      <div class="card-metrics">
+        <div class="metric-row">
+          <span class="metric-label">Güven Skoru</span>
+          <span class="metric-val" style="color:${confColor}">${g.confidence}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill ${type==='buy'?'fill-green':'fill-red'}" style="width:${g.confidence}%"></div></div>
+
+        <div class="metric-row" style="margin-top:6px">
+          <span class="metric-label">Risk</span>
+          <span class="risk-pill ${g.riskClass}">${g.riskLabel} · ${g.riskScore}</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">Analyst Skoru</span>
+          <span class="metric-val" style="color:${g.analystScore>=0?'var(--green)':'var(--red)'}">${g.analystScore>=0?'+':''}${g.analystScore}</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">Conviction</span>
+          <span class="metric-val" style="color:var(--amber)">${g.convictionScore}</span>
+        </div>
+
+        <div class="metric-row" style="margin-top:4px">
+          <span class="metric-val" style="color:var(--green);font-size:12px">${g.counts.al}AL</span>
+          <span class="metric-val" style="color:var(--amber);font-size:12px">${g.counts.tut}TUT</span>
+          <span class="metric-val" style="color:var(--red);font-size:12px">${g.counts.sat}SAT</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  buyEl.innerHTML  = buys.length  ? buys.map(g=>makeCard(g,'buy')).join('') : `<div class="empty-state">Güçlü AL sinyali tespit edilmedi</div>`;
+  sellEl.innerHTML = sells.length ? sells.map(g=>makeCard(g,'sell')).join('') : `<div class="empty-state">Güçlü SAT sinyali tespit edilmedi</div>`;
+  document.getElementById('buy-count').textContent  = `${buys.length} sinyal`;
+  document.getElementById('sell-count').textContent = `${sells.length} sinyal`;
+}
+
+// ─── RENDER STOCK TABLE ──────────────────────────────────────────────────────
+let stockSortDir = -1;
+function renderStockTable(grouped) {
+  const term = (document.getElementById('stock-search')?.value || '').toLowerCase();
+  const cf   = document.getElementById('consensus-filter')?.value || '';
+  const sortKey = document.getElementById('sort-col')?.value || 'analystScore';
+
+  let rows = Object.values(grouped).filter(g => {
+    const matchCode = !term || g.code.toLowerCase().includes(term);
+    const matchCons = !cf || g.consensus === cf;
+    return matchCode && matchCons;
+  });
+
+  rows.sort((a,b) => {
+    const dir = sortKey === 'riskScore' ? 1 : -1; // risk: ascending
+    return (b[sortKey] - a[sortKey]) * dir;
+  });
+
+  const tbody = document.getElementById('stock-tbody');
+  tbody.innerHTML = rows.map(g => {
+    const uHtml = g.upside !== null
+      ? `<span style="color:${g.upside>=0?'var(--green)':'var(--red)';};font-weight:600;font-family:'DM Mono',monospace">${g.upside>=0?'+':''}${g.upside}%</span>`
+      : `<span style="color:var(--muted)">—</span>`;
+
+    const scoreColor = g.analystScore > 0 ? 'var(--green)' : g.analystScore < 0 ? 'var(--red)' : 'var(--muted)';
+
+    return `<tr>
+      <td class="ticker-cell">${g.code}</td>
+      <td><span class="card-badge badge-${g.consensus}">${g.consensus.toUpperCase()}</span></td>
+      <td class="count-green">${g.counts.al}</td>
+      <td class="count-amber">${g.counts.tut}</td>
+      <td class="count-red">${g.counts.sat}</td>
+      <td style="font-family:'DM Mono',monospace">${g.total}</td>
+      <td style="font-family:'DM Mono',monospace">${g.avgTarget}₺</td>
+      <td>${uHtml}</td>
+      <td><span style="color:${scoreColor};font-weight:700;font-family:'DM Mono',monospace">${g.analystScore>=0?'+':''}${g.analystScore}</span></td>
+      <td><span class="risk-pill ${g.riskClass}">${g.riskLabel}</span></td>
+      <td>
+        <div class="upside-bar-wrap">
+          <div class="upside-bar"><div class="upside-bar-fill ${g.confidence>65?'fill-green':g.confidence>35?'fill-amber':'fill-red'}" style="width:${g.confidence}%"></div></div>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);min-width:28px">${g.confidence}%</span>
+        </div>
+      </td>
+      <td style="font-family:'DM Mono',monospace;color:var(--amber);font-weight:600">${g.convictionScore}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('stock-row-count').textContent = rows.length;
+}
+
+function filterStockTable() { renderStockTable(groupedData); }
+
+// ─── RENDER MAIN TABLE ───────────────────────────────────────────────────────
+function renderMainTable(results) {
+  const term = (document.getElementById('main-search')?.value || '').toLowerCase();
+  const tf   = document.getElementById('type-filter')?.value || '';
+
+  const filtered = results.filter(r => {
+    const matchSearch = !term || (r.code||'').toLowerCase().includes(term) || (r.brokerage?.short_title||'').toLowerCase().includes(term);
+    return matchSearch && (!tf || r.type === tf);
+  });
+
+  const tbody = document.getElementById('main-tbody');
+  tbody.innerHTML = filtered.map(item => {
+    const dateStr = new Date(item.published_at).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const upside = (item.current_price && item.price_target)
+      ? Math.round(((item.price_target - item.current_price) / item.current_price) * 100)
+      : null;
+    const upHtml = upside !== null
+      ? `<span style="color:${upside>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace;font-size:12px">${upside>=0?'+':''}${upside}%</span>`
+      : '—';
+
+    const typeLabels = {al:'AL',tut:'TUT',sat:'SAT'};
+    const typeBadge = `<span class="card-badge badge-${item.type||'tut'}">${typeLabels[item.type||'tut']||'?'}</span>`;
+
+    return `<tr>
+      <td style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">${dateStr}</td>
+      <td style="font-size:12px">${item.brokerage?.short_title||'—'}</td>
+      <td class="ticker-cell">${item.code||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${item.current_price?item.current_price+'₺':'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${item.price_target?item.price_target+'₺':'—'}</td>
+      <td>${upHtml}</td>
+      <td>${typeBadge}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('main-row-count').textContent = filtered.length;
+}
+
+function filterMainTable() { renderMainTable(allResults); }
+function resetFilters() {
+  document.getElementById('main-search').value = '';
+  document.getElementById('type-filter').value = '';
+  filterMainTable();
+}
+
+// ─── FETCH ───────────────────────────────────────────────────────────────────
+async function fetchData() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(API_URL, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' }
+    });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.results || [];
+  } catch (e) {
+    console.warn('[Fintables] API erişim hatası (CORS/ağ), demo verisi kullanılıyor.', e.message);
+    // Show API warning banner
+    const banner = document.createElement('div');
+    banner.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1a2030;border:1px solid rgba(245,158,11,0.3);color:var(--amber);font-size:12px;padding:10px 20px;border-radius:12px;z-index:9998;white-space:nowrap;font-family:DM Mono,monospace';
+    banner.textContent='⚠ API erişilemedi → Demo verisi gösteriliyor';
+    document.body.appendChild(banner);
+    setTimeout(()=>banner.remove(), 6000);
+    return DEMO_DATA;
+  }
+}
+
+async function initAll() {
+  document.getElementById('loading-overlay').style.display = 'flex';
+  document.getElementById('loading-text').textContent = 'Analist önerileri çekiliyor...';
+
+  const results = await fetchData();
+  allResults = results;
+  groupedData = processData(results);
+
+  renderStats(results, groupedData);
+  renderSliders(groupedData);
+  renderStockTable(groupedData);
+  renderMainTable(results);
+
+  // Update time
+  document.getElementById('last-update').textContent = new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-update-badge').style.display = 'flex';
+
+  document.getElementById('loading-overlay').style.display = 'none';
+}
+
+async function refreshData() {
+  const icon = document.getElementById('refresh-icon');
+  icon.style.animation = 'spin 0.8s linear infinite';
+  await initAll();
+  icon.style.animation = '';
+}
+
+function showModal() { document.getElementById('algo-modal').classList.add('open'); }
+function hideModal() { document.getElementById('algo-modal').classList.remove('open'); }
+
+window.addEventListener('load', initAll);
+</script>
+
 </body>
 </html>
