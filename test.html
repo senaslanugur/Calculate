@@ -1,359 +1,622 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fintables • Alpha Terminal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-/* ═══════════════════════ TOKENS ═══════════════════════ */
-:root {
-  --bg:      #080a0e;
-  --surf:    #0e1118;
-  --surf2:   #141923;
-  --border:  #1d2535;
-  --border2: #263040;
-  --text:    #dce6f5;
-  --muted:   #4a6080;
-  --green:   #00d68f;
-  --red:     #ff4560;
-  --amber:   #ffb700;
-  --blue:    #4c9eff;
-  --purple:  #a78bfa;
-  --fn:      'JetBrains Mono', monospace;
-  --fd:      'Syne', sans-serif;
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analyst Ratings — Tarihe Göre Ortalama Hedef Fiyatlar</title>
 
-/* ═══════════════════════ RESET ═══════════════════════ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: var(--fn);
-  font-size: 12px;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-y: scroll;
-}
+  <style>
+    :root{
+      --bg:#041225;
+      --card:#071428;
+      --muted:#9aa7bf;
+      --accent:#3b82f6;
+      --accent-2:#06b6d4;
+      --glass: rgba(255,255,255,0.03);
+      --danger:#ef4444;
+      --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family:var(--font-sans);
+      background:linear-gradient(180deg,#041225 0%, #071428 100%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.3;
+      padding:18px;
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}
+    h1{font-size:18px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    input[type="search"], input[type="date"]{
+      padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);background:var(--glass);color:inherit;outline:none;min-width:160px;font-size:14px;
+    }
+    select{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);background:var(--glass);color:inherit;font-size:14px}
+    button{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;color:white;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px}
+    .card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:12px;box-shadow: 0 8px 24px rgba(2,6,23,0.6);overflow:hidden}
+    .table-wrap{width:100%;overflow:auto;-webkit-overflow-scrolling:touch}
+    table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
+    thead th{ text-align:left;padding:12px;font-weight:700;color:var(--muted);font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03);position:sticky;top:0;background:rgba(8,14,22,0.6);backdrop-filter: blur(6px);z-index:2}
+    tbody td{padding:10px 12px;border-bottom:1px dashed rgba(255,255,255,0.03);vertical-align:middle}
+    tr.clickable{cursor:pointer} tr.clickable:hover{background:rgba(255,255,255,0.015)}
+    .code{font-weight:700;font-size:15px}
+    .muted{color:var(--muted);font-size:13px}
+    .small{font-size:13px;color:var(--muted)}
+    .center{text-align:center}
+    .right{text-align:right}
+    .spark{width:160px;height:38px}
+    .footer{margin-top:12px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap;gap:8px}
+    .note{color:var(--muted);font-size:13px;margin-bottom:8px}
+    .error{color:var(--danger);font-weight:700}
 
-/* ═══════════════════════ GRID BG ═══════════════════════ */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image:
-    linear-gradient(rgba(76,158,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(76,158,255,0.025) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
+    /* Broker logo avatar */
+    .broker-row {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .broker-logo {
+      width:28px;
+      height:28px;
+      border-radius:6px;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);
+      display:inline-block;
+      vertical-align:middle;
+    }
+    .broker-logo-small {
+      width:20px;
+      height:20px;
+      border-radius:4px;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);
+      display:inline-block;
+      vertical-align:middle;
+      margin-right:6px;
+    }
 
-/* ═══════════════════════ HEADER ═══════════════════════ */
-.hdr {
-  position: sticky; top: 0; z-index: 200;
-  background: rgba(8,10,14,0.92);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-.hdr-inner {
-  max-width: 1440px; margin: auto; padding: 0 24px; height: 60px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-}
-.logo-mark {
-  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
-  background: linear-gradient(135deg, #4c9eff, #7c3aed);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 20px rgba(76,158,255,0.35);
-}
-.logo-name { font-family: var(--fd); font-size: 17px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); }
-.logo-sub  { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    /* Modal (kaydırılabilir) */
+    #modalRoot{display:none}
+    .modal-back{
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,0.6);
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:24px 12px;
+      z-index:40;
+      backdrop-filter: blur(4px);
+      overflow:auto;
+    }
+    .modal{
+      width:100%;
+      max-width:920px;
+      background:linear-gradient(180deg,#071428,#06101e);
+      border-radius:10px;
+      padding:18px;
+      color:#dff1ff;
+      max-height: calc(100vh - 48px);
+      overflow:auto;
+      margin: 12px 0;
+    }
+    .modal h3{margin:0 0 8px 0}
+    .modal table{min-width:0;width:100%}
+    .att-link{color:#7dd3fc;text-decoration:underline}
 
-.live-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.25);
-  border-radius: 999px; padding: 5px 12px; font-size: 11px; color: #00d68f;
-}
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #00d68f; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,214,143,.4)} 50%{opacity:.5;box-shadow:0 0 0 4px rgba(0,214,143,0)} }
-
-.hdr-btn {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--surf2); border: 1px solid var(--border2);
-  border-radius: 8px; padding: 7px 14px; cursor: pointer;
-  font-size: 11px; color: var(--text); font-family: var(--fn);
-  transition: all .2s;
-}
-.hdr-btn:hover { border-color: var(--blue); color: var(--blue); }
-
-/* ═══════════════════════ MAIN ═══════════════════════ */
-.main { max-width: 1440px; margin: auto; padding: 24px; position: relative; z-index: 1; }
-
-.sec-lbl {
-  font-family: var(--fd); font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 2px;
-  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-}
-.sec-lbl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-/* ═══════════════════════ STAT CARDS ═══════════════════════ */
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 28px; }
-.stat-card {
-  background: var(--surf); border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px 18px; position: relative; overflow: hidden;
-}
-.stat-kl  { font-size: 9px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
-.stat-val { font-family: var(--fd); font-size: 28px; font-weight: 800; line-height: 1; }
-.stat-sub { font-size: 10px; color: var(--muted); margin-top: 6px; }
-
-/* ═══════════════════════ SLIDER ═══════════════════════ */
-.slider { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; margin-bottom: 28px; }
-.slider::-webkit-scrollbar { display: none; }
-.pick-card {
-  flex: 0 0 220px;
-  background: var(--surf); border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px; position: relative; transition: all .2s; cursor: pointer;
-}
-.pick-card:hover { transform: translateY(-3px); border-color: var(--blue); }
-.pick-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--blue), var(--purple)); }
-.pick-sym { font-family: var(--fd); font-size: 20px; font-weight: 800; color: var(--text); }
-
-/* ═══════════════════════ TABLE ═══════════════════════ */
-.tbl-panel { background: var(--surf); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.tbl-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-.tbl-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 900px; }
-thead th {
-  font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
-  padding: 12px 14px; background: #0b0d12; border-bottom: 1px solid var(--border);
-  text-align: left; cursor: pointer;
-}
-tbody tr { border-bottom: 1px solid rgba(29,37,53,0.5); transition: background .1s; }
-tbody tr:hover { background: rgba(20,25,35,0.7); }
-tbody td { padding: 12px 14px; white-space: nowrap; }
-
-.bp { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-flex; }
-.bp-al { background: rgba(0,214,143,0.1); color: var(--green); border: 1px solid rgba(0,214,143,0.2); }
-.bp-gal { background: rgba(0,214,143,0.2); color: var(--green); border: 1px solid var(--green); }
-.bp-sat { background: rgba(255,69,96,0.1); color: var(--red); border: 1px solid rgba(255,69,96,0.2); }
-.bp-tut { background: rgba(255,183,0,0.1); color: var(--amber); border: 1px solid rgba(255,183,0,0.2); }
-
-#loading-overlay {
-  position: fixed; inset: 0; z-index: 9999; background: var(--bg);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-}
-#loading-overlay.hidden { display: none; }
-.ld-ring { width: 30px; height: 30px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
-.modal-bg.open { display: flex; }
-.modal-box { background: var(--surf); border: 1px solid var(--border); border-radius: 12px; padding: 30px; max-width: 500px; width: 90%; }
-</style>
+    /* Responsive */
+    @media (max-width:920px){ .wrap{padding:10px} table{font-size:13px;min-width:640px} .spark{width:120px;height:34px} }
+    @media (max-width:720px){
+      header{align-items:flex-start}
+      .controls{width:100%;gap:6px}
+      input[type="search"], select, button, input[type="date"]{flex:1;min-width:0}
+      table{min-width:0;font-size:13px}
+      thead th:nth-child(5), tbody td:nth-child(5){display:none}
+      thead th:nth-child(6), tbody td:nth-child(6){display:none}
+      .modal{padding:12px;border-radius:8px}
+    }
+    @media (max-width:420px){ h1{font-size:16px} input[type="search"], select, button{padding:10px} thead th:nth-child(4), tbody td:nth-child(4){display:none} }
+  </style>
 </head>
 <body>
-
-<div id="loading-overlay">
-  <div class="ld-ring"></div>
-  <div style="font-size: 10px; letter-spacing: 2px; color: var(--muted);">ALPHA ENGINE INITIALIZING...</div>
-</div>
-
-<header class="hdr">
-  <div class="hdr-inner">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="logo-mark"><i class="fa-solid fa-bolt" style="color:#fff"></i></div>
-      <div>
-        <div class="logo-name">Fintables Alpha</div>
-        <div class="logo-sub">Strategic Trading Terminal</div>
+  <div class="wrap">
+    <header>
+      <div style="min-width:220px">
+        <h1>Analyst Ratings — Tarihe Göre Ortalama Hedef Fiyatlar</h1>
+        <div class="sub">Veri kaynağı: https://api.fintables.com/analyst-ratings/ — Tarih aralığına göre filtreleyin, detay için satıra tıklayın.</div>
       </div>
-    </div>
-    <div style="display:flex; gap:10px">
-      <div class="live-pill hide-sm">
-        <div class="live-dot"></div>
-        <span id="total-count">0</span> Öneri
+
+      <div class="controls" role="region" aria-label="Kontroller">
+        <input id="q" type="search" placeholder="Ara (kod veya tip) — örn: TCELL veya al" aria-label="Ara"/>
+        <label style="display:flex;gap:6px;align-items:center">
+          <input id="startDate" type="date" aria-label="Başlangıç tarihi"/>
+        </label>
+        <label style="display:flex;gap:6px;align-items:center">
+          <input id="endDate" type="date" aria-label="Bitiş tarihi"/>
+        </label>
+        <select id="sort" aria-label="Sıralama">
+          <option value="code">Sırala: Kod (A→Z)</option>
+          <option value="latest_desc">Sırala: Son Hedef (yüksek→düşük)</option>
+          <option value="latest_date_desc">Sırala: Tarih (yeni→eski)</option>
+          <option value="latest_date_asc">Sırala: Tarih (eski→yeni)</option>
+          <option value="avg_desc">Sırala: Ortalama (yüksek→düşük)</option>
+          <option value="obs_desc">Sırala: Gözlem sayısı (yüksek→düşük)</option>
+        </select>
+        <button id="apply">Uygula</button>
+        <button id="reload" title="Yenile">Yenile</button>
+        <button id="export" title="CSV indir">CSV İndir</button>
       </div>
-      <button class="hdr-btn" onclick="refreshData()">
-        <i id="sync-icon" class="fa-solid fa-rotate"></i> <span>Yenile</span>
-      </button>
-    </div>
+    </header>
+
+    <section class="card" aria-live="polite">
+      <div id="status" class="note">Veri yükleniyor...</div>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table id="mainTable" role="table" aria-label="Özet">
+          <thead>
+            <tr>
+              <th>Kod</th>
+              <th>Son Hedef (tarih)</th>
+              <th>Toplam Gözlem</th>
+              <th>Genel Ortalama</th>
+              <th class="center">Trend (günlük ort.)</th>
+              <th class="small">Tipler (örnek)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <div class="note">Not: "Son Hedef" ve ortalamalar seçili tarih aralığına göre hesaplanır. Tarih alanlarını boş bırakarak tüm veriyi görebilirsiniz.</div>
+        <div id="summary" class="small"></div>
+      </div>
+    </section>
   </div>
-</header>
 
-<main class="main">
-  <div class="stat-grid" id="stat-grid"></div>
+  <div id="modalRoot"></div>
 
-  <div class="sec-lbl" style="color:var(--blue)">
-    <i class="fa-solid fa-fire" style="color:var(--amber)"></i> Alpha Picks — En Yüksek Potansiyel
-  </div>
-  <div class="slider" id="alpha-slider"></div>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <div class="tbl-panel">
-    <div class="tbl-toolbar">
-      <div style="font-family:var(--fd); font-weight:700">Sinyal Tarama</div>
-      <input type="text" id="search" placeholder="Hisse ara..." style="background:var(--bg); border:1px solid var(--border); color:white; padding:6px 12px; border-radius:6px; font-family:var(--fn); font-size:11px;" oninput="renderTable()">
-    </div>
-    <div class="tbl-scroll">
-      <table>
-        <thead>
+  <script>
+    const API_URL = "https://api.fintables.com/analyst-ratings/";
+    const byId = id => document.getElementById(id);
+    function fmtN(v){ return (v===null||v===undefined||isNaN(v))?'-':(+v).toFixed(2) }
+    function dateOnly(iso){ return iso ? iso.slice(0,10) : '' }
+    function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    let rawData = [];
+    let aggByCode = {};
+    let codesCount = 0;
+    let modalChart = null;
+
+    async function loadData(){
+      setStatus("Veri yükleniyor...", false);
+      try{
+        const res = await fetch(API_URL);
+        if(!res.ok) throw new Error("Sunucu yanıtı: " + res.status);
+        const json = await res.json();
+        rawData = json.results || [];
+        prepareAgg();
+        renderTable();
+        setStatus("Yüklendi. " + rawData.length + " kayıt alındı.", false);
+      } catch(err){
+        setStatus("Veri alınamadı: " + err.message, true);
+      }
+    }
+
+    function setStatus(msg, isError){
+      const s = byId('status');
+      s.textContent = msg;
+      s.className = isError ? 'error' : 'note';
+    }
+
+    function prepareAgg(){
+      aggByCode = {};
+      rawData.forEach(item=>{
+        const code = item.code || 'UNKNOWN';
+        if(!aggByCode[code]) aggByCode[code] = { code, entries: [] };
+        const pt = (item.price_target === null || item.price_target === undefined) ? null : parseFloat(item.price_target);
+        const published = item.published_at || null;
+        aggByCode[code].entries.push({...item, price_target: pt, published_at: published});
+      });
+      Object.values(aggByCode).forEach(g => {
+        g.entries.sort((a,b)=>{
+          if(!a.published_at) return -1;
+          if(!b.published_at) return 1;
+          return new Date(a.published_at) - new Date(b.published_at);
+        });
+      });
+      codesCount = Object.keys(aggByCode).length;
+    }
+
+    function getDateFilter(){
+      const s = byId('startDate').value || null;
+      const e = byId('endDate').value || null;
+      return { start: s, end: e };
+    }
+    function inRangeDate(isoDate, start, end){
+      if(!isoDate) return false;
+      const d = dateOnly(isoDate);
+      if(start && d < start) return false;
+      if(end && d > end) return false;
+      return true;
+    }
+
+    function renderTable(){
+      const tbody = byId('tableBody');
+      tbody.innerHTML = '';
+      const list = Object.values(aggByCode);
+      const q = (byId('q').value || '').trim().toLowerCase();
+      const { start, end } = getDateFilter();
+
+      let rows = list.map(g => {
+        const filteredEntries = g.entries.filter(e => inRangeDate(e.published_at, start, end));
+        const pts = filteredEntries.map(e => e.price_target).filter(v => v !== null && v !== undefined && !isNaN(v));
+        const overallAvg = pts.length ? pts.reduce((s,v)=>s+v,0)/pts.length : null;
+        const latest = filteredEntries.slice().sort((a,b)=>{
+          if(!a.published_at) return 1;
+          if(!b.published_at) return -1;
+          return new Date(b.published_at) - new Date(a.published_at);
+        })[0] || null;
+        const latestValue = latest ? latest.price_target : null;
+        const latestDate = latest ? dateOnly(latest.published_at) : null;
+        const dateMap = {};
+        filteredEntries.forEach(e=>{
+          if(!e.published_at) return;
+          const d = dateOnly(e.published_at);
+          if(!dateMap[d]) dateMap[d] = { date: d, vals: [] };
+          if(e.price_target !== null && e.price_target !== undefined && !isNaN(e.price_target)) dateMap[d].vals.push(e.price_target);
+        });
+        const daily = Object.values(dateMap).map(dm=>({ date: dm.date, avg: dm.vals.length ? (dm.vals.reduce((s,v)=>s+v,0)/dm.vals.length) : null, count: dm.vals.length })).sort((a,b)=>a.date.localeCompare(b.date));
+        return {
+          code: g.code,
+          rawGroup: g,
+          filteredEntries,
+          count: filteredEntries.length,
+          overallAvg,
+          latestValue,
+          latestDate,
+          daily
+        };
+      });
+
+      rows = rows.filter(r => {
+        if(!q) return true;
+        if(r.code.toLowerCase().includes(q)) return true;
+        if(r.rawGroup.entries.some(e => (e.type||'').toLowerCase().includes(q))) return true;
+        return false;
+      });
+
+      const sortVal = byId('sort').value;
+      if(sortVal === 'code') rows.sort((a,b)=> a.code.localeCompare(b.code));
+      else if(sortVal === 'latest_desc') rows.sort((a,b)=> (b.latestValue||0) - (a.latestValue||0) );
+      else if(sortVal === 'avg_desc') rows.sort((a,b)=> (b.overallAvg||0) - (a.overallAvg||0) );
+      else if(sortVal === 'obs_desc') rows.sort((a,b)=> (b.count||0) - (a.count||0) );
+      else if(sortVal === 'latest_date_desc') rows.sort((a,b)=> (b.latestDate||'').localeCompare(a.latestDate||'') );
+      else if(sortVal === 'latest_date_asc') rows.sort((a,b)=> (a.latestDate||'').localeCompare(b.latestDate||'') );
+
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'clickable';
+
+        // get first brokerage logo if available
+        let logoHtml = '';
+        const firstEntry = r.rawGroup.entries && r.rawGroup.entries[0];
+        if(firstEntry && firstEntry.brokerage && firstEntry.brokerage.logo){
+          const logoUrl = escapeHtml(firstEntry.brokerage.logo);
+          // onerror hides the image if it cannot load
+          logoHtml = `<img class="broker-logo" src="${logoUrl}" alt="${escapeHtml(firstEntry.brokerage.short_title || firstEntry.brokerage.title || '')} logo" onerror="this.style.display='none'">`;
+        }
+
+        tr.innerHTML = `
+          <td>
+            <div class="broker-row">
+              ${logoHtml}
+              <div>
+                <div class="code">${escapeHtml(r.code)}</div>
+                <div class="muted">${firstEntry && firstEntry.brokerage ? escapeHtml(firstEntry.brokerage.short_title || firstEntry.brokerage.title || '') : ''}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div>${r.latestValue !== null ? fmtN(r.latestValue) : '-'}</div>
+            <div class="small muted">${r.latestDate || '-'}</div>
+          </td>
+          <td class="center"><div>${r.count}</div></td>
+          <td class="right"><div>${r.overallAvg !== null ? fmtN(r.overallAvg) : '-'}</div></td>
+          <td class="center"><svg class="spark" viewBox="0 0 160 38" preserveAspectRatio="none" data-code="${escapeHtml(r.code)}"></svg></td>
+          <td class="small muted">${sampleTypes(r.rawGroup).join(', ')}</td>
+        `;
+        tr.addEventListener('click', ()=> openDetailsModal(r));
+        tbody.appendChild(tr);
+        drawSpark(tr.querySelector('svg'), r.daily);
+      });
+
+      byId('summary').textContent = rows.length + " kod gösteriliyor — toplam kod: " + codesCount;
+    }
+
+    function sampleTypes(group, max=3){
+      const t = Array.from(new Set(group.entries.map(e=>e.type||'').filter(x=>x))).slice(0,max);
+      return t.length ? t : ['-'];
+    }
+
+    function drawSpark(svgEl, daily){
+      if(!svgEl) return;
+      const w = 160, h = 38;
+      svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      if(!daily || daily.length === 0){
+        svgEl.innerHTML = `<rect x="0" y="0" width="${w}" height="${h}" fill="rgba(255,255,255,0.01)"></rect>
+          <text x="${w/2}" y="${h/2+4}" text-anchor="middle" fill="var(--muted)" font-size="10">no data</text>`;
+        return;
+      }
+      const vals = daily.map(d=>d.avg).filter(v=>v!==null && v!==undefined && !isNaN(v));
+      if(vals.length===0){
+        svgEl.innerHTML = `<text x="${w/2}" y="${h/2+4}" text-anchor="middle" fill="var(--muted)" font-size="10">no numeric data</text>`;
+        return;
+      }
+      const min = Math.min(...vals), max = Math.max(...vals);
+      const pad = 6;
+      const n = daily.length;
+      const step = n>1 ? (w - 2*pad)/(n-1) : 0;
+      const points = daily.map((d,i)=>{
+        const v = d.avg;
+        const x = pad + i*step;
+        const y = (v===null||isNaN(v)) ? h - pad : pad + ((max - v) / ((max - min) || 1)) * (h - 2*pad);
+        return [x,y];
+      });
+      const pts = points.map(p=>p.join(',')).join(' ');
+      const first = points[0], last = points[points.length-1];
+      const areaPath = `M ${first[0]} ${h-pad} L ${first[0]} ${first[1]} ${pts.split(' ').map(s=> 'L '+s).join(' ')} L ${last[0]} ${h-pad} Z`;
+      const gid = 'g' + Math.random().toString(36).slice(2,9);
+      svgEl.innerHTML = `
+        <defs>
+          <linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.55"></stop>
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.06"></stop>
+          </linearGradient>
+        </defs>
+        <path d="${areaPath}" fill="url(#${gid})" opacity="0.95" />
+        <polyline fill="none" stroke="#7dd3fc" stroke-width="1.6" points="${pts}" stroke-linejoin="round" stroke-linecap="round"></polyline>
+      `;
+    }
+
+    function openDetailsModal(rowSummary){
+      // prevent background scroll
+      document.body.style.overflow = 'hidden';
+
+      const root = byId('modalRoot');
+      root.style.display = 'block';
+      root.innerHTML = '';
+      const modalWrap = document.createElement('div');
+      modalWrap.className = 'modal-back';
+
+      // build entries HTML with brokerage logos
+      const entriesHtml = (rowSummary.filteredEntries && rowSummary.filteredEntries.length) ? rowSummary.filteredEntries.map(e => {
+        let brokerCell = '';
+        if(e.brokerage && (e.brokerage.logo || e.brokerage.title || e.brokerage.short_title)){
+          const logoUrl = e.brokerage.logo ? escapeHtml(e.brokerage.logo) : '';
+          const title = escapeHtml(e.brokerage.title || e.brokerage.short_title || '');
+          if(logoUrl) {
+            brokerCell = `<span style="display:inline-flex;align-items:center"><img class="broker-logo-small" src="${logoUrl}" alt="${title} logo" onerror="this.style.display='none'">${title}</span>`;
+          } else {
+            brokerCell = `<span>${title}</span>`;
+          }
+        } else {
+          brokerCell = '-';
+        }
+
+        const attachmentsHtml = (e.attachments && e.attachments.length) ? e.attachments.map(a=> {
+          const url = escapeHtml(a.url || a);
+          const title = escapeHtml(a.title || a.url || 'attachment');
+          return `<a class="att-link" href="${url}" target="_blank" rel="noopener noreferrer">${title}</a>`;
+        }).join(', ') : '-';
+
+        return `
           <tr>
-            <th onclick="sortBy('code')">Sembol</th>
-            <th>Sinyal</th>
-            <th onclick="sortBy('alpha')">Alpha</th>
-            <th onclick="sortBy('twc')">Conviction</th>
-            <th onclick="sortBy('upside')">Upside %</th>
-            <th onclick="sortBy('momentum')">Mom.</th>
-            <th onclick="sortBy('n')">Kurum</th>
-            <th>Sektör</th>
+            <td style="padding:6px">${escapeHtml(dateOnly(e.published_at))}</td>
+            <td style="padding:6px">${brokerCell}</td>
+            <td style="padding:6px">${escapeHtml(e.type || '')}</td>
+            <td style="padding:6px;text-align:right">${e.price_target !== null && e.price_target !== undefined ? fmtN(e.price_target) : '-'}</td>
+            <td style="padding:6px">${attachmentsHtml}</td>
           </tr>
-        </thead>
-        <tbody id="main-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-</main>
+        `;
+      }).join('') : `<tr><td colspan="5" style="padding:8px">Bu tarih aralığında kayıt bulunmuyor.</td></tr>`;
 
-<script>
-const HEX = { green: '#00d68f', red: '#ff4560', amber: '#ffb700', blue: '#4c9eff', muted: '#4a6080' };
-const SECTOR_MAP = { 'THYAO':'Ulaştırma', 'PGSUS':'Ulaştırma', 'AKBNK':'Bankacılık', 'GARAN':'Bankacılık', 'ASELS':'Savunma', 'TUPRS':'Enerji', 'KCHOL':'Holding' };
-const TYPE_SCORE = { al: 3, tut: 1, sat: -4 };
-const DECAY = Math.LN2 / 28;
+      const html = `
+        <div class="modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(rowSummary.code)} detayları">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:170px">
+              <h3>${escapeHtml(rowSummary.code)}</h3>
+              <div class="note">Gösterilen tarih aralığına göre kayıtlar: ${rowSummary.count}. Son hedef: ${rowSummary.latestValue !== null ? fmtN(rowSummary.latestValue) : '-'} (${rowSummary.latestDate || '-'})</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button id="downloadGroupCSV" style="background:linear-gradient(90deg,#06b6d4,#3b82f6);padding:8px 12px;border-radius:8px;border:0;color:white;cursor:pointer">Bu Kodu CSV İndir</button>
+              <button id="closeModalBtn" style="background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;border:0;color:white;cursor:pointer">Kapat</button>
+            </div>
+          </div>
 
-let stocks = [];
-let rawData = [];
-let sortKey = 'alpha';
-let sortAsc = false;
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:220px">
+              <div class="small muted">Interaktif grafik — günlük ortalama hedef fiyatı</div>
+              <div style="height:260px;margin-top:8px"><canvas id="chartCanvas" style="width:100%;height:100%"></canvas></div>
+            </div>
+            <div style="width:260px;min-width:200px">
+              <div class="small muted">Özet</div>
+              <table style="margin-top:8px">
+                <tbody>
+                  <tr><td class="muted">Toplam kayıt</td><td style="text-align:right">${rowSummary.count}</td></tr>
+                  <tr><td class="muted">Ortalama (gün bazlı)</td><td style="text-align:right">${rowSummary.overallAvg !== null ? fmtN(rowSummary.overallAvg) : '-'}</td></tr>
+                  <tr><td class="muted">Son hedef</td><td style="text-align:right">${rowSummary.latestValue !== null ? fmtN(rowSummary.latestValue) : '-'}</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-function mean(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
-function normalize(v, min, max) { return max === min ? 0.5 : Math.max(0, Math.min(1, (v - min) / (max - min))); }
+          <div style="margin-top:12px">
+            <div class="small muted">Recommendation kayıtları (gösterilen tarih aralığına göre). Tıklanabilir attachments varsa yeni sekmede açılır.</div>
+            <div style="overflow:auto;margin-top:8px;max-height:320px">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;padding:8px 6px;color:var(--muted)">Tarih</th>
+                    <th style="text-align:left;padding:8px 6px;color:var(--muted)">Brokerage</th>
+                    <th style="text-align:left;padding:8px 6px;color:var(--muted)">Type</th>
+                    <th style="text-align:right;padding:8px 6px;color:var(--muted)">Hedef</th>
+                    <th style="text-align:left;padding:8px 6px;color:var(--muted)">Attachments</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${entriesHtml}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      modalWrap.innerHTML = html;
+      root.appendChild(modalWrap);
 
-async function fetchData() {
-  try {
-    const res = await fetch('https://api.fintables.com/analyst-ratings/?brokerage_id=&code=&in_model_portfolio=');
-    const data = await res.json();
-    return data.results || data || [];
-  } catch(e) {
-    console.warn("API Error, demo verisi kullanılıyor.");
-    return []; // Gerçek senaryoda buraya demo verisi eklenebilir.
-  }
-}
+      // wire buttons and outside click
+      root.querySelector('#closeModalBtn').addEventListener('click', ()=> closeModal());
+      root.querySelector('#downloadGroupCSV').addEventListener('click', ()=> {
+        const csv = buildCSVForEntries(rowSummary.filteredEntries || [], rowSummary.code);
+        downloadCSV(csv, `${rowSummary.code}_entries.csv`);
+      });
+      modalWrap.addEventListener('click', (ev) => {
+        if(ev.target === modalWrap) closeModal();
+      });
 
-function processData(results) {
-  const agg = {};
-  results.forEach(it => {
-    if(!agg[it.code]) agg[it.code] = { code: it.code, items: [], current: Number(it.current_price) || 0 };
-    agg[it.code].items.push(it);
-  });
+      // Chart.js
+      try{
+        const ctx = root.querySelector('#chartCanvas').getContext('2d');
+        if(modalChart){ modalChart.destroy(); modalChart = null; }
+        const labels = (rowSummary.daily || []).map(d => d.date);
+        const data = (rowSummary.daily || []).map(d => d.avg !== null ? +d.avg.toFixed(4) : null);
+        modalChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: rowSummary.code + " — Günlük Ortalama Hedef",
+              data: data,
+              spanGaps: true,
+              borderColor: '#7dd3fc',
+              backgroundColor: function(context){
+                const gradient = context.chart.ctx.createLinearGradient(0,0,0,200);
+                gradient.addColorStop(0,'rgba(59,130,246,0.45)');
+                gradient.addColorStop(1,'rgba(6,182,212,0.06)');
+                return gradient;
+              },
+              fill: true,
+              tension: 0.25,
+              pointRadius: 3,
+              pointHoverRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context){
+                    const v = context.parsed.y;
+                    return v === null ? 'no data' : 'Hedef: ' + Number(v).toFixed(2);
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { title: { display: true, text: 'Tarih' }, ticks: { maxRotation: 0, autoSkip: true } },
+              y: { title: { display: true, text: 'Ortalama Hedef' }, beginAtZero: false }
+            }
+          }
+        });
+      }catch(err){
+        console.warn('Chart oluşturulamadı', err);
+      }
+    }
 
-  const processed = Object.values(agg).map(g => {
-    let sumW = 0, sumWS = 0, targets = [];
-    let recentScores = [], olderScores = [];
-    const now = Date.now();
+    function closeModal(){
+      if(modalChart){ modalChart.destroy(); modalChart = null; }
+      const root = byId('modalRoot');
+      root.innerHTML = '';
+      root.style.display = 'none';
+      document.body.style.overflow = '';
+    }
 
-    g.items.forEach(it => {
-      const days = Math.max(0, (now - new Date(it.published_at)) / 86400000);
-      const w = Math.exp(-DECAY * days);
-      const score = TYPE_SCORE[it.type] || 0;
-      sumW += w; sumWS += w * score;
-      if(it.price_target) targets.push(Number(it.price_target));
-      if(days <= 14) recentScores.push(score); else if(days <= 60) olderScores.push(score);
+    function buildCSVForEntries(entries, code){
+      const hdr = ['code','published_at','brokerage_title','type','price_target','attachments'];
+      const rows = (entries || []).map(e=> [
+        code || (e.code||''),
+        e.published_at || '',
+        e.brokerage ? (e.brokerage.title || e.brokerage.short_title || '') : '',
+        e.type || '',
+        e.price_target !== null && e.price_target !== undefined ? e.price_target : '',
+        (e.attachments && e.attachments.length) ? e.attachments.map(a=> (a.url || a)).join('|') : ''
+      ]);
+      const csv = [hdr, ...rows].map(r => r.map(c=> `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+      return csv;
+    }
+
+    function buildCSVSummaryCurrentView(){
+      const { start, end } = getDateFilter();
+      const q = (byId('q').value || '').trim().toLowerCase();
+      const list = Object.values(aggByCode);
+      const rows = [];
+      list.forEach(g=>{
+        const filteredEntries = g.entries.filter(e => inRangeDate(e.published_at, start, end));
+        if(q && !g.code.toLowerCase().includes(q) && !g.entries.some(e=> (e.type||'').toLowerCase().includes(q))) return;
+        const pts = filteredEntries.map(e => e.price_target).filter(v=>v!==null && v!==undefined && !isNaN(v));
+        const overallAvg = pts.length ? pts.reduce((s,v)=>s+v,0)/pts.length : '';
+        const latest = filteredEntries.slice().sort((a,b)=>{
+          if(!a.published_at) return 1;
+          if(!b.published_at) return -1;
+          return new Date(b.published_at) - new Date(a.published_at);
+        })[0] || null;
+        rows.push([
+          g.code,
+          filteredEntries.length,
+          latest ? dateOnly(latest.published_at) : '',
+          latest ? (latest.price_target !== null && latest.price_target !== undefined ? latest.price_target : '') : '',
+          overallAvg !== '' ? overallAvg : ''
+        ]);
+      });
+      const hdr = ['code','observations','latest_date','latest_target','overall_avg'];
+      return [hdr, ...rows].map(r => r.map(c=> `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    }
+
+    function downloadCSV(text, filename='export.csv'){
+      const blob = new Blob([text], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // UI wiring
+    byId('apply').addEventListener('click', ()=> renderTable());
+    byId('reload').addEventListener('click', ()=> loadData());
+    byId('q').addEventListener('input', ()=> renderTable());
+    byId('sort').addEventListener('change', ()=> renderTable());
+    byId('export').addEventListener('click', ()=> {
+      const csv = buildCSVSummaryCurrentView();
+      downloadCSV(csv, 'analyst_ratings_summary_filtered.csv');
     });
 
-    const avgT = mean(targets);
-    const upside = g.current > 0 ? ((avgT - g.current) / g.current) * 100 : 0;
-    const twc = (sumW > 0 ? sumWS / sumW : 0) * (1 + Math.log10(g.items.length + 1));
-    const mom = recentScores.length && olderScores.length ? mean(recentScores) - mean(olderScores) : 0;
-
-    return { 
-      code: g.code, twc, upside, momentum: mom, n: g.items.length, 
-      sector: SECTOR_MAP[g.code] || 'Diğer', alpha: 0 
-    };
-  });
-
-  // Alpha normalizasyonu
-  const ups = processed.map(s => s.upside), twcs = processed.map(s => s.twc);
-  const minUp = Math.min(...ups), maxUp = Math.max(...ups);
-  const minTwc = Math.min(...twcs), maxTwc = Math.max(...twcs);
-
-  processed.forEach(s => {
-    const nUp = normalize(s.upside, minUp, maxUp);
-    const nTwc = normalize(s.twc, minTwc, maxTwc);
-    s.alpha = Math.round((nUp * 0.5 + nTwc * 0.5) * 100);
-  });
-
-  return processed;
-}
-
-function getSignal(s) {
-  const reliable = s.n >= 2;
-  if (s.alpha >= 70 && s.upside >= 15 && reliable) return { label: 'GÜÇLÜ AL', cls: 'bp-gal' };
-  if (s.alpha >= 45 && s.upside >= 5) return { label: 'AL', cls: 'bp-al' };
-  if (s.twc <= -1 || s.upside <= -5) return { label: 'SAT', cls: 'bp-sat' };
-  return { label: 'TUT', cls: 'bp-tut' };
-}
-
-function renderTable() {
-  const term = document.getElementById('search').value.toLowerCase();
-  const filtered = stocks.filter(s => s.code.toLowerCase().includes(term));
-  
-  filtered.sort((a,b) => {
-    let v1 = a[sortKey], v2 = b[sortKey];
-    return sortAsc ? (v1 > v2 ? 1 : -1) : (v1 < v2 ? 1 : -1);
-  });
-
-  document.getElementById('main-tbody').innerHTML = filtered.map(s => {
-    const sig = getSignal(s);
-    return `<tr>
-      <td style="font-weight:700">${s.code}</td>
-      <td><span class="bp ${sig.cls}">${sig.label}</span></td>
-      <td style="color:var(--purple); font-weight:700">${s.alpha}</td>
-      <td style="color:${s.twc > 0 ? HEX.green : HEX.red}">${s.twc.toFixed(2)}</td>
-      <td style="color:${s.upside > 0 ? HEX.green : HEX.red}">%${s.upside.toFixed(1)}</td>
-      <td>${s.momentum.toFixed(1)}</td>
-      <td>${s.n}</td>
-      <td style="color:var(--muted); font-size:10px">${s.sector}</td>
-    </tr>`;
-  }).join('');
-}
-
-function renderSlider() {
-  const top = [...stocks].sort((a,b) => b.alpha - a.alpha).slice(0, 5);
-  document.getElementById('alpha-slider').innerHTML = top.map(s => `
-    <div class="pick-card">
-      <div style="font-size:9px; color:var(--muted); margin-bottom:4px">ALPHA PICK</div>
-      <div class="pick-sym">${s.code}</div>
-      <div style="color:var(--green); font-weight:700; margin:8px 0">%${s.upside.toFixed(1)} Upside</div>
-      <div style="font-size:10px; color:var(--muted)">Skor: <span style="color:white">${s.alpha}</span></div>
-    </div>
-  `).join('');
-}
-
-function updateStats() {
-  const avgUp = mean(stocks.map(s => s.upside));
-  document.getElementById('stat-grid').innerHTML = `
-    <div class="stat-card"><div class="stat-kl">Taranan</div><div class="stat-val">${stocks.length}</div></div>
-    <div class="stat-card"><div class="stat-kl">Piyasa Upside</div><div class="stat-val" style="color:var(--green)">%${avgUp.toFixed(1)}</div></div>
-    <div class="stat-card"><div class="stat-kl">Durum</div><div class="stat-val" style="color:var(--blue)">AKTİF</div></div>
-  `;
-}
-
-async function refreshData() {
-  document.getElementById('sync-icon').classList.add('fa-spin');
-  const raw = await fetchData();
-  if(raw.length > 0) {
-    stocks = processData(raw);
-    renderSlider();
-    renderTable();
-    updateStats();
-    document.getElementById('total-count').textContent = raw.length;
-  }
-  document.getElementById('sync-icon').classList.remove('fa-spin');
-  document.getElementById('loading-overlay').classList.add('hidden');
-}
-
-function sortBy(key) {
-  if(sortKey === key) sortAsc = !sortAsc; else { sortKey = key; sortAsc = false; }
-  renderTable();
-}
-
-window.onload = refreshData;
-</script>
+    // initial load
+    loadData();
+  </script>
 </body>
 </html>
