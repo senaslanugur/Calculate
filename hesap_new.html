@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro Varlık & Getiri Yönetimi</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -21,19 +24,8 @@
             --input-bg: #0f172a;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding: 20px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; padding: 20px; }
 
         .app-container {
             max-width: 1200px;
@@ -44,9 +36,7 @@
         }
 
         @media (min-width: 1024px) {
-            .app-container {
-                grid-template-columns: 350px 1fr;
-            }
+            .app-container { grid-template-columns: 350px 1fr; }
         }
 
         /* --- Panel Styles --- */
@@ -56,99 +46,55 @@
             border-radius: 16px;
             padding: 24px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        .panel-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--text-main);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 12px;
-        }
-
-        /* --- Inputs & Buttons --- */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            background-color: var(--input-bg);
-            border: 1px solid var(--panel-border);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
-        }
-
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            width: 100%;
-            font-size: 0.95rem;
-        }
-
-        .btn:hover { background-color: #2563eb; }
-        .btn:active { transform: scale(0.98); }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--panel-border);
-            color: var(--text-main);
-        }
-        .btn-outline:hover { background-color: var(--panel-border); }
-
-        .btn-danger {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        .btn-danger:hover { background-color: var(--danger); color: white; }
-
-        /* --- Stats Layout --- */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
             margin-bottom: 24px;
         }
 
-        .stat-card {
-            background: linear-gradient(145deg, var(--panel-bg), #151e2d);
-            border: 1px solid var(--panel-border);
-            padding: 20px;
-            border-radius: 12px;
+        .panel-title {
+            font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: var(--text-main);
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;
         }
 
+        /* --- Inputs & Buttons --- */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+        
+        .input-row { display: flex; gap: 10px; align-items: center; }
+        
+        select, input[type="text"], input[type="number"] {
+            width: 100%; background-color: var(--input-bg); border: 1px solid var(--panel-border);
+            color: var(--text-main); padding: 12px; border-radius: 8px; font-size: 0.95rem;
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+        .btn {
+            background-color: var(--primary); color: white; border: none; padding: 12px 20px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s;
+            width: 100%; font-size: 0.95rem; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn:hover { background-color: #2563eb; }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-outline { background-color: transparent; border: 1px solid var(--panel-border); color: var(--text-main); }
+        .btn-outline:hover { background-color: var(--panel-border); }
+        
+        .btn-danger { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background-color: var(--danger); color: white; }
+        
+        .btn-success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .btn-success:hover { background-color: var(--success); color: white; }
+
+        .btn-icon {
+            background: transparent; border: 1px solid var(--panel-border); color: var(--text-muted);
+            border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* --- Stats Layout --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: linear-gradient(145deg, var(--panel-bg), #151e2d); border: 1px solid var(--panel-border); padding: 20px; border-radius: 12px; }
         .stat-label { font-size: 0.85rem; color: var(--text-muted); }
         .stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 8px; color: var(--primary); }
         .stat-sub { font-size: 0.85rem; margin-top: 4px; font-weight: 500; }
@@ -158,91 +104,72 @@
         .text-danger { color: var(--danger); }
 
         /* --- History Table --- */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .history-item {
-            background-color: var(--input-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        @media (min-width: 600px) {
-            .history-item {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-        }
-
+        .history-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; }
+        .history-item:hover { border-color: var(--primary-glow); }
+        @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
+        
         .history-main { display: flex; flex-direction: column; }
-        .history-week { font-weight: 600; font-size: 1.1rem; color: var(--text-main); }
+        .history-week { font-weight: 600; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .log-count { font-size: 0.75rem; background: var(--panel-border); padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: normal; }
         .history-wallets { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
         
-        .history-numbers { text-align: right; }
+        .history-numbers { display: flex; align-items: center; gap: 16px; }
+        .history-numbers-inner { text-align: right; }
         .history-total { font-size: 1.2rem; font-weight: 700; color: white; }
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 6px;
-        }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; margin-top: 6px; }
         .badge.green { background: rgba(16, 185, 129, 0.2); color: var(--success); }
         .badge.orange { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .badge.red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
 
-        .chart-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-        }
+        .chart-container { position: relative; height: 350px; width: 100%; }
 
-        /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        /* --- SweetAlert Customization --- */
+        .swal2-popup { background: var(--panel-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; border-radius: 16px !important; }
+        .swal2-title { color: var(--text-main) !important; }
+        .swal2-html-container { color: var(--text-muted) !important; }
+        .swal2-input { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; }
+        
+        .log-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; text-align: left; }
+        .log-table th, .log-table td { padding: 10px; border-bottom: 1px solid var(--panel-border); }
+        .log-table th { color: var(--text-main); font-weight: 600; }
+        .log-table tr:last-child td { border-bottom: none; }
+        .log-wallet-detail { font-size: 0.8rem; color: var(--text-muted); }
+
     </style>
 </head>
 <body>
 
 <div class="app-container">
     
-    <!-- SOL PANEL: Veri Girişi & Ayarlar -->
+    <!-- SOL PANEL -->
     <div class="sidebar">
-        <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel">
             <div class="panel-title">Strateji Ayarları</div>
             <div class="form-group">
                 <label>Başlangıç Sermayesi (₺)</label>
-                <input type="number" id="baseCapital" value="100000" onchange="updateSettings()">
+                <input type="number" id="baseCapital" onchange="updateSettings()">
             </div>
             <div class="form-group">
                 <label>Haftalık Hedef Getiri (%)</label>
-                <input type="number" id="targetRate" value="5" step="0.1" onchange="updateSettings()">
+                <input type="number" id="targetRate" step="0.1" onchange="updateSettings()">
             </div>
             <button class="btn btn-danger" style="margin-top: 10px;" onclick="resetAll()">Tüm Verileri Sıfırla</button>
         </div>
 
         <div class="panel">
             <div class="panel-title">
-                Yeni Hafta Kaydet
-                <span id="nextWeekBadge" style="font-size: 0.8rem; background: var(--primary); padding: 4px 8px; border-radius: 6px; color: white;">Hafta 1</span>
+                İlerleme Kaydet
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Varlıklarınızın güncel değerlerini girin. Toplam otomatik hesaplanacaktır.</p>
             
-            <div id="walletsContainer">
-                <!-- Cüzdan inputları JS ile buraya gelecek -->
+            <div class="form-group">
+                <label>Hangi Haftaya Kayıt Ekliyorsunuz?</label>
+                <select id="activeWeekSelect" onchange="loadWeekWallets()"></select>
             </div>
+            
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -5px;">Seçilen hafta için güncel cüzdan değerlerini girin. Önceki değerlerin üzerine eklenerek tarihçe oluşturulur.</p>
+            
+            <div id="walletsContainer"></div>
 
             <div class="form-group input-row" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--panel-border);">
                 <input type="text" id="newWalletName" placeholder="Yeni Cüzdan/Varlık Adı">
@@ -250,101 +177,114 @@
             </div>
 
             <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <div style="font-size: 0.85rem; color: var(--text-muted);">Bu Haftaki Toplam Varlık</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Girilen Toplam Varlık</div>
                 <div id="liveTotal" style="font-size: 1.5rem; font-weight: 700; color: white;">0 ₺</div>
             </div>
 
-            <button class="btn" onclick="saveWeek()">Haftayı Kaydet</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="saveLog()">Kayıt Ekle</button>
+                <button class="btn btn-success" style="width: auto; padding: 0 15px;" onclick="startNextWeek()" title="Yeni Haftaya Geç">+</button>
+            </div>
         </div>
     </div>
 
-    <!-- SAĞ PANEL: Dashboard & Grafikler -->
+    <!-- SAĞ PANEL -->
     <div class="main-content">
-        <!-- Özet Kartları -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Güncel Toplam Portföy</div>
+                <div class="stat-label">Güncel Toplam Portföy (Son Kayıt)</div>
                 <div class="stat-value" id="statCurrentTotal">0 ₺</div>
                 <div class="stat-sub" id="statTotalProfit">Ana paraya göre net kar: %0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Hedeflenen Portföy (Şu An)</div>
+                <div class="stat-label">Hedeflenen Portföy (Aktif Hafta)</div>
                 <div class="stat-value" style="color: var(--text-main);" id="statTargetTotal">0 ₺</div>
                 <div class="stat-sub text-warning" id="statDiff">Fark: 0 ₺</div>
             </div>
         </div>
 
-        <!-- Grafik -->
-        <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel">
             <div class="panel-title">Büyüme Eğrisi</div>
             <div class="chart-container">
                 <canvas id="growthChart"></canvas>
             </div>
         </div>
 
-        <!-- Geçmiş -->
         <div class="panel">
             <div class="panel-title">Haftalık İlerleme Geçmişi</div>
-            <div class="history-list" id="historyContainer">
-                <!-- Geçmiş kayıtlar JS ile gelecek -->
-                <div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px;">Henüz hiç hafta kaydedilmedi. Sol panelden başlayın.</div>
-            </div>
+            <div class="history-list" id="historyContainer"></div>
         </div>
     </div>
 
 </div>
 
 <script>
+    // --- SweetAlert Toast Config ---
+    const Toast = Swal.mixin({
+        toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+        timerProgressBar: true, background: '#1e293b', color: '#f8fafc'
+    });
+
     // --- State Yönetimi ---
-    const STORAGE_KEY = 'proApp_wealthTracker';
+    const STORAGE_KEY = 'proApp_wealthTrackerV2';
     
-    // Varsayılan Veri Yapısı
-    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        baseCapital: 100000,
-        targetRate: 5.0,
-        walletCategories: ['Vakıfbank', 'Binance', 'Nakit'],
-        weeks: [] // { weekNum: 1, date: '...', wallets: { 'Vakıfbank': 50000, ... }, total: 105000, target: 105000, gain: 5.0 }
-    };
+    // Veri Yapısı: Her haftanın birden fazla 'log' kaydı var
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    
+    if (!appData || !appData.weeks) {
+        appData = {
+            baseCapital: 100000,
+            targetRate: 5.0,
+            walletCategories: ['Vakıfbank', 'Binance', 'Nakit'],
+            currentWeekNum: 1,
+            weeks: [
+                { weekNum: 1, logs: [] }
+            ]
+        };
+    }
 
     let chartInstance = null;
 
     // --- Formatlayıcılar ---
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
     const formatPct = (num) => num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    const getTargetAmt = (weekNum) => appData.baseCapital * Math.pow(1 + (appData.targetRate / 100), weekNum);
 
     // --- Başlangıç & Render ---
     function init() {
         document.getElementById('baseCapital').value = appData.baseCapital;
         document.getElementById('targetRate').value = appData.targetRate;
+        updateWeekDropdown();
         renderWalletInputs();
         updateDashboard();
     }
 
-    function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    }
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
     function resetAll() {
-        if(confirm("Tüm cüzdan ve hafta verileriniz kalıcı olarak silinecektir. Emin misiniz?")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: "Tüm cüzdan ve hafta verileriniz kalıcı olarak silinecektir!",
+            icon: 'warning', showCancelButton: true,
+            confirmButtonColor: '#ef4444', cancelButtonColor: '#334155',
+            confirmButtonText: 'Evet, Sıfırla', cancelButtonText: 'İptal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        });
     }
 
     function updateSettings() {
         appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0;
         appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0;
-        
-        // Mevcut haftaların hedeflerini geçmişe dönük güncelle
-        appData.weeks.forEach((week, index) => {
-            week.target = appData.baseCapital * Math.pow(1 + (appData.targetRate / 100), week.weekNum);
-        });
-        
         saveData();
         updateDashboard();
+        Toast.fire({ icon: 'success', title: 'Strateji güncellendi' });
     }
 
-    // --- Cüzdan Yönetimi (Sol Panel) ---
+    // --- Cüzdan Yönetimi ---
     function addWalletCategory() {
         const input = document.getElementById('newWalletName');
         const name = input.value.trim();
@@ -353,15 +293,48 @@
             input.value = '';
             saveData();
             renderWalletInputs();
+            Toast.fire({ icon: 'success', title: 'Cüzdan eklendi' });
         }
     }
 
     function removeWalletCategory(name) {
-        if(confirm(`"${name}" cüzdanını silmek istediğinize emin misiniz? (Geçmiş kayıtlardaki verileriniz etkilenmez)`)) {
-            appData.walletCategories = appData.walletCategories.filter(c => c !== name);
-            saveData();
-            renderWalletInputs();
+        Swal.fire({
+            title: 'Cüzdanı Sil',
+            text: `"${name}" cüzdanını silmek istiyor musunuz? Geçmiş kayıtlarınız etkilenmez.`,
+            icon: 'warning', showCancelButton: true,
+            confirmButtonColor: '#ef4444', cancelButtonColor: '#334155',
+            confirmButtonText: 'Sil', cancelButtonText: 'İptal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                appData.walletCategories = appData.walletCategories.filter(c => c !== name);
+                saveData();
+                renderWalletInputs();
+                Toast.fire({ icon: 'info', title: 'Cüzdan silindi' });
+            }
+        });
+    }
+
+    function updateWeekDropdown() {
+        const select = document.getElementById('activeWeekSelect');
+        select.innerHTML = '';
+        appData.weeks.forEach(w => {
+            const opt = document.createElement('option');
+            opt.value = w.weekNum;
+            opt.innerText = `Hafta ${w.weekNum} ${w.weekNum === appData.currentWeekNum ? '(Aktif)' : ''}`;
+            if(w.weekNum === appData.currentWeekNum) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    function startNextWeek() {
+        appData.currentWeekNum++;
+        if(!appData.weeks.find(w => w.weekNum === appData.currentWeekNum)) {
+            appData.weeks.push({ weekNum: appData.currentWeekNum, logs: [] });
         }
+        saveData();
+        updateWeekDropdown();
+        loadWeekWallets();
+        Toast.fire({ icon: 'success', title: `Hafta ${appData.currentWeekNum} başlatıldı!` });
     }
 
     function renderWalletInputs() {
@@ -380,23 +353,23 @@
             `;
             container.appendChild(div);
         });
+        loadWeekWallets();
+    }
+
+    function loadWeekWallets() {
+        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
+        const week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
         
-        // Son eklenen haftanın değerlerini otomatik doldur (Kullanıcı kolaylığı için)
-        if(appData.weeks.length > 0) {
-            const lastWeek = appData.weeks[appData.weeks.length - 1];
+        document.querySelectorAll('.live-wallet-input').forEach(input => input.value = '');
+
+        if(week && week.logs.length > 0) {
+            const lastLog = week.logs[week.logs.length - 1];
             document.querySelectorAll('.live-wallet-input').forEach(input => {
                 const cat = input.getAttribute('data-name');
-                if(lastWeek.wallets[cat]) {
-                    input.value = lastWeek.wallets[cat];
-                }
+                if(lastLog.wallets[cat]) input.value = lastLog.wallets[cat];
             });
         }
-        
         calculateLiveTotal();
-        
-        // Badge güncelle
-        const nextWeekNum = appData.weeks.length + 1;
-        document.getElementById('nextWeekBadge').innerText = `Hafta ${nextWeekNum}`;
     }
 
     function calculateLiveTotal() {
@@ -408,58 +381,62 @@
         return total;
     }
 
-    function saveWeek() {
+    function saveLog() {
         const total = calculateLiveTotal();
         if(total <= 0) {
-            alert("Lütfen cüzdanlarınıza geçerli varlık tutarlarını giriniz.");
+            Toast.fire({ icon: 'error', title: 'Geçerli bir tutar girin' });
             return;
         }
 
-        const nextWeekNum = appData.weeks.length + 1;
-        const targetDec = appData.targetRate / 100;
-        const targetAmount = appData.baseCapital * Math.pow(1 + targetDec, nextWeekNum);
+        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
+        let week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
         
-        // Önceki haftanın tutarı (İlk haftaysa başlangıç sermayesi)
-        const prevAmount = appData.weeks.length > 0 ? appData.weeks[appData.weeks.length - 1].total : appData.baseCapital;
-        const gainPct = ((total - prevAmount) / prevAmount) * 100;
-
-        // Cüzdan verilerini topla
         let walletsSnapshot = {};
         document.querySelectorAll('.live-wallet-input').forEach(input => {
             const cat = input.getAttribute('data-name');
             walletsSnapshot[cat] = parseFloat(input.value) || 0;
         });
 
-        const newWeek = {
-            weekNum: nextWeekNum,
-            date: new Date().toLocaleDateString('tr-TR'),
-            wallets: walletsSnapshot,
-            total: total,
-            target: targetAmount,
-            gain: gainPct
-        };
+        // Yeni günlük/anlık kayıt
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
 
-        appData.weeks.push(newWeek);
+        week.logs.push({
+            date: dateStr,
+            wallets: walletsSnapshot,
+            total: total
+        });
+
         saveData();
-        
-        // Inputları sıfırlama, mevcut kalsın (Bir sonraki hafta üzerine ekler)
         updateDashboard();
-        renderWalletInputs(); // rozeti güncellemek için
+        Toast.fire({ icon: 'success', title: 'Kayıt başarıyla eklendi!' });
     }
 
-    // --- Dashboard & Grafik (Sağ Panel) ---
+    function getWeekLatestTotal(weekNum) {
+        const week = appData.weeks.find(w => w.weekNum === weekNum);
+        if(!week || week.logs.length === 0) return null;
+        return week.logs[week.logs.length - 1].total;
+    }
+
+    // --- Dashboard & Grafik ---
     function updateDashboard() {
-        const currentTotal = appData.weeks.length > 0 ? appData.weeks[appData.weeks.length - 1].total : appData.baseCapital;
-        const currentTarget = appData.weeks.length > 0 ? appData.weeks[appData.weeks.length - 1].target : appData.baseCapital;
+        // En son verisi girilmiş haftayı bul
+        let latestTotal = appData.baseCapital;
+        for(let i = appData.weeks.length - 1; i >= 0; i--) {
+            if(appData.weeks[i].logs.length > 0) {
+                latestTotal = appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total;
+                break;
+            }
+        }
         
-        document.getElementById('statCurrentTotal').innerText = formatTL(currentTotal);
+        const currentTarget = getTargetAmt(appData.currentWeekNum);
+        
+        document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal);
         document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
         
-        // Kar/Zarar Hesapları
-        const netProfit = currentTotal - appData.baseCapital;
-        const netProfitPct = ((currentTotal - appData.baseCapital) / appData.baseCapital) * 100;
-        
-        const diff = currentTotal - currentTarget;
+        const netProfit = latestTotal - appData.baseCapital;
+        const netProfitPct = ((latestTotal - appData.baseCapital) / appData.baseCapital) * 100;
+        const diff = latestTotal - currentTarget;
         
         const totalProfitEl = document.getElementById('statTotalProfit');
         totalProfitEl.innerText = `Net Kar: ${formatTL(netProfit)} (%${netProfitPct.toFixed(2)})`;
@@ -477,53 +454,103 @@
         const container = document.getElementById('historyContainer');
         container.innerHTML = '';
 
-        if(appData.weeks.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px;">Henüz hiç hafta kaydedilmedi. Sol panelden başlayın.</div>';
+        const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
+
+        if(weeksWithLogs.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px;">Henüz hiç hafta kaydedilmedi.</div>';
             return;
         }
 
-        // Sondan başa doğru (En yeni en üstte)
-        [...appData.weeks].reverse().forEach(week => {
+        [...weeksWithLogs].reverse().forEach(week => {
+            const lastLog = week.logs[week.logs.length - 1];
             
-            // Cüzdan detaylarını stringe çevir
             let walletDetails = [];
-            for (const [key, value] of Object.entries(week.wallets)) {
+            for (const [key, value] of Object.entries(lastLog.wallets)) {
                 if(value > 0) walletDetails.push(`${key}: ${formatTL(value)}`);
             }
+
+            // Bir önceki haftanın sonucunu bul (getiri hesaplamak için)
+            let prevTotal = appData.baseCapital;
+            if(week.weekNum > 1) {
+                const prev = getWeekLatestTotal(week.weekNum - 1);
+                if(prev !== null) prevTotal = prev;
+            }
+            
+            const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100;
             
             let badgeClass = 'red';
-            if(week.gain >= appData.targetRate) badgeClass = 'green';
-            else if (week.gain >= 0) badgeClass = 'orange';
-
-            const gainStr = (week.gain > 0 ? '+' : '') + formatPct(week.gain);
+            if(gainPct >= appData.targetRate) badgeClass = 'green';
+            else if (gainPct >= 0) badgeClass = 'orange';
 
             const item = document.createElement('div');
             item.className = 'history-item';
             item.innerHTML = `
                 <div class="history-main">
-                    <div class="history-week">Hafta ${week.weekNum} <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal; margin-left: 8px;">${week.date}</span></div>
+                    <div class="history-week">Hafta ${week.weekNum} <span class="log-count">${week.logs.length} Kayıt</span></div>
+                    <div class="history-wallets" style="font-size: 0.75rem;">Son Güncelleme: ${lastLog.date}</div>
                     <div class="history-wallets">${walletDetails.join(' • ')}</div>
                 </div>
                 <div class="history-numbers">
-                    <div class="history-total">${formatTL(week.total)}</div>
-                    <div class="badge ${badgeClass}">${gainStr}</div>
+                    <div class="history-numbers-inner">
+                        <div class="history-total">${formatTL(lastLog.total)}</div>
+                        <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
+                    </div>
+                    <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
                 </div>
             `;
             container.appendChild(item);
         });
     }
 
+    function showWeekDetails(weekNum) {
+        const week = appData.weeks.find(w => w.weekNum === weekNum);
+        if(!week || week.logs.length === 0) return;
+
+        let tableHtml = `<table class="log-table">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Cüzdan Detayı</th>
+                    <th style="text-align: right;">Toplam</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        week.logs.forEach(log => {
+            let details = [];
+            for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`${k}: ${formatTL(v)}`); }
+            
+            tableHtml += `
+                <tr>
+                    <td style="white-space: nowrap;">${log.date}</td>
+                    <td class="log-wallet-detail">${details.join('<br>')}</td>
+                    <td style="text-align: right; font-weight: 600; color: white;">${formatTL(log.total)}</td>
+                </tr>
+            `;
+        });
+        tableHtml += `</tbody></table>`;
+
+        Swal.fire({
+            title: `Hafta ${weekNum} Detayları`,
+            html: tableHtml,
+            width: 600,
+            showCloseButton: true,
+            showConfirmButton: false
+        });
+    }
+
     function renderChart() {
         const ctx = document.getElementById('growthChart').getContext('2d');
         
-        // Verileri Hazırla (Başlangıç noktası 0. Hafta)
-        const labels = ['Başlangıç', ...appData.weeks.map(w => `Hafta ${w.weekNum}`)];
-        const targetData = [appData.baseCapital, ...appData.weeks.map(w => w.target)];
-        const actualData = [appData.baseCapital, ...appData.weeks.map(w => w.total)];
+        const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
+        
+        const labels = ['Başlangıç', ...weeksWithLogs.map(w => `Hafta ${w.weekNum}`)];
+        const targetData = [appData.baseCapital, ...weeksWithLogs.map(w => getTargetAmt(w.weekNum))];
+        const actualData = [appData.baseCapital, ...weeksWithLogs.map(w => w.logs[w.logs.length - 1].total)];
 
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
+        if (chartInstance) chartInstance.destroy();
 
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.font.family = "'Inter', sans-serif";
@@ -533,77 +560,18 @@
             data: {
                 labels: labels,
                 datasets: [
-                    {
-                        label: 'Gerçekleşen Varlık',
-                        data: actualData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#3b82f6',
-                        pointBorderColor: '#fff',
-                        pointRadius: 4,
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Teorik Hedef',
-                        data: targetData,
-                        borderColor: '#ef4444',
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0.3
-                    }
+                    { label: 'Gerçekleşen (Hafta Sonu)', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, fill: true, tension: 0.3 },
+                    { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3 }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: { usePointStyle: true, boxWidth: 8 }
-                    },
-                    tooltip: {
-                        backgroundColor: '#1e293b',
-                        titleColor: '#f8fafc',
-                        bodyColor: '#e2e8f0',
-                        borderColor: '#334155',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) { label += ': '; }
-                                if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(context.parsed.y) + ' ₺';
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: {
-                            callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; }
-                        }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                }
+                responsive: true, maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { position: 'top' } }
             }
         });
     }
 
-    // Uygulamayı başlat
     window.onload = init;
 </script>
 
