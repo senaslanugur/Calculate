@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık & Getiri Yönetimi V7 (Pro Haber Akışı)</title>
+    <title>Pro Varlık & Getiri Yönetimi V8 (Oto-Sinyal Botu)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -63,6 +63,12 @@
         .bg-tr { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
         .bg-manual { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
         
+        /* YENİ: Sinyal Badge CSS */
+        .signal-badge { font-size: 0.7rem; font-weight: 900; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px; margin-left: auto; margin-right: 8px; display: flex; align-items: center; gap: 4px;}
+        .signal-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .signal-sell { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
+        .signal-neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3); }
+
         .asset-inputs { display: flex; gap: 12px; align-items: flex-end; }
         .asset-val-display { text-align: right; font-size: 1.15rem; font-weight: 900; color: white; }
         
@@ -142,11 +148,11 @@
 </head>
 <body>
 
-<!-- ÜST MENÜ (Header) -->
+<!-- ÜST MENÜ -->
 <header class="navbar">
     <div class="logo">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V7</span>
+        ProPortföy <span>V8</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -155,7 +161,7 @@
         <div class="dropdown-menu" id="dropdownMenu">
             <a href="#" class="dropdown-item" onclick="forceSyncPrices()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                Fiyatları Senkronize Et
+                Fiyat ve Haberleri Senkronize Et
             </a>
             <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -184,10 +190,10 @@
         <div class="panel">
             <div class="panel-title">
                 Varlık Yönetimi
-                <button onclick="fetchAllLivePrices()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" title="Canlı Fiyatları Yenile">Yenile</button>
+                <button onclick="forceSyncPrices()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" title="Canlı Fiyatları Yenile">Yenile</button>
             </div>
             
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Varlıklarınızı ekleyin. Canlı senedin haberlerini görmek için 📰 ikonuna tıklayın.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Sistem, piyasa haberlerini sürekli tarayarak otomatik Al/Sat sinyali üretir.</p>
 
             <div id="assetsContainer" style="max-height: 380px; overflow-y: auto; padding-right: 5px; margin-bottom: 16px;">
                 <!-- Varlık kartları buraya gelecek -->
@@ -250,17 +256,8 @@
     // --- Menü İşlemleri ---
     const menuBtn = document.getElementById('menuBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
-    
-    menuBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) {
-            dropdownMenu.classList.remove('active');
-        }
-    });
+    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
+    document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
 
     function resetAllData() {
         dropdownMenu.classList.remove('active');
@@ -268,16 +265,11 @@
             title: 'Emin misiniz?',
             text: "Uygulamadaki tüm varlıklarınız, portföy geçmişiniz ve ayarlarınız silinecek. (Sadece bu uygulamanın verileri silinir).",
             icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Evet, Her Şeyi Sil',
-            cancelButtonText: 'İptal',
+            showCancelButton: true, confirmButtonText: 'Evet, Her Şeyi Sil', cancelButtonText: 'İptal',
             customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' },
             confirmButtonColor: '#ef4444'
         }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            }
+            if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
         });
     }
 
@@ -286,42 +278,61 @@
         fetchAllLivePrices();
     }
 
-    // --- Finansal Haber Sözlüğü ---
+    // --- GELİŞMİŞ DUYGU (SENTIMENT) MOTORU ---
     const FINANCE_LEXICON = {
-        "beats": 3.0, "beat estimates": 3.5, "surge": 3.0, "surges": 3.0,
-        "soar": 3.0, "soars": 3.0, "rally": 2.5, "record high": 3.0,
-        "upgrade": 2.5, "upgraded": 2.5, "outperform": 2.5, "buyback": 2.0,
-        "raises guidance": 3.0, "strong demand": 2.0, "profit rises": 2.5,
-        "acquisition": 1.5, "beats expectations": 3.5, "bullish": 2.5,
-        "artış": 2.5, "yükseldi": 2.5, "rekor": 2.0, "kar açıkladı": 2.0,
-        "beklentileri aştı": 3.0, "ihracat rekoru": 2.5, "yükseliş": 2.5,
-        "temettü": 1.5, "geri alım": 2.0, "güçlü talep": 2.0,
-        "misses": -3.0, "miss estimates": -3.5, "plunge": -3.0, "plunges": -3.0,
-        "tumble": -2.5, "downgrade": -2.5, "downgraded": -2.5,
-        "underperform": -2.5, "layoffs": -2.5, "lawsuit": -2.0,
-        "investigation": -2.0, "recall": -2.0, "guidance cut": -3.0,
-        "profit falls": -2.5, "bearish": -2.5, "bankruptcy": -3.5,
-        "fraud": -3.0, "misses expectations": -3.5,
-        "düşüş": -2.5, "geriledi": -2.5, "zarar açıkladı": -2.5,
-        "beklentilerin altında": -3.0, "soruşturma": -2.0, "iflas": -3.5,
-        "işten çıkarma": -2.5, "dava": -1.5, "kar düşüşü": -2.5,
+        // Pozitifler
+        "beats": 3.0, "beat estimates": 3.5, "surge": 3.0, "rally": 2.5, "record high": 3.0, "upgrade": 2.5, "outperform": 2.5, "buyback": 2.0, "raises guidance": 3.0, "strong demand": 2.0, "profit rises": 2.5, "bullish": 2.5,
+        "artış": 2.5, "yükseldi": 2.5, "rekor": 3.0, "kar açıkladı": 2.5, "beklentileri aştı": 3.5, "ihracat rekoru": 2.5, "yükseliş": 2.5, "temettü dağıtımı": 2.0, "tavan": 3.0, "büyüme": 2.0, "ihale kazandı": 3.0, "anlaşma imzaladı": 2.5,
+        // Negatifler
+        "misses": -3.0, "miss estimates": -3.5, "plunge": -3.0, "tumble": -2.5, "downgrade": -2.5, "underperform": -2.5, "layoffs": -2.5, "lawsuit": -2.0, "investigation": -2.0, "recall": -2.0, "guidance cut": -3.0, "profit falls": -2.5, "bearish": -2.5, "bankruptcy": -3.5, "fraud": -3.0,
+        "düşüş": -2.5, "geriledi": -2.5, "zarar açıkladı": -3.0, "beklentilerin altında": -3.0, "soruşturma": -2.0, "iflas": -3.5, "işten çıkarma": -2.5, "dava": -1.5, "kar düşüşü": -2.5, "taban": -3.0, "bilanço hüsranı": -3.5, "ertelenme": -1.5
     };
+
+    // Zıtlık belirten kelimeler (Negation handling)
+    const NEGATIONS = ["değil", "aşamadı", "kalamadı", "düşmedi", "not", "didn't", "hasn't", "failed"];
 
     function analyzeHeadline(text) {
         if (!text) return { score: 0.0, label: "Nötr", emoji: "⚪", reasons: ["Başlık metni bulunamadı."] };
         
-        let lower = text.toLowerCase();
+        let words = text.toLowerCase().split(/\s+/);
         let bonus = 0.0;
         let hits = 0;
         let matchedPos = [];
         let matchedNeg = [];
         
+        let textLower = text.toLowerCase();
+
         for (const [term, weight] of Object.entries(FINANCE_LEXICON)) {
-            if (lower.includes(term)) {
-                bonus += weight;
+            if (textLower.includes(term)) {
+                let actualWeight = weight;
+                let isNegated = false;
+
+                // N-gram zıtlık kontrolü (Termin hemen öncesindeki 3 kelimeyi kontrol et)
+                let termIndex = textLower.indexOf(term);
+                let precedingText = textLower.substring(Math.max(0, termIndex - 25), termIndex);
+                
+                for (let neg of NEGATIONS) {
+                    if (precedingText.includes(neg)) {
+                        isNegated = true;
+                        break;
+                    }
+                }
+                // Türkçe sondaydan eklemeli olduğu için terimin sonrasına da bak (örn: "kâr beklentiyi aşamadı")
+                let followingText = textLower.substring(termIndex, termIndex + term.length + 15);
+                for (let neg of NEGATIONS) {
+                    if (followingText.includes(neg)) {
+                        isNegated = true;
+                        break;
+                    }
+                }
+
+                if (isNegated) actualWeight = actualWeight * -0.5; // Zıtlık varsa puanı tersine/düşürerek çevir
+
+                bonus += actualWeight;
                 hits += 1;
-                if (weight > 0) matchedPos.push(term);
-                else matchedNeg.push(term);
+
+                if (actualWeight > 0) matchedPos.push(isNegated ? `(Zıt) ${term}` : term);
+                else matchedNeg.push(isNegated ? `(Zıt) ${term}` : term);
             }
         }
         
@@ -329,35 +340,28 @@
         if (hits > 0) score = Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits)));
 
         let reasons = [];
-        if (matchedPos.length) reasons.push("Olumlu ifadeler: " + matchedPos.map(m => `'${m}'`).join(", "));
-        if (matchedNeg.length) reasons.push("Olumsuz ifadeler: " + matchedNeg.map(m => `'${m}'`).join(", "));
-        if (!matchedPos.length && !matchedNeg.length) reasons.push("Metinde belirgin bir finansal anahtar kelime bulunamadı, nötr varsayıldı.");
+        if (matchedPos.length) reasons.push("Olumlu sinyal algılandı: " + matchedPos.map(m => `'${m}'`).join(", "));
+        if (matchedNeg.length) reasons.push("Olumsuz sinyal algılandı: " + matchedNeg.map(m => `'${m}'`).join(", "));
+        if (!matchedPos.length && !matchedNeg.length) reasons.push("Metinde belirgin bir finansal etki bulunamadı, nötr varsayıldı.");
 
-        if (score >= 0.15) return { score, label: "Yükseliş Beklentisi", emoji: "🟢", reasons };
-        else if (score <= -0.15) return { score, label: "Düşüş Beklentisi", emoji: "🔴", reasons };
+        if (score >= 0.15) return { score, label: "Yükseliş", emoji: "🟢", reasons };
+        else if (score <= -0.15) return { score, label: "Düşüş", emoji: "🔴", reasons };
         else return { score, label: "Nötr", emoji: "⚪", reasons };
     }
 
-    // --- Gelişmiş Haber Çekme Fonksiyonu ---
-    async function showAssetNews(ticker, type) {
-        Swal.fire({
-            title: `<span style="color:var(--primary);">${ticker}</span> Haberleri Analiz Ediliyor`,
-            html: 'Son güncel haberler taranıyor ve yapay zeka ile duygu skorları oluşturuluyor...',
-            allowOutsideClick: false,
-            customClass: { popup: 'premium-modal' },
-            didOpen: () => { Swal.showLoading(); }
-        });
+    // --- OTOMATİK HABER & SİNYAL ÇEKİMİ ---
+    window.newsSignalCache = {}; // Her varlığın Al/Sat skoru burada tutulacak
+    window.newsItemsCache = {};  // Varlığın detaylı haber listesi burada tutulacak
 
+    async function fetchAndAnalyzeNewsSilently(ticker, type) {
         let filteredItems = [];
         const now = new Date();
-        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); // Hata almamak için aralığı 7 Güne Çıkardık
+        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
 
         try {
             if (type === 'US') {
-                // ABD hisseleri için doğrudan şirketin resmi API haberlerine bağlanıyoruz
                 const toDate = now.toISOString().split('T')[0];
                 const fromDate = past7Days.toISOString().split('T')[0];
-                
                 const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${ticker}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
                 const data = await res.json();
                 
@@ -365,28 +369,17 @@
                     data.slice(0, 15).forEach(news => {
                         const pubDate = new Date(news.datetime * 1000);
                         const sentiment = analyzeHeadline(news.headline);
-                        filteredItems.push({
-                            title: news.headline,
-                            link: news.url,
-                            date: pubDate.toLocaleString('tr-TR'),
-                            source: news.source,
-                            sentiment: sentiment,
-                            rawDate: pubDate
-                        });
+                        filteredItems.push({ title: news.headline, link: news.url, date: pubDate.toLocaleString('tr-TR'), source: news.source, sentiment: sentiment, rawDate: pubDate });
                     });
                 }
             } else {
-                // BİST Hisseleri için Google Haberler + RAW Proxy kullanımı (Daha stabil)
                 const cleanTicker = ticker.replace(".IS", ""); 
                 const query = `${cleanTicker} hisse haber`; 
                 const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
-                
-                // HTML formatlamasına takılmadan doğrudan RAW XML çekiyoruz
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
                 
                 const resp = await fetch(proxyUrl);
                 const xmlText = await resp.text();
-                
                 const parser = new DOMParser();
                 const xml = parser.parseFromString(xmlText, "application/xml");
                 const items = xml.querySelectorAll("item");
@@ -394,40 +387,45 @@
                 items.forEach(item => {
                     const title = item.querySelector("title")?.textContent || "";
                     const link = item.querySelector("link")?.textContent || "";
-                    const pubDateStr = item.querySelector("pubDate")?.textContent || "";
+                    const pubDate = new Date(item.querySelector("pubDate")?.textContent || "");
                     const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
-                    const pubDate = new Date(pubDateStr);
                     
                     if (pubDate >= past7Days) {
                         const sentiment = analyzeHeadline(title);
-                        filteredItems.push({ 
-                            title, link, 
-                            date: pubDate.toLocaleString('tr-TR'), 
-                            source, sentiment,
-                            rawDate: pubDate
-                        });
+                        filteredItems.push({ title, link, date: pubDate.toLocaleString('tr-TR'), source, sentiment, rawDate: pubDate });
                     }
                 });
             }
             
-            // Tarihe göre yeniden eskiye sıralama
             filteredItems.sort((a,b) => b.rawDate - a.rawDate);
-            renderNewsModal(ticker, filteredItems);
-            
+            window.newsItemsCache[ticker] = filteredItems;
+
+            // Genel Sinyal Skoru Hesaplama
+            if (filteredItems.length > 0) {
+                let totalScore = 0;
+                filteredItems.forEach(item => totalScore += item.sentiment.score);
+                let avgScore = totalScore / filteredItems.length;
+
+                let overallSignal = 'NÖTR';
+                let signalClass = 'signal-neutral';
+                if (avgScore >= 0.20) { overallSignal = 'AL'; signalClass = 'signal-buy'; }
+                else if (avgScore <= -0.20) { overallSignal = 'SAT'; signalClass = 'signal-sell'; }
+
+                window.newsSignalCache[ticker] = { signal: overallSignal, class: signalClass, score: avgScore };
+            } else {
+                window.newsSignalCache[ticker] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
+            }
+
         } catch (e) {
-            console.error(e);
-            Swal.fire('Hata', 'Haberler çekilirken bir sorun oluştu. İnternet bağlantınızı veya ağınızı kontrol edin.', 'error');
+            console.error("Haber analizi arka planda başarısız oldu: ", e);
         }
     }
 
-    function renderNewsModal(ticker, newsItems) {
+    function showAssetNewsModal(ticker) {
+        const newsItems = window.newsItemsCache[ticker] || [];
+        
         if (newsItems.length === 0) {
-            Swal.fire({
-                title: `${ticker} Haberleri`,
-                html: '<div style="padding: 20px; opacity: 0.6;">Son 7 gün içerisinde bu varlık için önemli bir haber bulunamadı.</div>',
-                customClass: { popup: 'premium-modal' },
-                confirmButtonText: 'Kapat'
-            });
+            Swal.fire({ title: `${ticker} Haberleri`, html: '<div style="padding: 20px; opacity: 0.6;">Son 7 gün içerisinde bu varlık için önemli bir haber bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' });
             return;
         }
 
@@ -437,57 +435,37 @@
             html += `
                 <div class="news-item">
                     <div class="news-header">
-                        <div class="news-title">
-                            <a href="${item.link}" target="_blank">${item.title}</a>
-                        </div>
+                        <div class="news-title"><a href="${item.link}" target="_blank">${item.title}</a></div>
                         <div class="news-sentiment">
                             <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">
                                 ${item.sentiment.emoji} ${item.sentiment.label}
                             </div>
-                            <div class="news-score">Skor: ${item.sentiment.score.toFixed(3)}</div>
+                            <div class="news-score">Skor: ${item.sentiment.score.toFixed(2)}</div>
                         </div>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">
-                        <b>${item.source}</b> &bull; ${item.date}
-                    </div>
-                    <div class="news-reasons">
-                        ${item.sentiment.reasons.join('<br>')}
-                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);"><b>${item.source}</b> &bull; ${item.date}</div>
+                    <div class="news-reasons">${item.sentiment.reasons.join('<br>')}</div>
                 </div>
             `;
         });
         html += '</div>';
 
-        Swal.fire({
-            title: `📰 ${ticker} Piyasa Haberleri`,
-            html: html,
-            width: 700,
-            showCloseButton: true,
-            confirmButtonText: 'Kapat',
-            customClass: { popup: 'premium-modal' }
-        });
+        Swal.fire({ title: `📰 ${ticker} Piyasa Haberleri`, html: html, width: 700, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
     }
 
     // --- API & State Tanımlamaları ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV7';
+    const STORAGE_KEY = 'proApp_wealthTrackerV8';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!appData || !appData.weeks) {
-        appData = {
-            baseCapital: 100000,
-            targetRate: 5.0,
-            currentWeekNum: 1,
-            assets: [], 
-            weeks: [ { weekNum: 1, logs: [] } ]
-        };
+        appData = { baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ] };
     }
 
     let livePricesCache = {}; 
-    let usdRateCache = 34.0; // Varsayılan kur
+    let usdRateCache = 34.0; 
     let chartInstance = null;
     let modalChartInstance = null;
-
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#1e293b', color: '#f8fafc' });
 
     // --- Formatlayıcılar ---
@@ -500,7 +478,6 @@
         document.getElementById('baseCapital').value = appData.baseCapital;
         document.getElementById('targetRate').value = appData.targetRate;
         updateWeekDropdown();
-        
         await fetchAllLivePrices();
         updateDashboard();
     }
@@ -546,7 +523,7 @@
     async function fetchAllLivePrices() {
         Swal.fire({ 
             title: 'Senkronize Ediliyor', 
-            html: 'Piyasa verileri güncelleniyor...', 
+            html: 'Piyasa verileri, fiyatlar ve haber analizleri güncelleniyor...', 
             allowOutsideClick: false, 
             customClass: { popup: 'premium-modal' },
             didOpen: () => { Swal.showLoading(); } 
@@ -554,11 +531,20 @@
         
         usdRateCache = await fetchUsdTryRate();
         
+        let fetchPromises = [];
+
         for (let asset of appData.assets) {
-            if (asset.type === 'US') livePricesCache[asset.name] = await fetchUSPrice(asset.name);
-            else if (asset.type === 'TR') livePricesCache[asset.name] = await fetchTRPrice(asset.name);
+            if (asset.type === 'US') {
+                fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
+                fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
+            }
+            else if (asset.type === 'TR') {
+                fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
+                fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
+            }
         }
         
+        await Promise.all(fetchPromises);
         Swal.close();
         renderAssets();
     }
@@ -603,30 +589,15 @@
     }
 
     function addManualAsset() {
-        appData.assets.push({
-            id: Date.now().toString(),
-            name: 'Yeni Nakit/Varlık',
-            type: 'MANUAL',
-            amount: 1,
-            manualValue: 0
-        });
-        saveData();
-        renderAssets();
+        appData.assets.push({ id: Date.now().toString(), name: 'Yeni Nakit/Varlık', type: 'MANUAL', amount: 1, manualValue: 0 });
+        saveData(); renderAssets();
     }
 
-    function removeAsset(id) {
-        appData.assets = appData.assets.filter(a => a.id !== id);
-        saveData();
-        renderAssets();
-    }
+    function removeAsset(id) { appData.assets = appData.assets.filter(a => a.id !== id); saveData(); renderAssets(); }
 
     function updateAsset(id, field, value) {
         const asset = appData.assets.find(a => a.id === id);
-        if (asset) {
-            asset[field] = field === 'name' ? value : (parseFloat(value) || 0);
-            saveData();
-            renderAssets(false); 
-        }
+        if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(false); }
     }
 
     function renderAssets(rebuildDOM = true) {
@@ -662,24 +633,27 @@
                 const price = livePricesCache[asset.name] || 0;
                 
                 if (asset.type === 'US') {
-                    const totalUSD = asset.amount * price;
-                    assetTotalTRY = totalUSD * usdRateCache;
+                    assetTotalTRY = (asset.amount * price) * usdRateCache;
                     displaySubText = `Fiyat: $${price.toFixed(2)} &nbsp;|&nbsp; USD/TRY: ₺${usdRateCache.toFixed(2)}`;
                 } else if (asset.type === 'TR') {
                     assetTotalTRY = asset.amount * price;
                     displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`;
                 }
 
+                // Sinyal Rozetini Al
+                const signalData = window.newsSignalCache[asset.name] || { signal: 'NÖTR', class: 'signal-neutral' };
+
                 html += `
                     <div class="asset-card">
                         <div class="btn-action-group">
-                            <button onclick="showAssetNews('${asset.name}', '${asset.type}')" class="btn-news" title="Son 7 Gün Haberleri">📰 Haberler</button>
+                            <button onclick="showAssetNewsModal('${asset.name}')" class="btn-news" title="Haber Analizini Gör">📰 Haberler</button>
                             <button class="btn-del" onclick="removeAsset('${asset.id}')">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                             </button>
                         </div>
                         <div class="asset-header">
                             <div class="asset-title">${asset.name} <span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span></div>
+                            <div class="signal-badge ${signalData.class}">${signalData.signal}</div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">${displaySubText}</div>
                         <div class="asset-inputs" style="margin-top: 4px;">
@@ -696,9 +670,7 @@
             totalLiveValue += assetTotalTRY;
         });
 
-        if (rebuildDOM) container.innerHTML = html;
-        else container.innerHTML = html; 
-        
+        container.innerHTML = html; 
         document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
     }
 
@@ -834,7 +806,6 @@
         });
     }
 
-    // --- Hafta İçi Detay Modalı ---
     function showWeekDetails(weekNum) {
         const week = appData.weeks.find(w => w.weekNum === weekNum);
         if(!week || week.logs.length === 0) return;
@@ -872,45 +843,21 @@
 
         Swal.fire({
             title: `Hafta ${weekNum} İlerleme Analizi`,
-            html: modalHtml,
-            width: 800,
-            showCloseButton: true,
-            showConfirmButton: false,
-            customClass: { popup: 'premium-modal' },
+            html: modalHtml, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
             didOpen: () => {
                 const ctx = document.getElementById('modalChartCanvas').getContext('2d');
-                
                 const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]);
                 const data = week.logs.map(log => log.total);
 
                 if (modalChartInstance) modalChartInstance.destroy();
-
                 Chart.defaults.color = '#94a3b8';
                 modalChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: labels,
-                        datasets: [{
-                            label: 'Portföy Değeri',
-                            data: data,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#3b82f6',
-                            pointBorderColor: '#fff',
-                            pointRadius: 4,
-                            fill: true,
-                            tension: 0.3
-                        }]
+                        datasets: [{ label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 4, fill: true, tension: 0.3 }]
                     },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } },
-                            x: { grid: { display: false } }
-                        }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false } } } }
                 });
             }
         });
@@ -925,7 +872,6 @@
         const actualData = [appData.baseCapital, ...weeksWithLogs.map(w => w.logs[w.logs.length - 1].total)];
 
         if (chartInstance) chartInstance.destroy();
-
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.font.family = "'Inter', sans-serif";
 
@@ -938,14 +884,7 @@
                     { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.3 }
                 ]
             },
-            options: { 
-                responsive: true, maintainAspectRatio: false, 
-                interaction: { intersect: false, mode: 'index' },
-                scales: {
-                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    x: { grid: { display: false } }
-                } 
-            }
+            options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }, x: { grid: { display: false } } } }
         });
     }
 
