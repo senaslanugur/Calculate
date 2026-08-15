@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık & Getiri Yönetimi V6 (Yapay Zeka Destekli Haber Akışı)</title>
+    <title>Pro Varlık & Getiri Yönetimi V7 (Pro Haber Akışı)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -146,7 +146,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V6</span>
+        ProPortföy <span>V7</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -286,7 +286,7 @@
         fetchAllLivePrices();
     }
 
-    // --- Finansal Haber Sözlüğü (Python Entegrasyonu[span_5](start_span)[span_5](end_span)) ---
+    // --- Finansal Haber Sözlüğü ---
     const FINANCE_LEXICON = {
         "beats": 3.0, "beat estimates": 3.5, "surge": 3.0, "surges": 3.0,
         "soar": 3.0, "soars": 3.0, "rally": 2.5, "record high": 3.0,
@@ -316,7 +316,6 @@
         let matchedPos = [];
         let matchedNeg = [];
         
-        // Lexicon tabanlı analiz[span_6](start_span)[span_6](end_span)
         for (const [term, weight] of Object.entries(FINANCE_LEXICON)) {
             if (lower.includes(term)) {
                 bonus += weight;
@@ -326,74 +325,98 @@
             }
         }
         
-        // Skor hesaplama kurgusu[span_7](start_span)[span_7](end_span)
         let score = 0;
-        if (hits > 0) {
-            score = Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits)));
-        }
+        if (hits > 0) score = Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits)));
 
         let reasons = [];
         if (matchedPos.length) reasons.push("Olumlu ifadeler: " + matchedPos.map(m => `'${m}'`).join(", "));
         if (matchedNeg.length) reasons.push("Olumsuz ifadeler: " + matchedNeg.map(m => `'${m}'`).join(", "));
         if (!matchedPos.length && !matchedNeg.length) reasons.push("Metinde belirgin bir finansal anahtar kelime bulunamadı, nötr varsayıldı.");
 
-        // Yükseliş / Düşüş eşik değerleri[span_8](start_span)[span_8](end_span)
         if (score >= 0.15) return { score, label: "Yükseliş Beklentisi", emoji: "🟢", reasons };
         else if (score <= -0.15) return { score, label: "Düşüş Beklentisi", emoji: "🔴", reasons };
         else return { score, label: "Nötr", emoji: "⚪", reasons };
     }
 
-    // Haber Çekme Fonksiyonu (Google News Proxy)
+    // --- Gelişmiş Haber Çekme Fonksiyonu ---
     async function showAssetNews(ticker, type) {
         Swal.fire({
             title: `<span style="color:var(--primary);">${ticker}</span> Haberleri Analiz Ediliyor`,
-            html: 'Son 24 saate ait güncel haberler taranıyor ve duygu skorları oluşturuluyor...',
+            html: 'Son güncel haberler taranıyor ve yapay zeka ile duygu skorları oluşturuluyor...',
             allowOutsideClick: false,
             customClass: { popup: 'premium-modal' },
             didOpen: () => { Swal.showLoading(); }
         });
 
-        // Arama sorgusu ve link yapılandırması[span_9](start_span)[span_9](end_span)
-        const cleanTicker = ticker.replace(".IS", ""); 
-        const query = type === 'TR' ? `${cleanTicker} hisse haber` : `${cleanTicker} stock news`; 
-        const rssUrl = type === 'TR' 
-            ? `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`
-            : `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
-            
-        // Tarayıcı üzerinden RSS okumak için CORS Proxy kullanımı
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
-        
+        let filteredItems = [];
+        const now = new Date();
+        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); // Hata almamak için aralığı 7 Güne Çıkardık
+
         try {
-            const resp = await fetch(proxyUrl);
-            const data = await resp.json();
-            
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(data.contents, "application/xml");
-            const items = xml.querySelectorAll("item");
-            
-            // Son 24 saat kuralı[span_10](start_span)[span_10](end_span)
-            const now = new Date();
-            const past24Hours = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-            
-            let filteredItems = [];
-            items.forEach(item => {
-                const title = item.querySelector("title")?.textContent || "";
-                const link = item.querySelector("link")?.textContent || "";
-                const pubDateStr = item.querySelector("pubDate")?.textContent || "";
-                const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
-                const pubDate = new Date(pubDateStr);
+            if (type === 'US') {
+                // ABD hisseleri için doğrudan şirketin resmi API haberlerine bağlanıyoruz
+                const toDate = now.toISOString().split('T')[0];
+                const fromDate = past7Days.toISOString().split('T')[0];
                 
-                if (pubDate >= past24Hours) {
-                    const sentiment = analyzeHeadline(title);
-                    filteredItems.push({ title, link, date: pubDate.toLocaleString('tr-TR'), source, sentiment });
+                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${ticker}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
+                const data = await res.json();
+                
+                if (data && data.length > 0) {
+                    data.slice(0, 15).forEach(news => {
+                        const pubDate = new Date(news.datetime * 1000);
+                        const sentiment = analyzeHeadline(news.headline);
+                        filteredItems.push({
+                            title: news.headline,
+                            link: news.url,
+                            date: pubDate.toLocaleString('tr-TR'),
+                            source: news.source,
+                            sentiment: sentiment,
+                            rawDate: pubDate
+                        });
+                    });
                 }
-            });
+            } else {
+                // BİST Hisseleri için Google Haberler + RAW Proxy kullanımı (Daha stabil)
+                const cleanTicker = ticker.replace(".IS", ""); 
+                const query = `${cleanTicker} hisse haber`; 
+                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
+                
+                // HTML formatlamasına takılmadan doğrudan RAW XML çekiyoruz
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+                
+                const resp = await fetch(proxyUrl);
+                const xmlText = await resp.text();
+                
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "application/xml");
+                const items = xml.querySelectorAll("item");
+                
+                items.forEach(item => {
+                    const title = item.querySelector("title")?.textContent || "";
+                    const link = item.querySelector("link")?.textContent || "";
+                    const pubDateStr = item.querySelector("pubDate")?.textContent || "";
+                    const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
+                    const pubDate = new Date(pubDateStr);
+                    
+                    if (pubDate >= past7Days) {
+                        const sentiment = analyzeHeadline(title);
+                        filteredItems.push({ 
+                            title, link, 
+                            date: pubDate.toLocaleString('tr-TR'), 
+                            source, sentiment,
+                            rawDate: pubDate
+                        });
+                    }
+                });
+            }
             
-            filteredItems.sort((a,b) => new Date(b.date) - new Date(a.date));
+            // Tarihe göre yeniden eskiye sıralama
+            filteredItems.sort((a,b) => b.rawDate - a.rawDate);
             renderNewsModal(ticker, filteredItems);
             
         } catch (e) {
-            Swal.fire('Hata', 'Haberler çekilirken bir sorun oluştu.', 'error');
+            console.error(e);
+            Swal.fire('Hata', 'Haberler çekilirken bir sorun oluştu. İnternet bağlantınızı veya ağınızı kontrol edin.', 'error');
         }
     }
 
@@ -401,7 +424,7 @@
         if (newsItems.length === 0) {
             Swal.fire({
                 title: `${ticker} Haberleri`,
-                html: '<div style="padding: 20px; opacity: 0.6;">Son 24 saat içerisinde bu varlık için önemli bir haber bulunamadı.</div>',
+                html: '<div style="padding: 20px; opacity: 0.6;">Son 7 gün içerisinde bu varlık için önemli bir haber bulunamadı.</div>',
                 customClass: { popup: 'premium-modal' },
                 confirmButtonText: 'Kapat'
             });
@@ -436,7 +459,7 @@
         html += '</div>';
 
         Swal.fire({
-            title: `📰 ${ticker} Son 24 Saat Haberleri`,
+            title: `📰 ${ticker} Piyasa Haberleri`,
             html: html,
             width: 700,
             showCloseButton: true,
@@ -447,7 +470,7 @@
 
     // --- API & State Tanımlamaları ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV6';
+    const STORAGE_KEY = 'proApp_wealthTrackerV7';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!appData || !appData.weeks) {
@@ -455,7 +478,7 @@
             baseCapital: 100000,
             targetRate: 5.0,
             currentWeekNum: 1,
-            assets: [], // { id, name, type: 'MANUAL'|'US'|'TR', amount, manualValue }
+            assets: [], 
             weeks: [ { weekNum: 1, logs: [] } ]
         };
     }
@@ -491,7 +514,7 @@
         Toast.fire({ icon: 'success', title: 'Strateji güncellendi' });
     }
 
-    // --- API İstekleri ---
+    // --- Fiyat İstekleri ---
     async function fetchUsdTryRate() {
         try {
             const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY');
@@ -650,7 +673,7 @@
                 html += `
                     <div class="asset-card">
                         <div class="btn-action-group">
-                            <button onclick="showAssetNews('${asset.name}', '${asset.type}')" class="btn-news" title="Son 24 Saat Haberleri">📰 Haberler</button>
+                            <button onclick="showAssetNews('${asset.name}', '${asset.type}')" class="btn-news" title="Son 7 Gün Haberleri">📰 Haberler</button>
                             <button class="btn-del" onclick="removeAsset('${asset.id}')">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                             </button>
