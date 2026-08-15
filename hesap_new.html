@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali V11 (500+ ABD Hisse Radarı)</title>
+    <title>Pro Varlık Terminali V12 (Kusursuz AI Radar)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- TradingView Lightweight Charts -->
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -157,7 +157,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V11</span>
+        ProPortföy <span>V12</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -170,7 +170,7 @@
             </a>
             <a href="#" class="dropdown-item" onclick="runRadarScan()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
-                TradingView Radarını Tara
+                ABD Radarını Tara
             </a>
             <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -180,19 +180,19 @@
     </div>
 </header>
 
-<!-- RADAR SLIDER: TradingView Scanner Tabanlı ABD Radarı -->
+<!-- RADAR SLIDER: Güvenli Fallback Mimarili ABD Radarı -->
 <div class="radar-section">
     <div class="radar-header">
         <div class="radar-title">
             🔥 AI Piyasa Radarı: Güçlü Alım Sinyalleri 
-            <span id="radarCountBadge">TRADINGVIEW HAVUZU</span>
+            <span id="radarCountBadge">HİSSE HAVUZU</span>
         </div>
         <div class="radar-controls">
             <select id="radarPoolSize" class="radar-select" onchange="runRadarScan()">
-                <option value="100">100 Hisse Tara</option>
-                <option value="300">300 Hisse Tara</option>
-                <option value="500" selected>500 Hisse Tara</option>
-                <option value="1000">1000 Hisse Tara</option>
+                <option value="100">100 Hisse</option>
+                <option value="300">300 Hisse</option>
+                <option value="500" selected>500 Hisse</option>
+                <option value="1000">1000 Hisse</option>
             </select>
             <button onclick="runRadarScan()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; font-weight: 700;">Yeniden Tara</button>
         </div>
@@ -203,7 +203,7 @@
     </div>
 
     <div class="radar-slider" id="radarSlider">
-        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">TradingView ABD hisse havuzu taranıyor ve duygu analizinden geçiriliyor...</div>
+        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">ABD hisseleri çekiliyor ve yapay zeka analizinden geçiriliyor...</div>
     </div>
 </div>
 
@@ -328,38 +328,34 @@
         else return { score, label: "NÖTR", emoji: "⚪", reasons };
     }
 
-    // --- TRADINGVIEW SCANNER API: 500-1000 HİSSE ÇEKİMİ ---
+    // --- GÜVENLİ TRADINGVIEW / FINNHUB SCANNER KÖPRÜSÜ ---
     async function fetchTradingViewSymbols(maxCount = 500) {
         const url = "https://scanner.tradingview.com/america/scan";
         let symbols = [];
         let start = 0;
         const pageSize = 150;
+        let tvFailed = false;
+
+        // Tarayıcı engelini aşmak için POST destekli CORS Proxy
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
 
         while (start < maxCount) {
             const payload = {
                 filter: [{ left: "type", operation: "equal", right: "stock" }],
                 symbols: { query: { types: [] }, tickers: [] },
-                columns: ["name", "description", "market_cap_basic", "volume"],
+                columns: ["name", "description"],
                 sort: { sortBy: "market_cap_basic", sortOrder: "desc" },
                 range: [start, Math.min(start + pageSize, maxCount)]
             };
 
             try {
-                let resp = await fetch(url, {
+                const resp = await fetch(proxyUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
-                
-                if (!resp.ok) {
-                    // CORS fallback proxy
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                    resp = await fetch(proxyUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
-                    });
-                }
+
+                if (!resp.ok) throw new Error("CORS Proxy veya TV engelledi.");
 
                 const data = await resp.json();
                 if (!data.data || data.data.length === 0) break;
@@ -374,15 +370,32 @@
                 start += pageSize;
                 if (data.data.length < pageSize) break;
             } catch (err) {
-                console.warn("TradingView Scanner isteği başarısız:", err);
+                console.warn("TradingView aracı başarısız oldu. Finnhub yedeği devreye giriyor...", err);
+                tvFailed = true;
                 break;
             }
         }
 
-        // Yedek Havuz (Bağlantı kısıtlamasında çalışacak S&P 500 hisseleri)
-        if (symbols.length === 0) {
-            const fallback = ["NVDA","AAPL","MSFT","AMZN","GOOGL","META","TSLA","AVGO","AMD","NFLX","PLTR","LLY","BRK-B","JPM","V","XOM","UNH","MA","COST","HD","PG","JNJ","CRM","BAC","ABBV","ORCL","CVX","MRK","KO","PEP"];
-            symbols = fallback.map(s => ({ symbol: s, name: s }));
+        // KUSURSUZ YEDEK PLAN (FAILOVER): Eğer tarayıcı/proxy TradingView'i ezerse, doğrudan Finnhub API'sinden 10.000+ hisseyi çekip doldururuz.
+        if (tvFailed || symbols.length === 0) {
+            try {
+                const fhRes = await fetch(`https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${FINNHUB_KEY}`);
+                const fhData = await fhRes.json();
+                
+                // Common Stock olanları filtrele
+                const commonStocks = fhData.filter(d => d.type === "Common Stock" && !d.symbol.includes("."));
+                
+                // En güçlü devleri zorunlu olarak başa alalım
+                const popular = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK.B","AVGO","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK","ABBV","CRM","BAC","CVX","NFLX","AMD","KO","PEP"];
+                
+                let fallbackSymbols = [];
+                popular.forEach(p => fallbackSymbols.push({ symbol: p.replace(".","-"), name: p }));
+                commonStocks.forEach(item => { if (!popular.includes(item.symbol)) fallbackSymbols.push({ symbol: item.symbol, name: item.description }); });
+
+                symbols = fallbackSymbols;
+            } catch(e) {
+                console.error("Finnhub yedeği de başarısız", e);
+            }
         }
 
         return symbols.slice(0, maxCount);
@@ -398,7 +411,7 @@
 
         progressBar.style.display = 'block';
         progressFill.style.width = '5%';
-        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">TradingView üzerinden hisse listesi çekiliyor...</div>';
+        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">ABD hisseleri çekiliyor (Bu işlem tarayıcı hızınıza göre birkaç saniye sürebilir)...</div>';
 
         const tvSymbols = await fetchTradingViewSymbols(poolSize);
         countBadge.innerText = `${tvSymbols.length} HİSSE TARANIYOR`;
@@ -407,22 +420,20 @@
         const toDate = now.toISOString().split('T')[0];
         const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
 
-        // Finnhub Genel Piyasa Haberlerini Toplu Çek (En güncel haberleri anında yakalamak için)
+        // Finnhub Genel Piyasa Haberlerini Toplu Çek (Tek tek istek atmamak ve sistemi hızlandırmak için)
         let marketNewsMap = {};
         try {
             const res = await fetch(`https://finnhub.io/api/v1/news?category=general&token=${FINNHUB_KEY}`);
             const genNews = await res.json();
             if (Array.isArray(genNews)) {
                 genNews.forEach(n => {
-                    if (n.related) {
-                        marketNewsMap[n.related.toUpperCase()] = n;
-                    }
+                    if (n.related) marketNewsMap[n.related.toUpperCase()] = n;
                 });
             }
         } catch(e) {}
 
         let analyzedResults = [];
-        const batchSize = 15;
+        const batchSize = 15; // Asenkron istek kuyruğu
         
         for (let i = 0; i < tvSymbols.length; i += batchSize) {
             const chunk = tvSymbols.slice(i, i + batchSize);
@@ -434,9 +445,7 @@
                     if (!latestNews) {
                         const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${item.symbol}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
                         const newsData = await res.json();
-                        if (Array.isArray(newsData) && newsData.length > 0) {
-                            latestNews = newsData[0];
-                        }
+                        if (Array.isArray(newsData) && newsData.length > 0) latestNews = newsData[0];
                     }
 
                     if (latestNews) {
@@ -458,7 +467,6 @@
             const batchRes = await Promise.all(chunkPromises);
             batchRes.forEach(r => { if (r) analyzedResults.push(r); });
 
-            // Canlı Progress Bar Güncellemesi
             const pct = Math.min(100, Math.round(((i + batchSize) / tvSymbols.length) * 100));
             progressFill.style.width = `${pct}%`;
         }
@@ -535,7 +543,7 @@
 
     // --- Global Değişkenler & State ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV11';
+    const STORAGE_KEY = 'proApp_wealthTrackerV12';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
@@ -669,11 +677,18 @@
         usdRateCache = await fetchUsdTryRate();
         let fetchPromises = [];
 
+        window.newsSignalCache = window.newsSignalCache || {};
+
         for (let asset of appData.assets) {
             if (asset.type === 'US') {
                 fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             } else if (asset.type === 'TR') {
                 fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
+            }
+            
+            // Eğer daha önceden arka planda sinyali oluşmamışsa, hızlıca oluştur
+            if (!window.newsSignalCache[asset.name]) {
+                window.newsSignalCache[asset.name] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
             }
         }
         
