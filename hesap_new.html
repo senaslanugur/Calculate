@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali V10 (TradingView & AI Radar)</title>
+    <title>Pro Varlık Terminali V11 (500+ ABD Hisse Radarı)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- TradingView Lightweight Charts -->
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -26,7 +26,7 @@
         .logo span { background: linear-gradient(135deg, var(--primary), #60a5fa); color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; }
         
         .menu-container { position: relative; }
-        .btn-hamburger { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.2rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn-hamburger { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.2rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-hamburger:hover { background: var(--input-bg); border-color: var(--primary); color: var(--primary); }
         .dropdown-menu { position: absolute; right: 0; top: calc(100% + 12px); background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; width: 240px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
@@ -37,12 +37,18 @@
 
         /* RADAR SLIDER SECTION */
         .radar-section { max-width: 1240px; margin: 20px auto 0; padding: 0 20px; }
-        .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
         .radar-title { font-size: 0.95rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .radar-title span { color: var(--success); font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); }
         
+        .radar-controls { display: flex; align-items: center; gap: 10px; }
+        .radar-select { background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; outline: none; }
+        
+        .radar-progress-bar { width: 100%; height: 4px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 10px; display: none; }
+        .radar-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.2s; }
+
         .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; }
-        .radar-card { flex: 0 0 220px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .radar-card { flex: 0 0 240px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .radar-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 8px 20px var(--primary-glow); }
         .radar-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .radar-symbol { font-size: 1.15rem; font-weight: 900; color: white; }
@@ -50,10 +56,11 @@
         .radar-score { font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
         .score-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
         .score-neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3); }
+        .score-sell { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
         .radar-headline { font-size: 0.75rem; color: #cbd5e1; margin: 10px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35; font-weight: 500; }
         .radar-footer { font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
 
-        /* Main Container Layout */
+        /* Main Container */
         .app-container { max-width: 1240px; margin: 16px auto; padding: 0 20px; display: grid; gap: 24px; }
         @media (min-width: 1024px) { .app-container { grid-template-columns: 400px 1fr; } }
 
@@ -150,7 +157,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V10</span>
+        ProPortföy <span>V11</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -163,7 +170,7 @@
             </a>
             <a href="#" class="dropdown-item" onclick="runRadarScan()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
-                ABD Radarını Tara
+                TradingView Radarını Tara
             </a>
             <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -173,16 +180,30 @@
     </div>
 </header>
 
-<!-- RADAR SLIDER: En Güçlü AL Veren ABD Hisseleri -->
+<!-- RADAR SLIDER: TradingView Scanner Tabanlı ABD Radarı -->
 <div class="radar-section">
     <div class="radar-header">
         <div class="radar-title">
-            🔥 AI Piyasa Radarı: Güçlü Alım Sinyalleri <span>CANLI HABER ANALİZİ</span>
+            🔥 AI Piyasa Radarı: Güçlü Alım Sinyalleri 
+            <span id="radarCountBadge">TRADINGVIEW HAVUZU</span>
         </div>
-        <button onclick="runRadarScan()" class="btn-outline" style="width: auto; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 700;">Yeniden Tara</button>
+        <div class="radar-controls">
+            <select id="radarPoolSize" class="radar-select" onchange="runRadarScan()">
+                <option value="100">100 Hisse Tara</option>
+                <option value="300">300 Hisse Tara</option>
+                <option value="500" selected>500 Hisse Tara</option>
+                <option value="1000">1000 Hisse Tara</option>
+            </select>
+            <button onclick="runRadarScan()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; font-weight: 700;">Yeniden Tara</button>
+        </div>
     </div>
+    
+    <div class="radar-progress-bar" id="radarProgressBar">
+        <div class="radar-progress-fill" id="radarProgressFill"></div>
+    </div>
+
     <div class="radar-slider" id="radarSlider">
-        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Hisseler taranıyor ve duygu skorlarına göre sıralanıyor...</div>
+        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">TradingView ABD hisse havuzu taranıyor ve duygu analizinden geçiriliyor...</div>
     </div>
 </div>
 
@@ -298,79 +319,164 @@
         }
         let score = hits > 0 ? Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits))) : 0;
         let reasons = [];
-        if (matchedPos.length) reasons.push("Olumlu sinyaller: " + matchedPos.join(", "));
-        if (matchedNeg.length) reasons.push("Olumsuz sinyaller: " + matchedNeg.join(", "));
-        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki yok (Nötr).");
+        if (matchedPos.length) reasons.push("Olumlu: " + matchedPos.join(", "));
+        if (matchedNeg.length) reasons.push("Olumsuz: " + matchedNeg.join(", "));
+        if (!matchedPos.length && !matchedNeg.length) reasons.push("Nötr piyasa etkisi.");
 
         if (score >= 0.15) return { score, label: "AL", emoji: "🟢", reasons };
         else if (score <= -0.15) return { score, label: "SAT", emoji: "🔴", reasons };
         else return { score, label: "NÖTR", emoji: "⚪", reasons };
     }
 
-    // --- ABD RADAR HAVUZU (S&P 500 / NASDAQ Devleri) ---
-    const US_RADAR_POOL = [
-        { symbol: "NVDA", name: "NVIDIA Corp." },
-        { symbol: "AAPL", name: "Apple Inc." },
-        { symbol: "MSFT", name: "Microsoft Corp." },
-        { symbol: "AMZN", name: "Amazon.com Inc." },
-        { symbol: "GOOGL", name: "Alphabet Inc." },
-        { symbol: "META", name: "Meta Platforms" },
-        { symbol: "TSLA", name: "Tesla Inc." },
-        { symbol: "AVGO", name: "Broadcom Inc." },
-        { symbol: "AMD",  name: "Advanced Micro Devices" },
-        { symbol: "NFLX", name: "Netflix Inc." },
-        { symbol: "PLTR", name: "Palantir Tech" },
-        { symbol: "LLY",  name: "Eli Lilly and Co." }
-    ];
+    // --- TRADINGVIEW SCANNER API: 500-1000 HİSSE ÇEKİMİ ---
+    async function fetchTradingViewSymbols(maxCount = 500) {
+        const url = "https://scanner.tradingview.com/america/scan";
+        let symbols = [];
+        let start = 0;
+        const pageSize = 150;
 
+        while (start < maxCount) {
+            const payload = {
+                filter: [{ left: "type", operation: "equal", right: "stock" }],
+                symbols: { query: { types: [] }, tickers: [] },
+                columns: ["name", "description", "market_cap_basic", "volume"],
+                sort: { sortBy: "market_cap_basic", sortOrder: "desc" },
+                range: [start, Math.min(start + pageSize, maxCount)]
+            };
+
+            try {
+                let resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!resp.ok) {
+                    // CORS fallback proxy
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    resp = await fetch(proxyUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const data = await resp.json();
+                if (!data.data || data.data.length === 0) break;
+
+                data.data.forEach(item => {
+                    let rawSymbol = item.s || "";
+                    let sym = rawSymbol.includes(":") ? rawSymbol.split(":")[1] : rawSymbol;
+                    let desc = (item.d && item.d[1]) ? item.d[1] : sym;
+                    symbols.push({ symbol: sym.replace(".", "-"), name: desc });
+                });
+
+                start += pageSize;
+                if (data.data.length < pageSize) break;
+            } catch (err) {
+                console.warn("TradingView Scanner isteği başarısız:", err);
+                break;
+            }
+        }
+
+        // Yedek Havuz (Bağlantı kısıtlamasında çalışacak S&P 500 hisseleri)
+        if (symbols.length === 0) {
+            const fallback = ["NVDA","AAPL","MSFT","AMZN","GOOGL","META","TSLA","AVGO","AMD","NFLX","PLTR","LLY","BRK-B","JPM","V","XOM","UNH","MA","COST","HD","PG","JNJ","CRM","BAC","ABBV","ORCL","CVX","MRK","KO","PEP"];
+            symbols = fallback.map(s => ({ symbol: s, name: s }));
+        }
+
+        return symbols.slice(0, maxCount);
+    }
+
+    // --- ABD RADAR TARAMASI (TÜM HİSSELERİ İŞLEYİP SIRALAMA) ---
     async function runRadarScan() {
         const slider = document.getElementById('radarSlider');
-        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">ABD hisseleri yapay zeka ile taranıyor...</div>';
+        const countBadge = document.getElementById('radarCountBadge');
+        const progressBar = document.getElementById('radarProgressBar');
+        const progressFill = document.getElementById('radarProgressFill');
+        const poolSize = parseInt(document.getElementById('radarPoolSize').value) || 500;
+
+        progressBar.style.display = 'block';
+        progressFill.style.width = '5%';
+        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">TradingView üzerinden hisse listesi çekiliyor...</div>';
+
+        const tvSymbols = await fetchTradingViewSymbols(poolSize);
+        countBadge.innerText = `${tvSymbols.length} HİSSE TARANIYOR`;
 
         const now = new Date();
         const toDate = now.toISOString().split('T')[0];
         const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
 
-        let results = [];
-
-        for (let item of US_RADAR_POOL) {
-            try {
-                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${item.symbol}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    const latest = data[0];
-                    const sentiment = analyzeHeadline(latest.headline);
-                    results.push({
-                        symbol: item.symbol,
-                        name: item.name,
-                        headline: latest.headline,
-                        url: latest.url,
-                        source: latest.source,
-                        date: new Date(latest.datetime * 1000).toLocaleDateString('tr-TR'),
-                        sentiment: sentiment
-                    });
-                } else {
-                    results.push({
-                        symbol: item.symbol,
-                        name: item.name,
-                        headline: "Son 7 günde önemli haber bulunamadı.",
-                        url: "",
-                        source: "Piyasa",
-                        date: "Güncel",
-                        sentiment: { score: 0, label: "NÖTR", emoji: "⚪", reasons: [] }
-                    });
-                }
-            } catch (e) {
-                console.warn(item.symbol + " taranamadı");
+        // Finnhub Genel Piyasa Haberlerini Toplu Çek (En güncel haberleri anında yakalamak için)
+        let marketNewsMap = {};
+        try {
+            const res = await fetch(`https://finnhub.io/api/v1/news?category=general&token=${FINNHUB_KEY}`);
+            const genNews = await res.json();
+            if (Array.isArray(genNews)) {
+                genNews.forEach(n => {
+                    if (n.related) {
+                        marketNewsMap[n.related.toUpperCase()] = n;
+                    }
+                });
             }
+        } catch(e) {}
+
+        let analyzedResults = [];
+        const batchSize = 15;
+        
+        for (let i = 0; i < tvSymbols.length; i += batchSize) {
+            const chunk = tvSymbols.slice(i, i + batchSize);
+
+            const chunkPromises = chunk.map(async (item) => {
+                try {
+                    let latestNews = marketNewsMap[item.symbol];
+                    
+                    if (!latestNews) {
+                        const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${item.symbol}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
+                        const newsData = await res.json();
+                        if (Array.isArray(newsData) && newsData.length > 0) {
+                            latestNews = newsData[0];
+                        }
+                    }
+
+                    if (latestNews) {
+                        const sentiment = analyzeHeadline(latestNews.headline || latestNews.summary);
+                        return {
+                            symbol: item.symbol,
+                            name: item.name,
+                            headline: latestNews.headline || latestNews.summary,
+                            url: latestNews.url || "",
+                            source: latestNews.source || "Piyasa",
+                            date: new Date(latestNews.datetime * 1000).toLocaleDateString('tr-TR'),
+                            sentiment: sentiment
+                        };
+                    }
+                } catch (e) {}
+                return null;
+            });
+
+            const batchRes = await Promise.all(chunkPromises);
+            batchRes.forEach(r => { if (r) analyzedResults.push(r); });
+
+            // Canlı Progress Bar Güncellemesi
+            const pct = Math.min(100, Math.round(((i + batchSize) / tvSymbols.length) * 100));
+            progressFill.style.width = `${pct}%`;
         }
 
-        // EN YÜKSEK SKORLU (GÜÇLÜ AL) OLANLAR EN BAŞA
-        results.sort((a, b) => b.sentiment.score - a.sentiment.score);
+        progressBar.style.display = 'none';
+
+        if (analyzedResults.length === 0) {
+            slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Haber akışı olan hisse bulunamadı veya API limiti aşıldı. Lütfen tekrar deneyin.</div>';
+            return;
+        }
+
+        // EN YÜKSEK AL SKORUNA GÖRE SIRALA
+        analyzedResults.sort((a, b) => b.sentiment.score - a.sentiment.score);
+        countBadge.innerText = `${analyzedResults.length} HABERLİ HİSSE`;
 
         let html = '';
-        results.forEach(res => {
-            let scoreClass = res.sentiment.score >= 0.15 ? 'score-buy' : 'score-neutral';
+        analyzedResults.forEach(res => {
+            let scoreClass = res.sentiment.score >= 0.15 ? 'score-buy' : (res.sentiment.score <= -0.15 ? 'score-sell' : 'score-neutral');
             html += `
                 <div class="radar-card" onclick="openRadarDetail('${res.symbol}', '${encodeURIComponent(res.name)}', '${encodeURIComponent(res.headline)}', '${encodeURIComponent(res.url)}', '${encodeURIComponent(res.source)}', ${res.sentiment.score}, '${encodeURIComponent(res.sentiment.reasons.join(' | '))}')">
                     <div class="radar-card-top">
@@ -410,7 +516,7 @@
                     <div style="font-size: 0.75rem; color: var(--primary);">Kaynak: ${source}</div>
                 </div>
                 <div style="text-align: left; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-                    <b>Algoritma Görüşü:</b><br>${reasons.join('<br>') || 'Nötr piyasa akışı'}
+                    <b>Algoritma Görüşü:</b><br>${reasons.join('<br>') || 'Nötr akış'}
                 </div>
             `,
             showCancelButton: true,
@@ -427,9 +533,9 @@
         });
     }
 
-    // --- Menü & Global Değişkenler ---
+    // --- Global Değişkenler & State ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV10';
+    const STORAGE_KEY = 'proApp_wealthTrackerV11';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
@@ -452,10 +558,10 @@
         initLightweightChart();
         await fetchAllLivePrices();
         updateDashboard();
-        runRadarScan(); // Arka planda radarı çalıştır
+        runRadarScan(); 
     }
 
-    // --- TRADINGVIEW LIGHTWEIGHT CHARTS ENTEGRASYONU ---
+    // --- TRADINGVIEW LIGHTWEIGHT CHARTS ---
     function initLightweightChart() {
         const container = document.getElementById('tvChartContainer');
         container.innerHTML = '';
@@ -474,19 +580,12 @@
                 vertLine: { color: '#3b82f6', width: 1, style: 2 },
                 horzLine: { color: '#3b82f6', width: 1, style: 2 },
             },
-            rightPriceScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-            },
-            timeScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-                timeVisible: true,
-                secondsVisible: false,
-            },
+            rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.1)' },
+            timeScale: { borderColor: 'rgba(255, 255, 255, 0.1)', timeVisible: true, secondsVisible: false },
             handleScroll: { mouseWheel: true, pressedMouseMove: true },
             handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
         });
 
-        // Gerçekleşen Portföy Eğrisi (Degrade Alan)
         tvAreaSeries = tvChart.addAreaSeries({
             lineColor: '#3b82f6',
             topColor: 'rgba(59, 130, 246, 0.4)',
@@ -495,11 +594,10 @@
             priceFormat: { type: 'custom', formatter: val => formatTL(val) }
         });
 
-        // Hedeflenen Büyüme Eğrisi (Kırmızı Kesikli Çizgi)
         tvTargetSeries = tvChart.addLineSeries({
             color: '#ef4444',
             lineWidth: 2,
-            lineStyle: 2, // Kesikli
+            lineStyle: 2,
             priceFormat: { type: 'custom', formatter: val => formatTL(val) }
         });
 
@@ -512,15 +610,12 @@
         if (!tvChart || !tvAreaSeries) return;
 
         const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
-        
-        // Zaman bazlı TradingView verisi hazırlığı (YYYY-MM-DD)
         const baseDate = new Date();
         baseDate.setDate(baseDate.getDate() - (weeksWithLogs.length * 7));
 
         let actualTVData = [];
         let targetTVData = [];
 
-        // 0. Hafta Başlangıç
         let d0 = new Date(baseDate);
         let time0 = d0.toISOString().split('T')[0];
         actualTVData.push({ time: time0, value: appData.baseCapital });
@@ -570,7 +665,7 @@
     }
 
     async function fetchAllLivePrices() {
-        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Canlı borsa ve döviz kurları senkronize ediliyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Borsa ve döviz kurları alınıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         usdRateCache = await fetchUsdTryRate();
         let fetchPromises = [];
 
@@ -690,7 +785,7 @@
 
     function addManualAsset() { appData.assets.push({ id: Date.now().toString(), name: 'Nakit Portföyü', type: 'MANUAL', amount: 1, manualValue: 0 }); saveData(); renderAssets(); }
     function removeAsset(id) { appData.assets = appData.assets.filter(a => a.id !== id); saveData(); renderAssets(); }
-    function updateAsset(id, field, value) { const asset = appData.assets.find(a => a.id === id); if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(); } }
+    function updateAsset(id, field, value) { const asset = appData.assets.find(a => a.id === id); if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(false); } }
 
     function updateWeekDropdown() {
         const select = document.getElementById('activeWeekSelect'); select.innerHTML = '';
@@ -755,7 +850,7 @@
         statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
 
         renderHistory();
-        updateLightweightChartData(); // TradingView Grafiğini güncelle
+        updateLightweightChartData();
     }
 
     function renderHistory() {
