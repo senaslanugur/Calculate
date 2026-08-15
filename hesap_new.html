@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (Haber & Grafik Optimizasyonu)</title>
+    <title>Pro Varlık Terminali (Optimizasyonlu Final)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- TradingView Lightweight Charts -->
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js (Haftalık Modal Grafikleri İçin) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-dark: #070b12; --panel-bg: #111827; --panel-border: #1f293d;
@@ -93,16 +95,16 @@
         .text-success { color: var(--success); } .text-warning { color: var(--warning); } .text-danger { color: var(--danger); }
 
         /* TradingView Lightweight Chart Container */
-        .tv-chart-box { height: 350px; width: 100%; position: relative; border-radius: 12px; overflow: hidden; }
+        .tv-chart-box { height: 350px; width: 100%; position: relative; border-radius: 12px; overflow: hidden; background: #090d16; }
 
         /* History Table */
         .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; transition: 0.3s; margin-bottom: 16px;}
-        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
         .history-week { font-weight: 900; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 10px; }
         .history-actions { display: flex; align-items: center; gap: 20px; }
         .btn-icon { background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-main); border-radius: 10px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
 
         .badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; margin-top: 8px; text-align: right;}
         .badge.green { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4);}
@@ -111,19 +113,32 @@
 
         /* SweetAlert2 Premium Modals */
         .swal2-popup.premium-modal { background: rgba(17, 24, 39, 0.96) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; padding: 30px !important; }
-        .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.4rem !important; }
+        .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.4rem !important; margin-bottom: 20px !important;}
+        .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; }
         .premium-modal .swal2-actions { margin-top: 24px !important; gap: 14px; }
         .premium-modal .swal2-confirm { background: var(--primary) !important; border-radius: 10px !important; padding: 12px 24px !important; font-weight: 800 !important; }
         .premium-modal .swal2-cancel { background: transparent !important; border: 1px solid var(--panel-border) !important; color: white !important; border-radius: 10px !important; padding: 12px 24px !important; }
-
+        
         .news-item { background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 18px; border-radius: 14px; margin-bottom: 14px; text-align: left; }
         .news-title a { color: white; text-decoration: none; font-weight: 800; font-size: 1rem; }
         .news-title a:hover { color: var(--primary); }
+
+        /* Modal Chart & Table Area */
+        .modal-chart-area { height: 220px; width: 100%; margin-bottom: 24px; position: relative; background: var(--input-bg); border-radius: 12px; padding: 12px; border: 1px solid var(--panel-border); }
+        .modal-table-container { max-height: 250px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--input-bg); }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+        .log-table th, .log-table td { padding: 14px 16px; border-bottom: 1px solid var(--panel-border); }
+        .log-table thead { background: rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 1; backdrop-filter: blur(4px); }
+        .log-table th { color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; }
+        .log-table tr:last-child td { border-bottom: none; }
+        .log-wallet-detail { color: var(--text-main); line-height: 1.6; }
+        .log-wallet-detail b { color: var(--text-muted); font-weight: 600; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -263,9 +278,9 @@
         }
         let score = hits > 0 ? Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits))) : 0;
         let reasons = [];
-        if (matchedPos.length) reasons.push("Olumlu: " + matchedPos.join(", "));
-        if (matchedNeg.length) reasons.push("Olumsuz: " + matchedNeg.join(", "));
-        if (!matchedPos.length && !matchedNeg.length) reasons.push("Nötr piyasa etkisi.");
+        if (matchedPos.length) reasons.push("Olumlu sinyaller: " + matchedPos.join(", "));
+        if (matchedNeg.length) reasons.push("Olumsuz sinyaller: " + matchedNeg.join(", "));
+        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki yok (Nötr).");
 
         if (score >= 0.15) return { score, label: "AL", emoji: "🟢", reasons };
         else if (score <= -0.15) return { score, label: "SAT", emoji: "🔴", reasons };
@@ -378,7 +393,7 @@
 
     // --- Global Değişkenler & State ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerFinal';
+    const STORAGE_KEY = 'proApp_wealthTrackerFinalOpt';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
@@ -387,6 +402,7 @@
     let livePricesCache = {}; 
     let usdRateCache = 34.0;
     let tvChart = null, tvAreaSeries = null, tvTargetSeries = null;
+    let modalChartInstance = null;
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#111827', color: '#f8fafc' });
 
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
@@ -403,7 +419,7 @@
         updateDashboard();
     }
 
-    // --- TRADINGVIEW LIGHTWEIGHT CHARTS ---
+    // --- TRADINGVIEW LIGHTWEIGHT CHARTS KUSURSUZ ENTEGRASYON ---
     function initLightweightChart() {
         const container = document.getElementById('tvChartContainer');
         container.innerHTML = '';
@@ -430,33 +446,77 @@
         window.addEventListener('resize', () => { if (tvChart) tvChart.resize(container.clientWidth, 350); });
     }
 
+    // Tarih ayrıştırma (Bug fix: format çevirici)
+    function parseTRDateStr(dateStr) {
+        if(!dateStr) return new Date();
+        let parts = dateStr.split(/[\.\/ -]/);
+        if(parts.length >= 3) {
+            if (parts[2].length === 4) return new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00Z`);
+            if (parts[0].length === 4) return new Date(`${parts[0]}-${parts[1]}-${parts[2]}T12:00:00Z`);
+        }
+        return new Date(dateStr);
+    }
+
     function updateLightweightChartData() {
         if (!tvChart || !tvAreaSeries) return;
 
         const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
-        const baseDate = new Date();
-        baseDate.setDate(baseDate.getDate() - (weeksWithLogs.length * 7));
+        let allLogs = [];
+        
+        weeksWithLogs.forEach(w => {
+            w.logs.forEach(log => {
+                let d = parseTRDateStr(log.dateKey);
+                if (!isNaN(d)) {
+                    let isoDate = d.toISOString().split('T')[0];
+                    allLogs.push({ time: isoDate, total: log.total, target: getTargetAmt(w.weekNum) });
+                }
+            });
+        });
 
         let actualTVData = [];
         let targetTVData = [];
 
-        let d0 = new Date(baseDate);
-        let time0 = d0.toISOString().split('T')[0];
-        actualTVData.push({ time: time0, value: appData.baseCapital });
-        targetTVData.push({ time: time0, value: appData.baseCapital });
+        if (allLogs.length === 0) {
+            let today = new Date().toISOString().split('T')[0];
+            actualTVData.push({ time: today, value: parseFloat(appData.baseCapital) });
+            targetTVData.push({ time: today, value: parseFloat(appData.baseCapital) });
+        } else {
+            // TradingView, verilerin zamana göre sıralı olmasını şart koşar
+            allLogs.sort((a,b) => new Date(a.time) - new Date(b.time));
+            
+            // Aynı güne ait çoklu kayıtları filtrele (Sadece en güncel kapanış kalır)
+            let uniqueLogs = [];
+            let lastTime = "";
+            allLogs.forEach(log => {
+                if (log.time !== lastTime) {
+                    uniqueLogs.push(log);
+                    lastTime = log.time;
+                } else {
+                    uniqueLogs[uniqueLogs.length - 1] = log;
+                }
+            });
 
-        weeksWithLogs.forEach((w, i) => {
-            let d = new Date(baseDate);
-            d.setDate(d.getDate() + ((i + 1) * 7));
-            let timeStr = d.toISOString().split('T')[0];
+            // Başlangıç sermayesini grafiğin en başına ekle (İlk kayıttan 1 gün önce)
+            let firstD = new Date(uniqueLogs[0].time);
+            firstD.setDate(firstD.getDate() - 1);
+            let firstTimeStr = firstD.toISOString().split('T')[0];
 
-            actualTVData.push({ time: timeStr, value: w.logs[w.logs.length - 1].total });
-            targetTVData.push({ time: timeStr, value: getTargetAmt(w.weekNum) });
-        });
+            actualTVData.push({ time: firstTimeStr, value: parseFloat(appData.baseCapital) });
+            targetTVData.push({ time: firstTimeStr, value: parseFloat(appData.baseCapital) });
 
-        tvAreaSeries.setData(actualTVData);
-        tvTargetSeries.setData(targetTVData);
-        tvChart.timeScale().fitContent();
+            uniqueLogs.forEach(log => {
+                actualTVData.push({ time: log.time, value: parseFloat(log.total) });
+                targetTVData.push({ time: log.time, value: parseFloat(log.target) });
+            });
+        }
+
+        try {
+            tvAreaSeries.setData(actualTVData);
+            tvTargetSeries.setData(targetTVData);
+            tvChart.timeScale().fitContent();
+        } catch (e) {
+            console.error("TV Grafiği Veri Hatası:", e);
+        }
     }
 
     // --- State & Dashboard ---
@@ -499,7 +559,6 @@
             if (asset.type === 'US') fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             else if (asset.type === 'TR') fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             
-            // Fiyatla birlikte arka planda haber analizi de çek
             if (asset.type !== 'MANUAL') {
                 fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
             }
@@ -713,9 +772,76 @@
                             <div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div>
                             <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
                         </div>
+                        <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
                     </div>
                 </div>
             `;
+        });
+    }
+
+    // Modal İçi Grafik/Tablo Analizi (KUSURSUZ GERİ EKLENDİ)
+    function showWeekDetails(weekNum) {
+        const week = appData.weeks.find(w => w.weekNum === weekNum);
+        if(!week || week.logs.length === 0) return;
+
+        let tableHtml = `<div class="modal-table-container"><table class="log-table">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Varlık Dağılımı</th>
+                    <th style="text-align: right;">Günlük Kapanış</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        [...week.logs].reverse().forEach(log => {
+            let details = [];
+            for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); }
+            
+            tableHtml += `
+                <tr>
+                    <td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td>
+                    <td class="log-wallet-detail">${details.join('<br>')}</td>
+                    <td style="text-align: right; font-weight: 800; color: white; font-size: 1rem;">${formatTL(log.total)}</td>
+                </tr>
+            `;
+        });
+        tableHtml += `</tbody></table></div>`;
+
+        let modalHtml = `
+            <div class="modal-chart-area">
+                <canvas id="modalChartCanvas"></canvas>
+            </div>
+            ${tableHtml}
+        `;
+
+        Swal.fire({
+            title: `Hafta ${weekNum} İlerleme Analizi`,
+            html: modalHtml, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
+            didOpen: () => {
+                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
+                const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]);
+                const data = week.logs.map(log => log.total);
+
+                if (modalChartInstance) modalChartInstance.destroy();
+                Chart.defaults.color = '#94a3b8';
+                modalChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 4, fill: true, tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                        scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false } } }
+                    }
+                });
+            }
         });
     }
 
