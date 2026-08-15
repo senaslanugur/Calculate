@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (52W Dip Radarı & Analist Kurumları)</title>
+    <title>Pro Varlık Terminali (AI Haber & Manuel Fırsat Radarları)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-dark: #070b12; --panel-bg: #111827; --panel-border: #1f293d;
             --primary: #3b82f6; --primary-hover: #2563eb; --primary-glow: rgba(59, 130, 246, 0.35);
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
             --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #090d16;
+            --purple: #8b5cf6; --cyan: #06b6d4; --pink: #ec4899;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -35,20 +35,21 @@
         .dropdown-item:hover { background: rgba(255,255,255,0.05); }
         .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        /* 52W DIP RADAR SLIDER SECTION */
-        .radar-section { max-width: 1240px; margin: 20px auto 0; padding: 0 20px; }
-        .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
-        .radar-title { font-size: 0.95rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .radar-title span { color: #38bdf8; font-size: 0.8rem; background: rgba(56, 189, 248, 0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3); }
+        /* FIRSAT RADARLARI BÖLÜMÜ */
+        .opp-section { max-width: 1240px; margin: 24px auto 0; padding: 0 20px; }
+        .opp-header { font-size: 1.15rem; font-weight: 800; color: white; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .opp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .opp-btn-card { background: linear-gradient(145deg, var(--panel-bg), #0c121e); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; cursor: pointer; transition: 0.2s; text-align: left; position: relative; overflow: hidden; }
+        .opp-btn-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .opp-btn-card.purple:hover { border-color: var(--purple); }
+        .opp-btn-card.cyan:hover { border-color: var(--cyan); }
+        .opp-btn-card.pink:hover { border-color: var(--pink); }
+        .opp-title { font-size: 1.05rem; font-weight: 800; color: white; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .opp-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
         
-        .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; }
-        .radar-card { flex: 0 0 230px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
-        .radar-card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25); }
-        .radar-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .radar-symbol { font-size: 1.15rem; font-weight: 900; color: white; }
-        .radar-badge-dip { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-        .radar-price-row { margin: 10px 0; font-size: 0.85rem; }
-        .radar-footer { font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
+        .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; margin-top: 10px; display: none; }
+        .radar-card { flex: 0 0 240px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
+        .radar-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
 
         /* Main Container */
         .app-container { max-width: 1240px; margin: 16px auto; padding: 0 20px; display: grid; gap: 24px; }
@@ -72,7 +73,7 @@
 
         /* Asset Card */
         .asset-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; }
-        .asset-card:hover { border-color: var(--primary); }
+        .asset-card:hover { border-color: var(--primary); box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.05); }
         .asset-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
         .asset-title-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
         .asset-title { font-weight: 900; font-size: 1.05rem; color: white; }
@@ -112,7 +113,7 @@
 
         /* History Table */
         .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; transition: 0.3s; margin-bottom: 16px;}
-        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
         .history-week { font-weight: 900; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 10px; }
         .history-actions { display: flex; align-items: center; gap: 20px; }
@@ -124,7 +125,7 @@
         .badge.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4);}
         .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4);}
 
-        /* SweetAlert2 Modals */
+        /* SweetAlert2 Premium Modals */
         .swal2-popup.premium-modal { background: rgba(17, 24, 39, 0.98) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; padding: 30px !important; }
         .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.4rem !important; margin-bottom: 20px !important;}
         .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; }
@@ -132,7 +133,6 @@
         .premium-modal .swal2-confirm { background: var(--primary) !important; border-radius: 10px !important; padding: 12px 24px !important; font-weight: 800 !important; }
         .premium-modal .swal2-cancel { background: transparent !important; border: 1px solid var(--panel-border) !important; color: white !important; border-radius: 10px !important; padding: 12px 24px !important; }
         
-        /* Advanced Card Grid */
         .adv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .adv-card { background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 16px; border-radius: 14px; text-align: left; }
         .adv-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
@@ -160,7 +160,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V14</span>
+        ProPortföy <span>V15</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -171,10 +171,6 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                 Piyasayı Senkronize Et
             </a>
-            <a href="#" class="dropdown-item" onclick="run52WeekLowScan()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
-                52W Dip Radarını Tara
-            </a>
             <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                 Tüm Verileri Sıfırla
@@ -183,17 +179,26 @@
     </div>
 </header>
 
-<!-- 52 HAFTALIK DİP RADARI SLIDER -->
-<div class="radar-section">
-    <div class="radar-header">
-        <div class="radar-title">
-            📉 52 Haftalık Dip Radarı <span>FIRSAT & DİP TESTİ</span>
+<!-- FIRSAT RADARLARI (MANUEL TETİKLEMELİ) -->
+<div class="opp-section">
+    <div class="opp-header">
+        ⚡ Fırsat Radarları (API Güvenli Tarama)
+    </div>
+    <div class="opp-grid">
+        <div class="opp-btn-card purple" onclick="scanEarningsSurprise()">
+            <div class="opp-title"><span style="font-size:1.4rem;">🎯</span> Bilanço & Kâr Radarı</div>
+            <div class="opp-desc">Beklentileri aşan veya yüksek kâr açıklayan şirketleri tespit eder.</div>
         </div>
-        <button onclick="run52WeekLowScan()" class="btn-outline" style="width: auto; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 700;">🔄 Radarı Tara</button>
+        <div class="opp-btn-card cyan" onclick="scanInsiderWhales()">
+            <div class="opp-title"><span style="font-size:1.4rem;">🐋</span> Balina (İçeriden Alım)</div>
+            <div class="opp-desc">Şirket CEO ve yöneticilerinin kendi hisselerine yaptığı dev alımları yakalar.</div>
+        </div>
+        <div class="opp-btn-card pink" onclick="scanUndervaluedTargets()">
+            <div class="opp-title"><span style="font-size:1.4rem;">🚀</span> Hedef Fiyat Ucuzluk</div>
+            <div class="opp-desc">Analistlerin verdiği hedef fiyata göre %20'den fazla potansiyeli olanları bulur.</div>
+        </div>
     </div>
-    <div class="radar-slider" id="dipRadarSlider">
-        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">52 haftalık dip seviyelerine en yakın hisseler taranıyor...</div>
-    </div>
+    <div class="radar-slider" id="oppRadarSlider"></div>
 </div>
 
 <div class="app-container">
@@ -242,7 +247,7 @@
         </div>
     </div>
 
-    <!-- SAĞ PANEL: Dashboard, Grafikler ve Geçmiş -->
+    <!-- SAĞ PANEL -->
     <div class="main-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -276,355 +281,271 @@
 </div>
 
 <script>
+    // --- GÜVENLİ API VE KÜRESEL DEĞİŞKENLER ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV14';
+    const STORAGE_KEY = 'proApp_wealthTrackerV15';
+    // API Limitlerine (60/min) takılmamak için özenle seçilmiş, yüksek hacimli 30 ABD hissesi
+    const OPP_POOL = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","AVGO","LLY","JPM","V","MA","XOM","UNH","HD","PG","COST","JNJ","ABBV","CRM","BAC","CVX","NFLX","AMD","PEP","KO","WMT","TMO","DIS"];
     
-    // --- Finansal Duygu Sözlüğü (Lexicon NLP) ---
-    const FINANCE_LEXICON = {
-        "beats": 3.0, "beat estimates": 3.5, "surge": 3.0, "rally": 2.5, "record high": 3.0, "upgrade": 2.5, "outperform": 2.5, "buyback": 2.0, "raises guidance": 3.0, "strong demand": 2.0, "profit rises": 2.5, "bullish": 2.5,
-        "artış": 2.5, "yükseldi": 2.5, "rekor": 3.0, "kar açıkladı": 2.5, "beklentileri aştı": 3.5, "ihracat rekoru": 2.5, "yükseliş": 2.5, "temettü dağıtımı": 2.0, "tavan": 3.0, "büyüme": 2.0, "ihale kazandı": 3.0, "anlaşma imzaladı": 2.5,
-        "misses": -3.0, "miss estimates": -3.5, "plunge": -3.0, "tumble": -2.5, "downgrade": -2.5, "underperform": -2.5, "layoffs": -2.5, "lawsuit": -2.0, "investigation": -2.0, "recall": -2.0, "guidance cut": -3.0, "profit falls": -2.5, "bearish": -2.5, "bankruptcy": -3.5, "fraud": -3.0,
-        "düşüş": -2.5, "geriledi": -2.5, "zarar açıkladı": -3.0, "beklentilerin altında": -3.0, "soruşturma": -2.0, "iflas": -3.5, "işten çıkarma": -2.5, "dava": -1.5, "kar düşüşü": -2.5, "taban": -3.0, "bilanço hüsranı": -3.5
-    };
+    // --- FIRSAT RADARI MOTORLARI (MANUEL) ---
+    
+    function renderOppSlider(results, typeStr, iconStr, colorVar) {
+        const slider = document.getElementById('oppRadarSlider');
+        slider.style.display = 'flex';
+        
+        if (results.length === 0) {
+            slider.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Taranan havuzda güncel kriterlere uyan fırsat bulunamadı.</div>`;
+            return;
+        }
+
+        let html = '';
+        results.forEach(res => {
+            html += `
+                <div class="radar-card" style="border-top: 3px solid var(${colorVar});" onclick="addToPortfolioConfirm('${res.symbol}')">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div style="font-size:1.15rem; font-weight:900; color:white;">${res.symbol}</div>
+                        <div style="font-size:1.2rem;">${iconStr}</div>
+                    </div>
+                    <div style="font-size:0.8rem; font-weight:700; color:var(${colorVar}); margin-top:8px;">${typeStr}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; line-height:1.4;">${res.detail}</div>
+                </div>
+            `;
+        });
+        slider.innerHTML = html;
+    }
+
+    async function scanEarningsSurprise() {
+        Swal.fire({ title: '🎯 Bilanço Radarı Çalışıyor', html: 'Şirketlerin kâr oranları ve analist beklentileri taranıyor...<br>(Limitlere takılmamak için 30 dev hisse taranır)', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        let results = [];
+        
+        for (let sym of OPP_POOL) {
+            try {
+                const res = await fetch(`https://finnhub.io/api/v1/stock/earnings?symbol=${sym}&token=${FINNHUB_KEY}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const last = data[0]; // En son bilanço
+                    if (last.actual > last.estimate && last.estimate > 0) {
+                        const surprisePct = ((last.actual - last.estimate) / Math.abs(last.estimate)) * 100;
+                        if (surprisePct > 5.0) { // %5'ten fazla kâr sürprizi
+                            results.push({ symbol: sym, detail: `Beklenti: $${last.estimate.toFixed(2)}<br>Gerçekleşen: $${last.actual.toFixed(2)}<br><b style="color:var(--success);">+%${surprisePct.toFixed(1)} Sürpriz</b>`, score: surprisePct });
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+        
+        results.sort((a,b) => b.score - a.score);
+        Swal.close();
+        renderOppSlider(results, 'BİLANÇO SÜRPRİZİ', '🎯', '--purple');
+    }
+
+    async function scanInsiderWhales() {
+        Swal.fire({ title: '🐋 Balina Radarı Çalışıyor', html: 'Şirket yöneticilerinin açık piyasadan yaptığı dev alımlar aranıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        let results = [];
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        const cutoffDate = threeMonthsAgo.toISOString().split('T')[0];
+
+        for (let sym of OPP_POOL) {
+            try {
+                const res = await fetch(`https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${cutoffDate}&token=${FINNHUB_KEY}`);
+                const data = await res.json();
+                if (data && data.data && data.data.length > 0) {
+                    // Yöneticilerin (Director/Officer) net alımlarını (change > 0) topla
+                    let totalBought = 0;
+                    let latestBuyer = "";
+                    data.data.forEach(txn => {
+                        if (txn.change > 0 && txn.transactionPrice > 0) {
+                            totalBought += (txn.change * txn.transactionPrice);
+                            if(!latestBuyer) latestBuyer = txn.name;
+                        }
+                    });
+
+                    if (totalBought > 1000000) { // Son 3 ayda 1 Milyon Dolar üzeri alım
+                        results.push({ symbol: sym, detail: `Son 3 Ayda İçeriden Alım:<br><b style="color:white;">$${(totalBought/1000000).toFixed(1)} Milyon</b><br>Son Alan: ${latestBuyer.substring(0,15)}...`, val: totalBought });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        results.sort((a,b) => b.val - a.val);
+        Swal.close();
+        renderOppSlider(results, 'İÇERİDEN GÜÇLÜ ALIM', '🐋', '--cyan');
+    }
+
+    async function scanUndervaluedTargets() {
+        Swal.fire({ title: '🚀 Potansiyel Radarı Çalışıyor', html: 'Analistlerin ortalama hedefine göre en ucuz kalmış hisseler bulunuyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        let results = [];
+        
+        for (let sym of OPP_POOL) {
+            try {
+                // Hem fiyatı hem hedefi almamız gerek. 
+                const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
+                const qData = await qRes.json();
+                const currentPrice = qData.c;
+
+                const tRes = await fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${sym}&token=${FINNHUB_KEY}`);
+                const tData = await tRes.json();
+
+                if (currentPrice > 0 && tData && tData.targetMean) {
+                    const potential = ((tData.targetMean - currentPrice) / currentPrice) * 100;
+                    if (potential > 15.0) { // Analistlere göre %15'ten fazla ucuz
+                        results.push({ symbol: sym, detail: `Güncel: $${currentPrice.toFixed(2)}<br>Ort. Hedef: $${tData.targetMean.toFixed(2)}<br><b style="color:var(--success);">+%${potential.toFixed(1)} Yükseliş Potansiyeli</b>`, pot: potential });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        results.sort((a,b) => b.pot - a.pot);
+        Swal.close();
+        renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink');
+    }
+
+    function addToPortfolioConfirm(symbol) {
+        Swal.fire({
+            title: `${symbol} Eklensin mi?`,
+            text: "Bu hisseyi portföyünüze US (ABD) varlığı olarak eklemek istiyor musunuz?",
+            showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'Vazgeç', customClass: { popup: 'premium-modal' }
+        }).then(res => {
+            if(res.isConfirmed) {
+                appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 });
+                saveData(); fetchAllLivePrices();
+                Toast.fire({ icon: 'success', title: `${symbol} eklendi!` });
+            }
+        });
+    }
+
+    // --- YAPAY ZEKA HABER DUYGU MOTORU (Mevcut Stabil Kod) ---
+    const FINANCE_LEXICON = { "beats":3.0,"beat estimates":3.5,"surge":3.0,"rally":2.5,"record high":3.0,"upgrade":2.5,"outperform":2.5,"buyback":2.0,"raises guidance":3.0,"strong demand":2.0,"profit rises":2.5,"bullish":2.5,"artış":2.5,"yükseldi":2.5,"rekor":3.0,"kar açıkladı":2.5,"beklentileri aştı":3.5,"ihracat rekoru":2.5,"yükseliş":2.5,"temettü dağıtımı":2.0,"tavan":3.0,"büyüme":2.0,"ihale kazandı":3.0,"anlaşma imzaladı":2.5,"misses":-3.0,"miss estimates":-3.5,"plunge":-3.0,"tumble":-2.5,"downgrade":-2.5,"underperform":-2.5,"layoffs":-2.5,"lawsuit":-2.0,"investigation":-2.0,"recall":-2.0,"guidance cut":-3.0,"profit falls":-2.5,"bearish":-2.5,"bankruptcy":-3.5,"fraud":-3.0,"düşüş":-2.5,"geriledi":-2.5,"zarar açıkladı":-3.0,"beklentilerin altında":-3.0,"soruşturma":-2.0,"iflas":-3.5,"işten çıkarma":-2.5,"dava":-1.5,"kar düşüşü":-2.5,"taban":-3.0,"bilanço hüsranı":-3.5 };
     const NEGATIONS = ["değil", "aşamadı", "kalamadı", "düşmedi", "not", "didn't", "hasn't", "failed"];
 
     function analyzeHeadline(text) {
         if (!text) return { score: 0.0, label: "NÖTR", emoji: "⚪", reasons: ["Metin bulunamadı."] };
         let bonus = 0.0, hits = 0, matchedPos = [], matchedNeg = [];
         let textLower = text.toLowerCase();
-
         for (const [term, weight] of Object.entries(FINANCE_LEXICON)) {
             if (textLower.includes(term)) {
-                let actualWeight = weight, isNegated = false;
-                let termIndex = textLower.indexOf(term);
+                let actualWeight = weight, isNegated = false, termIndex = textLower.indexOf(term);
                 let precedingText = textLower.substring(Math.max(0, termIndex - 25), termIndex);
                 for (let neg of NEGATIONS) { if (precedingText.includes(neg)) { isNegated = true; break; } }
                 let followingText = textLower.substring(termIndex, termIndex + term.length + 15);
                 for (let neg of NEGATIONS) { if (followingText.includes(neg)) { isNegated = true; break; } }
-
                 if (isNegated) actualWeight = actualWeight * -0.5;
                 bonus += actualWeight; hits += 1;
-                if (actualWeight > 0) matchedPos.push(isNegated ? `(Zıt) ${term}` : term);
-                else matchedNeg.push(isNegated ? `(Zıt) ${term}` : term);
+                if (actualWeight > 0) matchedPos.push(isNegated ? `(Zıt) ${term}` : term); else matchedNeg.push(isNegated ? `(Zıt) ${term}` : term);
             }
         }
         let score = hits > 0 ? Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits))) : 0;
         let reasons = [];
-        if (matchedPos.length) reasons.push("Olumlu: " + matchedPos.join(", "));
-        if (matchedNeg.length) reasons.push("Olumsuz: " + matchedNeg.join(", "));
-        if (!matchedPos.length && !matchedNeg.length) reasons.push("Nötr etki.");
-
+        if (matchedPos.length) reasons.push("Olumlu sinyaller: " + matchedPos.join(", "));
+        if (matchedNeg.length) reasons.push("Olumsuz sinyaller: " + matchedNeg.join(", "));
+        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki yok (Nötr).");
         if (score >= 0.15) return { score, label: "AL", emoji: "🟢", reasons };
         else if (score <= -0.15) return { score, label: "SAT", emoji: "🔴", reasons };
         else return { score, label: "NÖTR", emoji: "⚪", reasons };
     }
 
-    // =========================================================
-    // 52 HAFTALIK DİP TARAMA MOTORU (RADAR SLIDER)
-    // =========================================================
-    const US_SCAN_POOL = [
-        "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","AVGO","AMD","NFLX",
-        "PLTR","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK",
-        "ABBV","CRM","BAC","CVX","KO","PEP","INTC","NKE","PYPL","DIS","BABA"
-    ];
+    window.newsSignalCache = {}; window.newsItemsCache = {};  
 
-    async function run52WeekLowScan() {
-        const slider = document.getElementById('dipRadarSlider');
-        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Hisselerin 52 haftalık dip seviyeleri taranıyor...</div>';
-
-        let dipResults = [];
-
-        for (let sym of US_SCAN_POOL) {
-            try {
-                const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`);
-                const metData = await metRes.json();
-                
-                if (metData && metData.metric && metData.metric['52WeekLow']) {
-                    const low52 = metData.metric['52WeekLow'];
-                    const high52 = metData.metric['52WeekHigh'] || 0;
-                    
-                    // Anlık fiyat
-                    const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
-                    const qData = await quoteRes.json();
-                    const currentPrice = qData.c || low52;
-
-                    // Dipten uzaklık yüzdesi = ((Güncel - Dip) / Dip) * 100
-                    const distFromLow = ((currentPrice - low52) / low52) * 100;
-
-                    dipResults.push({
-                        symbol: sym,
-                        currentPrice: currentPrice,
-                        low52: low52,
-                        high52: high52,
-                        distFromLow: distFromLow
+    async function fetchAndAnalyzeNewsSilently(ticker, type) {
+        let filteredItems = []; const now = new Date(); const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+        try {
+            if (type === 'US') {
+                const toDate = now.toISOString().split('T')[0]; const fromDate = past7Days.toISOString().split('T')[0];
+                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${ticker}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    data.slice(0, 15).forEach(news => {
+                        const pubDate = new Date(news.datetime * 1000); const sentiment = analyzeHeadline(news.headline);
+                        filteredItems.push({ title: news.headline, link: news.url, date: pubDate.toLocaleString('tr-TR'), source: news.source, sentiment: sentiment, rawDate: pubDate });
                     });
                 }
-            } catch (e) {
-                console.warn(`${sym} dip taraması yapılamadı`, e);
+            } else {
+                const cleanTicker = ticker.replace(".IS", ""); const query = `${cleanTicker} hisse haber`; 
+                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+                const resp = await fetch(proxyUrl); const xmlText = await resp.text(); const parser = new DOMParser(); const xml = parser.parseFromString(xmlText, "application/xml"); const items = xml.querySelectorAll("item");
+                items.forEach(item => {
+                    const title = item.querySelector("title")?.textContent || ""; const link = item.querySelector("link")?.textContent || "";
+                    const pubDate = new Date(item.querySelector("pubDate")?.textContent || ""); const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
+                    if (pubDate >= past7Days) { const sentiment = analyzeHeadline(title); filteredItems.push({ title, link, date: pubDate.toLocaleString('tr-TR'), source, sentiment, rawDate: pubDate }); }
+                });
             }
-        }
-
-        // 52W DİBİNE EN YAKIN OLANLAR (En düşük fark en başa)
-        dipResults.sort((a, b) => a.distFromLow - b.distFromLow);
-
-        let html = '';
-        dipResults.forEach(item => {
-            const isBreaking = item.distFromLow <= 2.0; // %2 veya daha yakın
-            html += `
-                <div class="radar-card" onclick="openDipStockModal('${item.symbol}', ${item.currentPrice}, ${item.low52}, ${item.high52}, ${item.distFromLow.toFixed(2)})">
-                    <div class="radar-card-top">
-                        <div class="radar-symbol">${item.symbol}</div>
-                        <div class="radar-badge-dip" style="${isBreaking ? 'background:rgba(239,68,68,0.2); color:#f87171; border-color:rgba(239,68,68,0.4);' : ''}">
-                            ${isBreaking ? '⚠️ DİP TESTİ' : 'DİBE YAKIN'}
-                        </div>
-                    </div>
-                    <div class="radar-price-row">
-                        <div style="font-size:1.1rem; font-weight:800; color:white;">$${item.currentPrice.toFixed(2)}</div>
-                        <div style="font-size:0.75rem; color:${isBreaking ? '#f87171' : '#38bdf8'}; font-weight:700;">
-                            Dipten Fark: +%${item.distFromLow.toFixed(1)}
-                        </div>
-                    </div>
-                    <div class="radar-footer">
-                        <span>52W Dip: $${item.low52.toFixed(2)}</span>
-                        <span>Zirve: $${item.high52.toFixed(2)}</span>
-                    </div>
-                </div>
-            `;
-        });
-
-        slider.innerHTML = html;
+            filteredItems.sort((a,b) => b.rawDate - a.rawDate); window.newsItemsCache[ticker] = filteredItems;
+            if (filteredItems.length > 0) {
+                let latestScore = filteredItems[0].sentiment.score;
+                let overallSignal = 'NÖTR', signalClass = 'signal-neutral';
+                if (latestScore >= 0.15) { overallSignal = 'AL'; signalClass = 'signal-buy'; } else if (latestScore <= -0.15) { overallSignal = 'SAT'; signalClass = 'signal-sell'; }
+                window.newsSignalCache[ticker] = { signal: overallSignal, class: signalClass, score: latestScore };
+            } else { window.newsSignalCache[ticker] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 }; }
+        } catch (e) {}
     }
 
-    function openDipStockModal(symbol, price, low52, high52, dist) {
-        Swal.fire({
-            title: `📉 ${symbol} 52-Haftalık Dip Analizi`,
-            html: `
-                <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 18px; border-radius: 14px; text-align: left; margin-bottom: 16px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                        <span style="color:var(--text-muted);">Güncel Fiyat:</span>
-                        <b style="color:white; font-size:1.1rem;">$${price.toFixed(2)}</b>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                        <span style="color:var(--text-muted);">52 Haftalık Dip (Low):</span>
-                        <b style="color:#38bdf8;">$${low52.toFixed(2)}</b>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                        <span style="color:var(--text-muted);">52 Haftalık Zirve (High):</span>
-                        <b style="color:var(--success);">$${high52.toFixed(2)}</b>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
-                        <span style="color:var(--text-muted);">Dip Seviyesine Mesafe:</span>
-                        <b style="color:${dist <= 2 ? '#f87171' : '#38bdf8'}; font-weight:800;">+%${dist}</b>
-                    </div>
-                </div>
-                <p style="font-size:0.8rem; color:var(--text-muted); text-align:left;">Bu hisse 52 haftalık en düşük dip seviyelerine oldukça yakın işlem görüyor. Portföyünüze eklemek ister misiniz?</p>
-            `,
-            showCancelButton: true,
-            confirmButtonText: '+ Portföyüme Ekle',
-            cancelButtonText: 'Kapat',
-            customClass: { popup: 'premium-modal' }
-        }).then((res) => {
-            if (res.isConfirmed) {
-                appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 });
-                saveData();
-                fetchAllLivePrices();
-                Toast.fire({ icon: 'success', title: `${symbol} portföyünüze eklendi!` });
-            }
-        });
-    }
-
-    // =========================================================
-    // ANALİST KURUMLARI & KURUMSAL DETAY MODALI
-    // =========================================================
+    // --- ANALİST KURUMLARI & KURUMSAL DETAY MODALI ---
     async function showAnalystDetailsModal(ticker) {
-        Swal.fire({
-            title: `🏦 ${ticker} Analist Kurumları`,
-            html: 'Wall Street kurumlarının (Morgan Stanley, Goldman Sachs vb.) son notları alınıyor...',
-            allowOutsideClick: false,
-            customClass: { popup: 'premium-modal' },
-            didOpen: () => { Swal.showLoading(); }
-        });
-
+        Swal.fire({ title: `🏦 ${ticker} Analist Kurumları`, html: 'Wall Street kurumlarının son notları alınıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         try {
             const res = await fetch(`https://finnhub.io/api/v1/stock/upgrade-downgrade?symbol=${ticker}&token=${FINNHUB_KEY}`);
             const data = await res.json();
-
             if (!Array.isArray(data) || data.length === 0) {
-                Swal.fire({
-                    title: `🏦 ${ticker} Analist Notları`,
-                    html: '<div style="padding:20px; opacity:0.6;">Bu hisse için yakın tarihli analist kurum raporu bulunamadı.</div>',
-                    customClass: { popup: 'premium-modal' },
-                    confirmButtonText: 'Kapat'
-                });
-                return;
+                Swal.fire({ title: `🏦 ${ticker}`, html: '<div style="padding:20px; opacity:0.6;">Yakın tarihli kurum raporu bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' }); return;
             }
-
             let tableRows = '';
             data.slice(0, 15).forEach(item => {
                 const dateStr = item.gradeTime ? new Date(item.gradeTime * 1000).toLocaleDateString('tr-TR') : '-';
-                let actionBadge = item.action || 'main';
-                let badgeColor = actionBadge === 'up' ? 'var(--success)' : (actionBadge === 'down' ? 'var(--danger)' : 'var(--text-muted)');
-
-                tableRows += `
-                    <tr>
-                        <td style="font-weight:700; color:white;">${item.company}</td>
-                        <td style="color:${badgeColor}; font-weight:800; text-transform:uppercase;">${item.toGrade || '-'}</td>
-                        <td style="color:var(--text-muted); font-size:0.8rem;">${item.fromGrade ? item.fromGrade + ' ➔' : ''}</td>
-                        <td style="text-align:right; color:var(--text-muted); font-size:0.75rem;">${dateStr}</td>
-                    </tr>
-                `;
+                let actionBadge = item.action || 'main'; let badgeColor = actionBadge === 'up' ? 'var(--success)' : (actionBadge === 'down' ? 'var(--danger)' : 'var(--text-muted)');
+                tableRows += `<tr><td style="font-weight:700; color:white;">${item.company}</td><td style="color:${badgeColor}; font-weight:800; text-transform:uppercase;">${item.toGrade || '-'}</td><td style="color:var(--text-muted); font-size:0.8rem;">${item.fromGrade ? item.fromGrade + ' ➔' : ''}</td><td style="text-align:right; color:var(--text-muted); font-size:0.75rem;">${dateStr}</td></tr>`;
             });
-
-            const html = `
-                <div class="modal-table-container" style="max-height: 380px;">
-                    <table class="log-table">
-                        <thead>
-                            <tr>
-                                <th>Kurum / Banka</th>
-                                <th>Yeni Not</th>
-                                <th>Önceki</th>
-                                <th style="text-align:right;">Tarih</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${tableRows}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            Swal.fire({
-                title: `🏦 ${ticker} — Analist Kurum Notları`,
-                html: html,
-                width: 700,
-                showCloseButton: true,
-                confirmButtonText: 'Kapat',
-                customClass: { popup: 'premium-modal' }
-            });
-
-        } catch (e) {
-            Swal.fire('Hata', 'Analist verileri alınamadı.', 'error');
-        }
+            Swal.fire({ title: `🏦 ${ticker} Kurum Notları`, html: `<div class="modal-table-container" style="max-height: 380px;"><table class="log-table"><thead><tr><th>Banka</th><th>Yeni Not</th><th>Önceki</th><th style="text-align:right;">Tarih</th></tr></thead><tbody>${tableRows}</tbody></table></div>`, width: 700, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
+        } catch (e) { Swal.fire('Hata', 'Analist verileri alınamadı.', 'error'); }
     }
 
     async function showAssetDetailModal(ticker, type, currentPrice) {
-        Swal.fire({ 
-            title: `<span style="color:var(--primary);">${ticker}</span> Analiz Ediliyor`, 
-            html: 'Şirket verileri, haberler ve analist tahminleri toplanıyor...', 
-            allowOutsideClick: false, 
-            customClass: { popup: 'premium-modal' }, 
-            didOpen: () => { Swal.showLoading(); } 
-        });
-
+        Swal.fire({ title: `<span style="color:var(--primary);">${ticker}</span> Analiz Ediliyor`, html: 'Şirket verileri toplanıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         let metrics = null, targets = null, recommendation = null;
-
         if (type === 'US') {
             try {
-                const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${FINNHUB_KEY}`);
-                const metData = await metRes.json();
-                if (metData?.metric) metrics = metData.metric;
-
-                const tarRes = await fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${ticker}&token=${FINNHUB_KEY}`);
-                const tarData = await tarRes.json();
-                if (tarData?.targetHigh) targets = tarData;
-
-                const recRes = await fetch(`https://finnhub.io/api/v1/stock/recommendation?symbol=${ticker}&token=${FINNHUB_KEY}`);
-                const recData = await recRes.json();
-                if (recData?.length > 0) recommendation = recData[0];
+                const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${FINNHUB_KEY}`); const metData = await metRes.json(); if (metData?.metric) metrics = metData.metric;
+                const tarRes = await fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${ticker}&token=${FINNHUB_KEY}`); const tarData = await tarRes.json(); if (tarData?.targetHigh) targets = tarData;
+                const recRes = await fetch(`https://finnhub.io/api/v1/stock/recommendation?symbol=${ticker}&token=${FINNHUB_KEY}`); const recData = await recRes.json(); if (recData?.length > 0) recommendation = recData[0];
             } catch (e) {}
         }
-
-        const newsItems = window.newsItemsCache[ticker] || [];
-        let html = '';
-
+        const newsItems = window.newsItemsCache[ticker] || []; let html = '';
         if (metrics || targets || recommendation) {
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Kurumsal Veriler</span>
-                <button onclick="showAnalystDetailsModal('${ticker}')" style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; font-size:0.75rem; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer;">🏦 Hangi Analistler Var?</button>
-            </div>`;
-            html += `<div class="adv-grid">`;
-            
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;"><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Kurumsal Veriler</span><button onclick="showAnalystDetailsModal('${ticker}')" style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; font-size:0.75rem; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer;">🏦 Hangi Analistler?</button></div>`;
+            html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">`;
             if (metrics) {
-                let pe = metrics['peBasicExclExtraTTM'] ? metrics['peBasicExclExtraTTM'].toFixed(2) : '-';
-                let high52 = metrics['52WeekHigh'] ? metrics['52WeekHigh'].toFixed(2) : '-';
-                let low52 = metrics['52WeekLow'] ? metrics['52WeekLow'].toFixed(2) : '-';
-                let beta = metrics['beta'] ? metrics['beta'].toFixed(2) : '-';
-
-                html += `
-                    <div class="adv-card"><div class="adv-label">F/K Oranı (P/E)</div><div class="adv-value">${pe}</div></div>
-                    <div class="adv-card"><div class="adv-label">Volatilite (Beta)</div><div class="adv-value">${beta}</div></div>
-                    <div class="adv-card" style="grid-column: span 2;">
-                        <div class="adv-label">52 Haftalık Aralık (En Düşük - En Yüksek)</div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: white;">
-                            <span>$${low52}</span>
-                            <span>$${high52}</span>
-                        </div>
-                    </div>
-                `;
+                let pe = metrics['peBasicExclExtraTTM'] ? metrics['peBasicExclExtraTTM'].toFixed(2) : '-'; let beta = metrics['beta'] ? metrics['beta'].toFixed(2) : '-'; let high52 = metrics['52WeekHigh'] ? metrics['52WeekHigh'].toFixed(2) : '-'; let low52 = metrics['52WeekLow'] ? metrics['52WeekLow'].toFixed(2) : '-';
+                html += `<div style="background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 16px; border-radius: 14px; text-align: left;"><div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">F/K Oranı (P/E)</div><div style="font-size: 1.2rem; font-weight: 800; color: white;">${pe}</div></div>`;
+                html += `<div style="background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 16px; border-radius: 14px; text-align: left;"><div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Volatilite (Beta)</div><div style="font-size: 1.2rem; font-weight: 800; color: white;">${beta}</div></div>`;
+                html += `<div style="background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 16px; border-radius: 14px; text-align: left; grid-column: span 2;"><div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">52 Haftalık Aralık (Düşük - Yüksek)</div><div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: white;"><span>$${low52}</span><span>$${high52}</span></div></div>`;
             }
-
             if (targets && currentPrice > 0) {
-                let targetHigh = targets.targetHigh;
-                let targetMean = targets.targetMean;
-                let potential = ((targetMean - currentPrice) / currentPrice) * 100;
-                let potColor = potential >= 0 ? 'var(--success)' : 'var(--danger)';
-
-                html += `
-                    <div class="adv-card" style="grid-column: span 2; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
-                        <div style="display: flex; justify-content: space-between;">
-                            <div class="adv-label" style="color: #60a5fa;">Ortalama Hedef Fiyat (Wall Street)</div>
-                            <div style="font-size: 0.85rem; font-weight: 800; color: ${potColor};">${potential >= 0 ? '+' : ''}${potential.toFixed(2)}% Potansiyel</div>
-                        </div>
-                        <div class="adv-value" style="margin-bottom: 6px;">$${targetMean.toFixed(2)}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">Güncel: $${currentPrice.toFixed(2)} &bull; En Yüksek Hedef: $${targetHigh.toFixed(2)}</div>
-                    </div>
-                `;
+                let targetHigh = targets.targetHigh; let targetMean = targets.targetMean; let potential = ((targetMean - currentPrice) / currentPrice) * 100; let potColor = potential >= 0 ? 'var(--success)' : 'var(--danger)';
+                html += `<div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 16px; border-radius: 14px; text-align: left; grid-column: span 2;"><div style="display: flex; justify-content: space-between;"><div style="font-size: 0.7rem; color: #60a5fa; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Ortalama Hedef Fiyat</div><div style="font-size: 0.85rem; font-weight: 800; color: ${potColor};">${potential >= 0 ? '+' : ''}${potential.toFixed(2)}% Potansiyel</div></div><div style="font-size: 1.2rem; font-weight: 800; color: white; margin-bottom: 6px;">$${targetMean.toFixed(2)}</div><div style="font-size: 0.75rem; color: var(--text-muted);">Güncel: $${currentPrice.toFixed(2)} &bull; Yüksek Hedef: $${targetHigh.toFixed(2)}</div></div>`;
             }
-
             if (recommendation) {
                 let total = recommendation.buy + recommendation.hold + recommendation.sell + recommendation.strongBuy + recommendation.strongSell;
-                let buyPct = ((recommendation.buy + recommendation.strongBuy) / total) * 100;
-                let holdPct = (recommendation.hold / total) * 100;
-                let sellPct = ((recommendation.sell + recommendation.strongSell) / total) * 100;
-
-                html += `
-                    <div class="adv-card" style="grid-column: span 2; cursor:pointer;" onclick="showAnalystDetailsModal('${ticker}')" title="Detaylı görmek için tıklayın">
-                        <div style="display:flex; justify-content:space-between;">
-                            <div class="adv-label">Analist Konsensüsü (${total} Analist)</div>
-                            <span style="font-size:0.7rem; color:#60a5fa;">Detaylar ➔</span>
-                        </div>
-                        <div style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 8px;">
-                            <div style="width: ${buyPct}%; background: var(--success);" title="Al"></div>
-                            <div style="width: ${holdPct}%; background: var(--text-muted);" title="Tut"></div>
-                            <div style="width: ${sellPct}%; background: var(--danger);" title="Sat"></div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; margin-top: 6px;">
-                            <span style="color: var(--success);">${buyPct.toFixed(0)}% AL</span>
-                            <span style="color: var(--text-muted);">${holdPct.toFixed(0)}% TUT</span>
-                            <span style="color: var(--danger);">${sellPct.toFixed(0)}% SAT</span>
-                        </div>
-                    </div>
-                `;
+                let buyPct = ((recommendation.buy + recommendation.strongBuy) / total) * 100; let holdPct = (recommendation.hold / total) * 100; let sellPct = ((recommendation.sell + recommendation.strongSell) / total) * 100;
+                html += `<div style="background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); padding: 16px; border-radius: 14px; text-align: left; grid-column: span 2; cursor:pointer;" onclick="showAnalystDetailsModal('${ticker}')"><div style="display:flex; justify-content:space-between;"><div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Analist Konsensüsü (${total} Analist)</div><span style="font-size:0.7rem; color:#60a5fa;">Detaylar ➔</span></div><div style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 8px;"><div style="width: ${buyPct}%; background: var(--success);"></div><div style="width: ${holdPct}%; background: var(--text-muted);"></div><div style="width: ${sellPct}%; background: var(--danger);"></div></div><div style="display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; margin-top: 6px;"><span style="color: var(--success);">${buyPct.toFixed(0)}% AL</span><span style="color: var(--text-muted);">${holdPct.toFixed(0)}% TUT</span><span style="color: var(--danger);">${sellPct.toFixed(0)}% SAT</span></div></div>`;
             }
             html += `</div>`;
-        }
+        } else if (type === 'TR') { html += `<div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.8rem; color: #fbbf24;">⚠️ BİST hisselerinde yalnızca yapay zeka haber akışı aktiftir.</div>`; }
 
-        // BÖLÜM 2: HABER AKIŞI
         html += `<div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; text-transform: uppercase;">Son Haberler & Duygu Analizi</div>`;
-        if (newsItems.length === 0) {
-            html += '<div style="padding: 20px; opacity: 0.6; font-weight:600; text-align: center; border: 1px dashed var(--panel-border); border-radius: 12px;">Son 7 gün içerisinde piyasa haberi bulunamadı.</div>';
-        } else {
+        if (newsItems.length === 0) { html += '<div style="padding: 20px; opacity: 0.6; font-weight:600; text-align: center; border: 1px dashed var(--panel-border); border-radius: 12px;">Haber bulunamadı.</div>'; } 
+        else {
             html += '<div style="max-height: 350px; overflow-y: auto; padding-right: 8px;">';
             newsItems.forEach((item, index) => {
                 let colorClass = item.sentiment.score >= 0.15 ? 'text-success' : (item.sentiment.score <= -0.15 ? 'text-danger' : 'text-muted');
                 let isLatest = index === 0 ? '<span style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;">SON HABER</span>' : '';
                 html += `
-                    <div class="news-item" style="${index===0 ? 'border-color:var(--primary); box-shadow:0 0 15px rgba(59,130,246,0.15);' : ''}">
-                        <div class="news-header">
-                            <div class="news-title">${isLatest}<a href="${item.link}" target="_blank">${item.title}</a></div>
-                            <div class="news-sentiment">
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 18px; border-radius: 14px; margin-bottom: 14px; text-align: left; ${index===0 ? 'border-color:var(--primary);' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px;">
+                            <div style="font-weight: 800; font-size: 1rem; color: white; flex: 1; line-height: 1.4;">${isLatest}<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a></div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
                                 <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">${item.sentiment.emoji} ${item.sentiment.label}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 4px;">Skor: ${item.sentiment.score.toFixed(2)}</div>
+                                <div style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-weight: 700; color: white;">Skor: ${item.sentiment.score.toFixed(2)}</div>
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><b>${item.source}</b> &bull; ${item.date}</div>
@@ -634,91 +555,14 @@
             });
             html += '</div>';
         }
-
-        Swal.fire({ 
-            title: `📊 ${ticker} Kurumsal İnceleme`, 
-            html: html, 
-            width: 800, 
-            showCloseButton: true, 
-            confirmButtonText: 'Kapat', 
-            customClass: { popup: 'premium-modal' } 
-        });
-    }
-
-    // --- Haber Analiz Motoru ---
-    window.newsSignalCache = {}; 
-    window.newsItemsCache = {};  
-
-    async function fetchAndAnalyzeNewsSilently(ticker, type) {
-        let filteredItems = [];
-        const now = new Date();
-        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-
-        try {
-            if (type === 'US') {
-                const toDate = now.toISOString().split('T')[0];
-                const fromDate = past7Days.toISOString().split('T')[0];
-                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${ticker}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
-                const data = await res.json();
-                
-                if (Array.isArray(data) && data.length > 0) {
-                    data.slice(0, 15).forEach(news => {
-                        const pubDate = new Date(news.datetime * 1000);
-                        const sentiment = analyzeHeadline(news.headline);
-                        filteredItems.push({ title: news.headline, link: news.url, date: pubDate.toLocaleString('tr-TR'), source: news.source, sentiment: sentiment, rawDate: pubDate });
-                    });
-                }
-            } else {
-                const cleanTicker = ticker.replace(".IS", ""); 
-                const query = `${cleanTicker} hisse haber`; 
-                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
-                
-                const resp = await fetch(proxyUrl);
-                const xmlText = await resp.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(xmlText, "application/xml");
-                const items = xml.querySelectorAll("item");
-                
-                items.forEach(item => {
-                    const title = item.querySelector("title")?.textContent || "";
-                    const link = item.querySelector("link")?.textContent || "";
-                    const pubDate = new Date(item.querySelector("pubDate")?.textContent || "");
-                    const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
-                    
-                    if (pubDate >= past7Days) {
-                        const sentiment = analyzeHeadline(title);
-                        filteredItems.push({ title, link, date: pubDate.toLocaleString('tr-TR'), source, sentiment, rawDate: pubDate });
-                    }
-                });
-            }
-            
-            filteredItems.sort((a,b) => b.rawDate - a.rawDate);
-            window.newsItemsCache[ticker] = filteredItems;
-
-            if (filteredItems.length > 0) {
-                let latestNews = filteredItems[0];
-                let latestScore = latestNews.sentiment.score;
-                let overallSignal = 'NÖTR', signalClass = 'signal-neutral';
-                if (latestScore >= 0.15) { overallSignal = 'AL'; signalClass = 'signal-buy'; }
-                else if (latestScore <= -0.15) { overallSignal = 'SAT'; signalClass = 'signal-sell'; }
-
-                window.newsSignalCache[ticker] = { signal: overallSignal, class: signalClass, score: latestScore, time: latestNews.date };
-            } else {
-                window.newsSignalCache[ticker] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
-            }
-        } catch (e) {}
+        Swal.fire({ title: `📊 ${ticker} İnceleme`, html: html, width: 800, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
     }
 
     // --- Global State & Veri Yönetimi ---
-    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
-    };
-
-    let livePricesCache = {}; 
-    let usdRateCache = 34.0;
-    let chartInstance = null;
-    let modalChartInstance = null;
+    const STORAGE_KEY = 'proApp_wealthTrackerV15';
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ] };
+    let livePricesCache = {}; let usdRateCache = 34.0;
+    let chartInstance = null; let modalChartInstance = null;
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#111827', color: '#f8fafc' });
 
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
@@ -731,17 +575,14 @@
         updateWeekDropdown();
         await fetchAllLivePrices();
         updateDashboard();
-        run52WeekLowScan(); // 52W Dip Radarını başlat
     }
 
     function parseTRDateStr(dateStr) {
-        if(!dateStr) return new Date();
-        let parts = dateStr.split(/[\.\/ -]/);
+        if(!dateStr) return new Date(); let parts = dateStr.split(/[\.\/ -]/);
         if(parts.length >= 3) {
             if (parts[2].length === 4) return new Date(`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}T12:00:00Z`);
             if (parts[0].length === 4) return new Date(`${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}T12:00:00Z`);
-        }
-        return new Date(dateStr);
+        } return new Date(dateStr);
     }
 
     function renderChart() {
@@ -750,23 +591,13 @@
         appData.weeks.forEach(w => {
             w.logs.forEach(log => {
                 let d = parseTRDateStr(log.dateKey);
-                if (!isNaN(d)) {
-                    allLogs.push({
-                        time: d.getTime(), dateStr: log.dateKey,
-                        totalTL: parseFloat(log.total),
-                        totalUSD: log.totalUSD ? parseFloat(log.totalUSD) : (parseFloat(log.total) / usdRateCache),
-                        targetTL: getTargetAmt(w.weekNum)
-                    });
-                }
+                if (!isNaN(d)) { allLogs.push({ time: d.getTime(), dateStr: log.dateKey, totalTL: parseFloat(log.total), totalUSD: log.totalUSD ? parseFloat(log.totalUSD) : (parseFloat(log.total) / usdRateCache), targetTL: getTargetAmt(w.weekNum) }); }
             });
         });
 
         allLogs.sort((a,b) => a.time - b.time);
         let uniqueLogs = []; let lastDateStr = "";
-        allLogs.forEach(log => {
-            if (log.dateStr !== lastDateStr) { uniqueLogs.push(log); lastDateStr = log.dateStr; } 
-            else { uniqueLogs[uniqueLogs.length - 1] = log; }
-        });
+        allLogs.forEach(log => { if (log.dateStr !== lastDateStr) { uniqueLogs.push(log); lastDateStr = log.dateStr; } else { uniqueLogs[uniqueLogs.length - 1] = log; } });
 
         const labels = ['Başlangıç', ...uniqueLogs.map(l => l.dateStr)];
         const tlData = [parseFloat(appData.baseCapital), ...uniqueLogs.map(l => l.totalTL)];
@@ -778,171 +609,72 @@
 
         chartInstance = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Portföy (TL)', data: tlData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', fill: true, tension: 0.4, yAxisID: 'yTL' },
-                    { label: 'Portföy (USD)', data: usdData, borderColor: '#10b981', borderWidth: 3, borderDash: [5, 5], pointRadius: 4, pointBackgroundColor: '#10b981', pointBorderColor: '#fff', fill: false, tension: 0.4, yAxisID: 'yUSD' },
-                    { label: 'Hedef (TL)', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [3, 3], pointRadius: 0, fill: false, tension: 0.4, yAxisID: 'yTL' }
-                ]
-            },
+            data: { labels: labels, datasets: [
+                { label: 'Portföy (TL)', data: tlData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', fill: true, tension: 0.4, yAxisID: 'yTL' },
+                { label: 'Portföy (USD)', data: usdData, borderColor: '#10b981', borderWidth: 3, borderDash: [5, 5], pointRadius: 4, pointBackgroundColor: '#10b981', pointBorderColor: '#fff', fill: false, tension: 0.4, yAxisID: 'yUSD' },
+                { label: 'Hedef (TL)', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [3, 3], pointRadius: 0, fill: false, tension: 0.4, yAxisID: 'yTL' }
+            ]},
             options: {
                 responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' },
-                plugins: {
-                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {weight: 'bold'} } },
-                    tooltip: { backgroundColor: 'rgba(17, 24, 39, 0.9)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13, weight: 'bold' }, padding: 12 }
-                },
-                scales: {
-                    x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } },
-                    yTL: { type: 'linear', position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font: { weight: 'bold' }, callback: val => val.toLocaleString('tr-TR') + ' ₺' } },
-                    yUSD: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { weight: 'bold' }, color: '#10b981', callback: val => '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }) } }
-                }
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {weight: 'bold'} } }, tooltip: { backgroundColor: 'rgba(17, 24, 39, 0.9)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13, weight: 'bold' }, padding: 12, callbacks: { label: function(context) { let val = context.parsed.y; if (context.datasetIndex === 1) return 'USD: $' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }); return context.dataset.label.replace(' (TL)', '') + ': ' + val.toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' ₺'; } } } },
+                scales: { x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }, yTL: { type: 'linear', position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font: { weight: 'bold' }, callback: val => val.toLocaleString('tr-TR') + ' ₺' } }, yUSD: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { weight: 'bold' }, color: '#10b981', callback: val => '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }) } } }
             }
         });
     }
 
     function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
-
-    function updateSettings() {
-        appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0;
-        appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0;
-        saveData(); updateDashboard();
-        Toast.fire({ icon: 'success', title: 'Strateji güncellendi' });
-    }
+    function updateSettings() { appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0; appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0; saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Strateji güncellendi' }); }
 
     async function fetchUsdTryRate() { try { const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY'); const data = await res.json(); return data[0]?.rate || 34.0; } catch(e) { return 34.0; } }
     async function fetchUSPrice(symbol) { try { const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`); const data = await res.json(); return data.c || 0; } catch(e) { return 0; } }
-    async function fetchTRPrice(symbol) {
-        try {
-            const now = Math.floor(Date.now() / 1000); const fromDate = now - (30 * 24 * 60 * 60); 
-            const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${fromDate}&to=${now}`);
-            const data = await res.json();
-            return (data && data.c?.length > 0) ? data.c[data.c.length - 1] : 0;
-        } catch(e) { return 0; }
-    }
+    async function fetchTRPrice(symbol) { try { const now = Math.floor(Date.now() / 1000); const fromDate = now - (30 * 24 * 60 * 60); const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${fromDate}&to=${now}`); const data = await res.json(); return (data && data.c?.length > 0) ? data.c[data.c.length - 1] : 0; } catch(e) { return 0; } }
 
     async function fetchAllLivePrices() {
         Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Portföyünüz taranıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         usdRateCache = await fetchUsdTryRate();
-        let fetchPromises = [];
-        window.newsSignalCache = window.newsSignalCache || {};
+        let fetchPromises = []; window.newsSignalCache = window.newsSignalCache || {};
 
         for (let asset of appData.assets) {
             if (asset.type === 'US') fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             else if (asset.type === 'TR') fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-            
             if (asset.type !== 'MANUAL') fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
         }
-        
-        await Promise.all(fetchPromises);
-        Swal.close(); renderAssets();
+        await Promise.all(fetchPromises); Swal.close(); renderAssets();
     }
 
     function renderAssets() {
-        const container = document.getElementById('assetsContainer');
-        let totalLiveValue = 0; let html = '';
-
+        const container = document.getElementById('assetsContainer'); let totalLiveValue = 0; let html = '';
         appData.assets.forEach(asset => {
             let assetTotalTRY = 0;
-
             if (asset.type === 'MANUAL') {
                 assetTotalTRY = asset.manualValue;
-                html += `
-                    <div class="asset-card">
-                        <div class="asset-header">
-                            <div class="asset-title-group">
-                                <input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="background:transparent; border:none; font-size:1.05rem; font-weight:900; color:white; outline:none; max-width:180px;">
-                                <span class="badge-type bg-manual">MANUEL</span>
-                            </div>
-                            <div class="asset-actions">
-                                <button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                        </div>
-                        <div class="asset-inputs">
-                            <div style="flex: 1;">
-                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Değer (₺)</label>
-                                <input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;">
-                            </div>
-                        </div>
-                    </div>`;
+                html += `<div class="asset-card"><div class="asset-header"><div class="asset-title-group"><input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="background:transparent; border:none; font-size:1.05rem; font-weight:900; color:white; outline:none; max-width:180px;"><span class="badge-type bg-manual">MANUEL</span></div><div class="asset-actions"><button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div><div class="asset-inputs"><div style="flex: 1;"><label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Değer (₺)</label><input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;"></div></div></div>`;
             } else {
-                const price = livePricesCache[asset.name] || 0;
-                let displaySubText = '';
-                
-                if (asset.type === 'US') {
-                    assetTotalTRY = (asset.amount * price) * usdRateCache;
-                    displaySubText = `Fiyat: $${price.toFixed(2)} &bull; Kur: ₺${usdRateCache.toFixed(2)}`;
-                } else if (asset.type === 'TR') {
-                    assetTotalTRY = asset.amount * price;
-                    displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`;
-                }
+                const price = livePricesCache[asset.name] || 0; let displaySubText = '';
+                if (asset.type === 'US') { assetTotalTRY = (asset.amount * price) * usdRateCache; displaySubText = `Fiyat: $${price.toFixed(2)} &bull; Kur: ₺${usdRateCache.toFixed(2)}`; } 
+                else if (asset.type === 'TR') { assetTotalTRY = asset.amount * price; displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`; }
 
                 const signalData = window.newsSignalCache[asset.name] || { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
                 let signalTooltip = signalData.score !== 0 ? `Son Haber Skoru: ${signalData.score.toFixed(2)}` : 'Haber bulunamadı';
 
-                html += `
-                    <div class="asset-card">
-                        <div class="asset-header">
-                            <div class="asset-title-group">
-                                <div class="asset-title">${asset.name}</div>
-                                <span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span>
-                                <div class="signal-badge ${signalData.class}" title="${signalTooltip}">${signalData.signal}</div>
-                            </div>
-                            <div class="asset-actions">
-                                <button onclick="showAssetDetailModal('${asset.name}', '${asset.type}', ${price})" class="btn-news" title="Kurumsal Analiz ve Hedefler">📊 Analiz</button>
-                                <button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                        </div>
-                        <div class="asset-info">${displaySubText}</div>
-                        <div class="asset-inputs">
-                            <div style="flex: 1;">
-                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Adet / Miktar</label>
-                                <input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;">
-                            </div>
-                            <div class="asset-val-display" style="flex: 1; margin-bottom: 4px;">
-                                ${formatTL(assetTotalTRY)}
-                            </div>
-                        </div>
-                    </div>`;
+                html += `<div class="asset-card"><div class="asset-header"><div class="asset-title-group"><div class="asset-title">${asset.name}</div><span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span><div class="signal-badge ${signalData.class}" title="${signalTooltip}">${signalData.signal}</div></div><div class="asset-actions"><button onclick="showAssetDetailModal('${asset.name}', '${asset.type}', ${price})" class="btn-news" title="Kurumsal Analiz ve Hedefler">📊 Analiz</button><button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div><div class="asset-info">${displaySubText}</div><div class="asset-inputs"><div style="flex: 1;"><label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Adet / Miktar</label><input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;"></div><div class="asset-val-display" style="flex: 1; margin-bottom: 4px;">${formatTL(assetTotalTRY)}</div></div></div>`;
             }
             totalLiveValue += assetTotalTRY;
         });
-
-        container.innerHTML = html; 
-        document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
+        container.innerHTML = html; document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
     }
 
     function openAddLiveAssetModal() {
         Swal.fire({
             title: 'Canlı Varlık Ekle',
-            html: `
-                <div style="margin-bottom: 16px; text-align: left;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Hisse / Fon Kodu</label>
-                    <input id="swal-asset-symbol" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="Örn: NVDA, THYAO" style="text-transform: uppercase;">
-                </div>
-                <div style="margin-bottom: 16px; text-align: left;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Piyasa</label>
-                    <select id="swal-asset-type" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;">
-                        <option value="US">ABD Borsası (USD)</option>
-                        <option value="TR">Türkiye (BİST / TEFAS)</option>
-                    </select>
-                </div>
-                <div style="text-align: left;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adet</label>
-                    <input id="swal-asset-amount" type="number" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="10">
-                </div>
-            `,
+            html: `<div style="margin-bottom: 16px; text-align: left;"><label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Hisse / Fon Kodu</label><input id="swal-asset-symbol" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="Örn: NVDA, THYAO" style="text-transform: uppercase;"></div><div style="margin-bottom: 16px; text-align: left;"><label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Piyasa</label><select id="swal-asset-type" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;"><option value="US">ABD Borsası (USD)</option><option value="TR">Türkiye (BİST / TEFAS)</option></select></div><div style="text-align: left;"><label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adet</label><input id="swal-asset-amount" type="number" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="10"></div>`,
             showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' },
             preConfirm: () => {
-                const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim();
-                const type = document.getElementById('swal-asset-type').value;
-                const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
+                const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim(); const type = document.getElementById('swal-asset-type').value; const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
                 if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli değerler girin.'); return false; }
                 return { id: Date.now().toString(), name, type, amount, manualValue: 0 };
             }
-        }).then(async (result) => {
-            if (result.isConfirmed) { appData.assets.push(result.value); saveData(); await fetchAllLivePrices(); }
-        });
+        }).then(async (result) => { if (result.isConfirmed) { appData.assets.push(result.value); saveData(); await fetchAllLivePrices(); } });
     }
 
     function addManualAsset() { appData.assets.push({ id: Date.now().toString(), name: 'Nakit Portföyü', type: 'MANUAL', amount: 1, manualValue: 0 }); saveData(); renderAssets(); }
@@ -964,8 +696,7 @@
     }
 
     function saveLog() {
-        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
-        let week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
+        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value); let week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
         let total = 0, totalUSD = 0, walletsSnapshot = {};
 
         appData.assets.forEach(asset => {
@@ -973,55 +704,38 @@
             if (asset.type === 'MANUAL') val = asset.manualValue;
             else if (asset.type === 'US') val = (asset.amount * (livePricesCache[asset.name]||0)) * usdRateCache;
             else if (asset.type === 'TR') val = asset.amount * (livePricesCache[asset.name]||0);
-            
-            total += val; 
-            if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val;
+            total += val; if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val;
         });
 
         if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
         totalUSD = total / usdRateCache; 
 
-        const now = new Date(); 
-        const dd = String(now.getDate()).padStart(2, '0');
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const yyyy = now.getFullYear();
-        const dateKey = `${dd}.${mm}.${yyyy}`;
-        const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const now = new Date(); const dd = String(now.getDate()).padStart(2, '0'); const mm = String(now.getMonth() + 1).padStart(2, '0'); const yyyy = now.getFullYear();
+        const dateKey = `${dd}.${mm}.${yyyy}`; const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         
         const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey)));
         const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total, totalUSD };
 
-        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; 
-        else week.logs.push(newLogEntry);
-
-        saveData(); updateDashboard();
-        Toast.fire({ icon: 'success', title: 'Kayıt başarıyla işlendi!' });
+        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; else week.logs.push(newLogEntry);
+        saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Kayıt başarıyla işlendi!' });
     }
 
     function updateDashboard() {
         let latestTotal = parseFloat(appData.baseCapital);
-        for(let i = appData.weeks.length - 1; i >= 0; i--) { 
-            if(appData.weeks[i].logs.length > 0) { latestTotal = parseFloat(appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total); break; } 
-        }
+        for(let i = appData.weeks.length - 1; i >= 0; i--) { if(appData.weeks[i].logs.length > 0) { latestTotal = parseFloat(appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total); break; } }
         
         const currentTarget = getTargetAmt(appData.currentWeekNum);
         document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal);
         document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
         
-        const netProfit = latestTotal - parseFloat(appData.baseCapital);
-        const netProfitPct = ((latestTotal - parseFloat(appData.baseCapital)) / parseFloat(appData.baseCapital)) * 100;
-        const diff = latestTotal - currentTarget;
+        const netProfit = latestTotal - parseFloat(appData.baseCapital); const netProfitPct = ((latestTotal - parseFloat(appData.baseCapital)) / parseFloat(appData.baseCapital)) * 100; const diff = latestTotal - currentTarget;
         
         const totalProfitEl = document.getElementById('statTotalProfit');
-        totalProfitEl.innerText = `Net Kar: ${formatTL(netProfit)} (%${netProfitPct.toFixed(2)})`;
-        totalProfitEl.className = 'stat-sub ' + (netProfit >= 0 ? 'text-success' : 'text-danger');
-
+        totalProfitEl.innerText = `Net Kar: ${formatTL(netProfit)} (%${netProfitPct.toFixed(2)})`; totalProfitEl.className = 'stat-sub ' + (netProfit >= 0 ? 'text-success' : 'text-danger');
         const statDiffEl = document.getElementById('statDiff');
-        statDiffEl.innerText = `Hedefe Göre Fark: ${diff >= 0 ? '+' : ''}${formatTL(diff)}`;
-        statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
+        statDiffEl.innerText = `Hedefe Göre Fark: ${diff >= 0 ? '+' : ''}${formatTL(diff)}`; statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
 
-        renderHistory();
-        renderChart();
+        renderHistory(); renderChart();
     }
 
     function renderHistory() {
@@ -1031,63 +745,32 @@
         if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor. Sol panelden Günü Kaydedin.</div>'; return; }
 
         [...weeksWithLogs].reverse().forEach(week => {
-            const lastLog = week.logs[week.logs.length - 1];
-            let prevTotal = parseFloat(appData.baseCapital); 
-            if(week.weekNum > 1) {
-                const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1);
-                if(prev && prev.logs.length > 0) prevTotal = parseFloat(prev.logs[prev.logs.length - 1].total);
-            }
-            const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100;
-            let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
+            const lastLog = week.logs[week.logs.length - 1]; let prevTotal = parseFloat(appData.baseCapital); 
+            if(week.weekNum > 1) { const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1); if(prev && prev.logs.length > 0) prevTotal = parseFloat(prev.logs[prev.logs.length - 1].total); }
+            const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100; let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
 
-            container.innerHTML += `
-                <div class="history-item">
-                    <div>
-                        <div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div>
-                    </div>
-                    <div class="history-actions">
-                        <div style="text-align: right;">
-                            <div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div>
-                            <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
-                        </div>
-                        <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                        </button>
-                    </div>
-                </div>
-            `;
+            container.innerHTML += `<div class="history-item"><div><div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div><div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div></div><div class="history-actions"><div style="text-align: right;"><div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div><div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div></div><button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></button></div></div>`;
         });
     }
 
     function showWeekDetails(weekNum) {
-        const week = appData.weeks.find(w => w.weekNum === weekNum);
-        if(!week || week.logs.length === 0) return;
-
-        let tableHtml = `<div class="modal-table-container"><table class="log-table">
-            <thead><tr><th>Tarih</th><th>Varlık Dağılımı</th><th style="text-align: right;">Günlük Kapanış</th></tr></thead><tbody>`;
-        
+        const week = appData.weeks.find(w => w.weekNum === weekNum); if(!week || week.logs.length === 0) return;
+        let tableHtml = `<div class="modal-table-container"><table class="log-table"><thead><tr><th>Tarih</th><th>Varlık Dağılımı</th><th style="text-align: right;">Günlük Kapanış</th></tr></thead><tbody>`;
         [...week.logs].reverse().forEach(log => {
             let details = []; for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); }
             tableHtml += `<tr><td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td><td class="log-wallet-detail">${details.join('<br>')}</td><td style="text-align: right; font-weight: 800; color: white; font-size: 1rem;">${formatTL(log.total)}</td></tr>`;
         });
         tableHtml += `</tbody></table></div>`;
 
-        let modalHtml = `<div class="modal-chart-area"><canvas id="modalChartCanvas"></canvas></div>${tableHtml}`;
-
         Swal.fire({
-            title: `Hafta ${weekNum} İlerleme Analizi`, html: modalHtml, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
+            title: `Hafta ${weekNum} İlerleme Analizi`, html: `<div class="modal-chart-area"><canvas id="modalChartCanvas"></canvas></div>${tableHtml}`, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
             didOpen: () => {
                 setTimeout(() => {
                     try {
                         const ctx = document.getElementById('modalChartCanvas').getContext('2d');
                         const labels = week.logs.map(log => log.dateKey); const data = week.logs.map(log => parseFloat(log.total));
-                        if (modalChartInstance) modalChartInstance.destroy();
-                        Chart.defaults.color = '#94a3b8';
-                        modalChartInstance = new Chart(ctx, {
-                            type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5, fill: true, tension: 0.4 }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font:{weight:'bold'}, callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false }, ticks:{font:{weight:'bold'}} } } }
-                        });
+                        if (modalChartInstance) modalChartInstance.destroy(); Chart.defaults.color = '#94a3b8';
+                        modalChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font:{weight:'bold'}, callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false }, ticks:{font:{weight:'bold'}} } } } });
                     } catch(e) {}
                 }, 100);
             }
@@ -1095,15 +778,8 @@
     }
 
     const menuBtn = document.getElementById('menuBtn'); const dropdownMenu = document.getElementById('dropdownMenu');
-    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
-    document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
-
-    function resetAllData() {
-        dropdownMenu.classList.remove('active');
-        Swal.fire({ title: 'Sistemi Sıfırla', html: "Tüm portföy verileriniz sıfırlanacak. Onaylıyor musunuz?", icon: 'warning', showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' }, confirmButtonColor: '#ef4444' })
-        .then((result) => { if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); } });
-    }
-
+    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); }); document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
+    function resetAllData() { dropdownMenu.classList.remove('active'); Swal.fire({ title: 'Sistemi Sıfırla', html: "Tüm portföy verileriniz sıfırlanacak. Onaylıyor musunuz?", icon: 'warning', showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' }, confirmButtonColor: '#ef4444' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }); }
     function forceSyncPrices() { dropdownMenu.classList.remove('active'); fetchAllLivePrices(); }
 
     window.onload = init;
