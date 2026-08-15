@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bileşik Getiri Takipçisi MVP</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #1e1e1e; /* Görseldeki Excel dışı siyah alan gibi */
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+    .excel-container {
+        background-color: white;
+        padding: 4px;
+        border: 3px solid #ff0000; /* Görseldeki kırmızı dış çerçeve */
+        width: fit-content;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }
+    .title-bar {
+        background-color: #f79646; /* Turuncu başlık */
+        padding: 8px;
+        font-weight: bold;
+        font-size: 15px;
+        text-align: center;
+        border: 1px solid #000;
+        margin-bottom: 2px;
+    }
+    .controls {
+        padding: 15px;
+        background: #f0f0f0;
+        display: flex;
+        gap: 20px;
+        border: 1px solid #000;
+        border-bottom: none;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .controls input {
+        width: 100px;
+        text-align: right;
+        padding: 4px;
+        font-weight: bold;
+        border: 1px solid #ccc;
+    }
+    .controls button {
+        padding: 6px 15px;
+        background-color: #333;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .controls button:hover { background-color: #555; }
+    
+    .tables-wrapper {
+        display: flex;
+        border: 1px solid #000;
+    }
+    table {
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 4px 8px;
+        text-align: right;
+        white-space: nowrap;
+        height: 22px;
+    }
+    
+    /* Üst Başlıklar */
+    .hdr-hedef { background-color: #ff0000; color: white; text-align: center; font-weight: bold; }
+    .hdr-hafta { background-color: #33ccff; text-align: center; font-weight: bold; width: 50px; }
+    .hdr-tutar { background-color: #ffff00; text-align: center; font-weight: bold; width: 100px; }
+    .hdr-getiri { background-color: #ffffff; text-align: center; font-weight: bold; width: 100px; }
+    .hdr-ulasilan { background-color: #ffffff; text-align: center; font-weight: bold; width: 110px; }
+    
+    /* Hücreler */
+    .cell-hafta { background-color: #33ccff; text-align: center; font-weight: bold; }
+    .cell-tutar { background-color: #ffff99; } /* Açık sarı hedef hücreleri */
+    .cell-ulasilan { background-color: #ffffff; padding: 0; }
+    
+    .cell-ulasilan input {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        border: none;
+        background: transparent;
+        text-align: right;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: bold;
+        outline: none;
+        padding: 4px 8px;
+    }
+    
+    /* Dinamik Renkler (Görseldeki mantık) */
+    .bg-green { background-color: #00b050 !important; color: black; }
+    .bg-red { background-color: #ff0000 !important; color: white; }
+    .bg-orange { background-color: #ffc000 !important; color: black; }
+    
+    /* Ortadaki Ayraç (X TEORİK EŞLEŞME SEANSI) */
+    .separator {
+        width: 45px;
+        background-color: #c4d79b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px solid #000;
+        border-right: 1px solid #000;
+    }
+    .separator span {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-weight: bold;
+        font-size: 18px;
+        letter-spacing: 3px;
+        color: #333;
+    }
+</style>
+</head>
+<body>
+
+<div class="excel-container">
+    <div class="title-bar" id="mainTitle">
+        100.000 TL'mi haftalık %5 bileşik getiri ile 52 haftada 1.264.281 TL yapmaya çalışıyorum.
+    </div>
+    
+    <div class="controls">
+        <label>Sermaye (TL): <input type="number" id="inpCapital" value="100000" onchange="render()"></label>
+        <label>Haftalık Hedef (%): <input type="number" id="inpRate" value="5" step="0.1" onchange="render()"></label>
+        <button onclick="clearData()">Tüm Verileri Temizle</button>
+    </div>
+
+    <div class="tables-wrapper" id="tablesWrapper">
+        <!-- Tablolar JS ile buraya yüklenecek -->
+    </div>
+</div>
+
+<script>
+    // Yerel tarayıcı hafızasından kayıtlı tutarları çek (sayfa yenilense de veriler gitmez)
+    let actuals = JSON.parse(localStorage.getItem('compoundActuals')) || {};
+
+    function clearData() {
+        if(confirm("Tüm girdiğiniz 'Ulaşılan Tutar' verileri silinecek. Emin misiniz?")) {
+            actuals = {};
+            localStorage.removeItem('compoundActuals');
+            render();
+        }
+    }
+
+    function formatTL(num) {
+        if (!num && num !== 0) return '';
+        // Tam sayı veya tek ondalık olarak virgülle ayır (Türkçe formata uygun)
+        return num.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 1 });
+    }
+
+    function render() {
+        const capital = parseFloat(document.getElementById('inpCapital').value) || 100000;
+        const rate = parseFloat(document.getElementById('inpRate').value) || 5;
+        const rateDec = rate / 100;
+        
+        // Üst Başlığı Dinamik Güncelle
+        let finalAmt = capital * Math.pow(1 + rateDec, 52);
+        document.getElementById('mainTitle').innerText = 
+            `${capital.toLocaleString('tr-TR')} TL'mi haftalık %${rate} bileşik getiri ile 52 haftada ${finalAmt.toLocaleString('tr-TR', {maximumFractionDigits:0})} TL yapmaya çalışıyorum.`;
+
+        const wrapper = document.getElementById('tablesWrapper');
+        wrapper.innerHTML = '';
+
+        // 1. Tabloyu Oluştur (1-26 Hafta)
+        wrapper.appendChild(buildTable(1, 26, capital, rateDec));
+        
+        // Ortadaki Dekoratif Ayraç
+        const sep = document.createElement('div');
+        sep.className = 'separator';
+        sep.innerHTML = '<span>X TEORİK EŞLEŞME SEANSI</span>';
+        wrapper.appendChild(sep);
+
+        // 2. Tabloyu Oluştur (27-52 Hafta)
+        wrapper.appendChild(buildTable(27, 52, capital, rateDec));
+
+        // Getirileri ve Renkleri Hesapla
+        calculateResults(capital, rate);
+    }
+
+    function buildTable(start, end, capital, rateDec) {
+        const tableContainer = document.createElement('div');
+        let html = `
+            <table>
+                <thead>
+                    <tr>
+                        <th style="background: white; border-bottom: none;"></th>
+                        <th class="hdr-hedef">HEDEF</th>
+                        <th colspan="2" style="background: white; border-bottom: none;"></th>
+                    </tr>
+                    <tr>
+                        <th class="hdr-hafta">Hafta</th>
+                        <th class="hdr-tutar">Tutar (TL)</th>
+                        <th class="hdr-getiri">Haftalık getiri</th>
+                        <th class="hdr-ulasilan">Ulaşılan Tutar</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (let w = start; w <= end; w++) {
+            let target = capital * Math.pow(1 + rateDec, w);
+            let val = actuals[w] || '';
+            html += `
+                <tr id="row-${w}">
+                    <td class="cell-hafta">${w}</td>
+                    <td class="cell-tutar">${formatTL(target)}</td>
+                    <td id="rate-${w}"></td>
+                    <td id="cell-actual-${w}" class="cell-ulasilan">
+                        <input type="number" step="any" id="actual-${w}" value="${val}" onchange="updateVal(${w})">
+                    </td>
+                </tr>
+            `;
+        }
+
+        html += `</tbody></table>`;
+        tableContainer.innerHTML = html;
+        return tableContainer;
+    }
+
+    function updateVal(week) {
+        const val = document.getElementById(`actual-${week}`).value;
+        if (val === '') {
+            delete actuals[week];
+        } else {
+            actuals[week] = parseFloat(val);
+        }
+        // Veriyi kaydet
+        localStorage.setItem('compoundActuals', JSON.stringify(actuals));
+        
+        // Yeniden hesapla
+        const capital = parseFloat(document.getElementById('inpCapital').value) || 100000;
+        const rate = parseFloat(document.getElementById('inpRate').value) || 5;
+        calculateResults(capital, rate);
+    }
+
+    function calculateResults(capital, targetRate) {
+        let prevActual = capital; // İlk haftanın hesaplaması için önceki hafta Sermaye'dir.
+        
+        for (let w = 1; w <= 52; w++) {
+            const rateCell = document.getElementById(`rate-${w}`);
+            const actualCell = document.getElementById(`cell-actual-${w}`);
+            const actualInput = document.getElementById(`actual-${w}`);
+            
+            if (!rateCell) continue;
+            
+            // Sınıfları ve değerleri sıfırla
+            rateCell.className = '';
+            actualCell.className = 'cell-ulasilan';
+            actualInput.style.color = 'inherit';
+            rateCell.innerText = '';
+
+            let currentVal = actuals[w];
+            if (currentVal !== undefined && currentVal !== '') {
+                // Getiri oranı hesabı = ((Güncel - Önceki) / Önceki) * 100
+                let gainRate = ((currentVal - prevActual) / prevActual) * 100;
+                
+                rateCell.innerText = gainRate.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
+                
+                // Görseldeki Renk Mantığı
+                let colorClass = '';
+                if (gainRate >= targetRate) {
+                    colorClass = 'bg-green'; // Hedef tutturuldu veya aşıldı
+                } else if (gainRate >= 0 && gainRate < targetRate) {
+                    colorClass = 'bg-orange'; // Kâr var ama hedefin altında
+                } else {
+                    colorClass = 'bg-red'; // Zarar (Eksi getiri)
+                }
+                
+                // Renkleri uygula
+                rateCell.classList.add(colorClass);
+                actualCell.classList.add(colorClass);
+                
+                // Beyaz yazması gereken yerler (Kırmızı arkaplanda input beyaz olsun)
+                if (colorClass === 'bg-red') {
+                    actualInput.style.color = 'white';
+                }
+
+                prevActual = currentVal; // Bir sonraki haftanın baz tutarı olarak bunu kullan
+            }
+        }
+    }
+
+    // Sayfa yüklendiğinde tabloları oluştur
+    window.onload = render;
+</script>
+
+</body>
+</html>
