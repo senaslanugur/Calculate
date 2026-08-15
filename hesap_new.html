@@ -3,91 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık & Getiri Yönetimi V4 (Canlı Borsa)</title>
+    <title>Pro Varlık & Getiri Yönetimi V5</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-dark: #0f172a; --panel-bg: #1e293b; --panel-border: #334155;
-            --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --bg-dark: #090e17; --panel-bg: #151e2d; --panel-border: #2a374a;
+            --primary: #3b82f6; --primary-hover: #2563eb; --primary-glow: rgba(59, 130, 246, 0.4);
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #0f172a;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #090e17;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; padding: 20px; }
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
 
-        .app-container { max-width: 1200px; margin: 0 auto; display: grid; gap: 24px; }
+        /* Navbar & Hamburger Menu */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: var(--panel-bg); border-bottom: 1px solid var(--panel-border); position: relative; z-index: 50; }
+        .logo { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; color: white; display: flex; align-items: center; gap: 8px; }
+        .logo span { background: var(--primary); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+        
+        .menu-container { position: relative; }
+        .btn-hamburger { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.2rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn-hamburger:hover { background: var(--input-bg); border-color: var(--primary); }
+        .dropdown-menu { position: absolute; right: 0; top: calc(100% + 8px); background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease-in-out; }
+        .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-main); text-decoration: none; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--panel-border); transition: 0.2s; }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: rgba(255,255,255,0.05); }
+        .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .app-container { max-width: 1200px; margin: 24px auto; padding: 0 20px; display: grid; gap: 24px; }
         @media (min-width: 1024px) { .app-container { grid-template-columns: 380px 1fr; } }
 
         /* Panel UI */
-        .panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); margin-bottom: 24px; }
+        .panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); margin-bottom: 24px; }
         .panel-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; }
 
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-        
         select, input[type="text"], input[type="number"] { width: 100%; background-color: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px; border-radius: 8px; font-size: 0.95rem; outline: none; transition: 0.2s; font-weight: 600; }
         select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
         .btn { background-color: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .btn:hover { background-color: #2563eb; }
+        .btn:hover { background-color: var(--primary-hover); }
         .btn:active { transform: scale(0.98); }
         .btn-outline { background-color: transparent; border: 1px solid var(--panel-border); color: var(--text-main); }
-        .btn-outline:hover { background-color: var(--panel-border); }
+        .btn-outline:hover { background-color: var(--panel-border); border-color: var(--text-muted); }
         .btn-success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
         .btn-success:hover { background-color: var(--success); color: white; }
         
         /* Asset List UI */
-        .asset-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .asset-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; position: relative; transition: 0.2s; }
+        .asset-card:hover { border-color: var(--primary-glow); }
         .asset-header { display: flex; justify-content: space-between; align-items: center; }
-        .asset-title { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
-        .badge-type { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; letter-spacing: 1px; }
-        .bg-us { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .bg-tr { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-        .bg-manual { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .asset-title { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+        .badge-type { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 1px; }
+        .bg-us { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .bg-tr { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .bg-manual { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
         
-        .asset-inputs { display: flex; gap: 10px; align-items: center; }
-        .asset-val-display { text-align: right; font-size: 1.1rem; font-weight: 900; color: var(--success); }
+        .asset-inputs { display: flex; gap: 12px; align-items: flex-end; }
+        .asset-val-display { text-align: right; font-size: 1.15rem; font-weight: 900; color: white; }
         
-        .btn-del { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: var(--danger); opacity: 0.5; cursor: pointer; transition: 0.2s; font-size: 1.2rem; }
-        .btn-del:hover { opacity: 1; transform: scale(1.1); }
+        .btn-del { position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; transition: 0.2s; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; }
+        .btn-del:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 
         /* Dashboard & Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: linear-gradient(145deg, var(--panel-bg), #151e2d); border: 1px solid var(--panel-border); padding: 20px; border-radius: 12px; }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-        .stat-value { font-size: 1.8rem; font-weight: 900; margin-top: 8px; color: var(--primary); letter-spacing: -1px; }
-        .stat-sub { font-size: 0.85rem; margin-top: 4px; font-weight: 600; }
+        .stat-card { background: linear-gradient(145deg, var(--panel-bg), var(--bg-dark)); border: 1px solid var(--panel-border); padding: 24px; border-radius: 16px; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 2rem; font-weight: 900; margin-top: 8px; color: var(--primary); letter-spacing: -1px; }
+        .stat-sub { font-size: 0.85rem; margin-top: 6px; font-weight: 600; }
 
         .text-success { color: var(--success); } .text-warning { color: var(--warning); } .text-danger { color: var(--danger); }
 
         /* History Table */
         .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; margin-bottom: 12px;}
-        .history-item:hover { border-color: var(--primary-glow); }
+        .history-item:hover { border-color: var(--primary-glow); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
         .history-week { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; margin-top: 6px; }
-        .badge.green { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .badge.orange { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .badge.red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .history-actions { display: flex; align-items: center; gap: 16px; }
+        .btn-icon { background: var(--panel-border); border: none; color: var(--text-main); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .btn-icon:hover { background: var(--primary); color: white; }
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; margin-top: 6px; text-align: right;}
+        .badge.green { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3);}
+        .badge.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3);}
+        .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3);}
 
         .chart-container { position: relative; height: 320px; width: 100%; }
         
-        /* Swals */
-        .swal2-popup { background: var(--panel-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; border-radius: 16px !important; }
-        .swal2-title { color: var(--text-main) !important; }
-        .swal2-html-container { color: var(--text-muted) !important; }
-        .swal2-input, .swal2-select { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; }
+        /* SweetAlert2 Premium Customization */
+        .swal2-popup.premium-modal { background: var(--panel-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; border-radius: 24px !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important; padding: 24px !important; }
+        .swal2-title { color: var(--text-main) !important; font-weight: 800 !important; font-size: 1.4rem !important; margin-bottom: 16px !important; }
+        .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; }
+        .premium-modal .swal2-actions { margin-top: 24px !important; gap: 12px; }
+        .premium-modal .swal2-confirm { background: var(--primary) !important; border-radius: 8px !important; padding: 12px 24px !important; font-weight: 700 !important; }
+        .premium-modal .swal2-cancel { background: transparent !important; border: 1px solid var(--panel-border) !important; color: var(--text-main) !important; border-radius: 8px !important; padding: 12px 24px !important; font-weight: 700 !important; }
+        
+        .modal-form-group { margin-bottom: 16px; text-align: left; }
+        .modal-form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-input { width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: 600; outline: none; transition: 0.2s; }
+        .modal-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+        /* Modal Chart & Table Area */
+        .modal-chart-area { height: 220px; width: 100%; margin-bottom: 24px; position: relative; background: var(--input-bg); border-radius: 12px; padding: 12px; border: 1px solid var(--panel-border); }
+        .modal-table-container { max-height: 250px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--input-bg); }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+        .log-table th, .log-table td { padding: 14px 16px; border-bottom: 1px solid var(--panel-border); }
+        .log-table thead { background: rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 1; backdrop-filter: blur(4px); }
+        .log-table th { color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; }
+        .log-table tr:last-child td { border-bottom: none; }
+        .log-wallet-detail { color: var(--text-main); line-height: 1.6; }
+        .log-wallet-detail b { color: var(--text-muted); font-weight: 600; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
+
+<!-- ÜST MENÜ (Header) -->
+<header class="navbar">
+    <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        ProPortföy <span>V5</span>
+    </div>
+    <div class="menu-container">
+        <button class="btn-hamburger" id="menuBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="#" class="dropdown-item" onclick="forceSyncPrices()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Fiyatları Senkronize Et
+            </a>
+            <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                Tüm Verileri Sıfırla
+            </a>
+        </div>
+    </div>
+</header>
 
 <div class="app-container">
     
@@ -108,12 +170,12 @@
         <div class="panel">
             <div class="panel-title">
                 Varlık Yönetimi
-                <button onclick="fetchAllLivePrices()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 6px;" title="Canlı Fiyatları Yenile">🔄 Yenile</button>
+                <button onclick="fetchAllLivePrices()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px;" title="Canlı Fiyatları Yenile">Yenile</button>
             </div>
             
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Sahip olduğunuz hisseleri, fonları veya manuel varlıkları ekleyin. Canlı borsa varlıkları otomatik güncellenir.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Varlıklarınızı ekleyin. Canlı borsa varlıkları otomatik fiyatlandırılır.</p>
 
-            <div id="assetsContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px; margin-bottom: 16px;">
+            <div id="assetsContainer" style="max-height: 380px; overflow-y: auto; padding-right: 5px; margin-bottom: 16px;">
                 <!-- Varlık kartları buraya gelecek -->
             </div>
 
@@ -122,18 +184,19 @@
                 <button class="btn btn-outline" style="font-size: 0.8rem;" onclick="addManualAsset()">+ Manuel Varlık</button>
             </div>
 
-            <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; margin: 20px 0; text-align: center; border: 1px solid var(--panel-border);">
-                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Bu Haftaki Toplam Varlık</div>
-                <div id="liveTotal" style="font-size: 1.8rem; font-weight: 900; color: white;">0 ₺</div>
+            <div style="background: var(--input-bg); padding: 16px; border-radius: 12px; margin: 20px 0; text-align: center; border: 1px solid var(--panel-border);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Şu Anki Toplam Değer</div>
+                <div id="liveTotal" style="font-size: 2rem; font-weight: 900; color: white; letter-spacing: -1px; margin-top: 4px;">0 ₺</div>
             </div>
 
             <div class="form-group">
                 <label>Hangi Haftaya Kaydediyorsunuz?</label>
                 <select id="activeWeekSelect"></select>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Aynı gün içinde birden fazla kayıt yaparsanız, son kayıt o günün kapanışı sayılır.</p>
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <button class="btn" onclick="saveLog()">İlerlemeyi Kaydet</button>
+                <button class="btn" onclick="saveLog()">Günü Kaydet</button>
                 <button class="btn btn-success" style="width: auto; padding: 0 15px;" onclick="startNextWeek()" title="Yeni Haftaya Geç">+</button>
             </div>
         </div>
@@ -170,9 +233,48 @@
 </div>
 
 <script>
+    // --- Menü İşlemleri ---
+    const menuBtn = document.getElementById('menuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) {
+            dropdownMenu.classList.remove('active');
+        }
+    });
+
+    function resetAllData() {
+        dropdownMenu.classList.remove('active');
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: "Uygulamadaki tüm varlıklarınız, portföy geçmişiniz ve ayarlarınız silinecek. (Sadece bu uygulamanın verileri silinir).",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Evet, Her Şeyi Sil',
+            cancelButtonText: 'İptal',
+            customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' },
+            confirmButtonColor: '#ef4444'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        });
+    }
+
+    function forceSyncPrices() {
+        dropdownMenu.classList.remove('active');
+        fetchAllLivePrices();
+    }
+
     // --- API & State Tanımlamaları ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV4';
+    const STORAGE_KEY = 'proApp_wealthTrackerV5';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!appData || !appData.weeks) {
@@ -185,12 +287,12 @@
         };
     }
 
-    // Canlı fiyatları önbellekte tutmak için (Her harf basımında API yorulmasın)
     let livePricesCache = {}; 
-    let usdRateCache = 34.0; // Varsayılan
+    let usdRateCache = 34.0; // Varsayılan kur
+    let chartInstance = null;
+    let modalChartInstance = null;
 
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#1e293b', color: '#f8fafc' });
-    let chartInstance = null;
 
     // --- Formatlayıcılar ---
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
@@ -203,7 +305,6 @@
         document.getElementById('targetRate').value = appData.targetRate;
         updateWeekDropdown();
         
-        // Önce cache fiyatları yükle, sonra UI render et
         await fetchAllLivePrices();
         updateDashboard();
     }
@@ -223,7 +324,7 @@
             const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY');
             const data = await res.json();
             if(data && data[0] && data[0].rate) return data[0].rate;
-            return 34.0; // Fallback
+            return 34.0; 
         } catch(e) { return 34.0; }
     }
 
@@ -238,7 +339,9 @@
     async function fetchTRPrice(symbol) {
         try {
             const now = Math.floor(Date.now() / 1000);
-            const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=1734210000&to=${now}`);
+            // Son 1 aylık veriyi çekip son kapanışı alalım
+            const fromDate = now - (30 * 24 * 60 * 60); 
+            const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${fromDate}&to=${now}`);
             const data = await res.json();
             if (data && data.c && data.c.length > 0) return data.c[data.c.length - 1];
             return 0;
@@ -246,7 +349,13 @@
     }
 
     async function fetchAllLivePrices() {
-        Swal.fire({ title: 'Fiyatlar Güncelleniyor', html: 'Canlı borsa verileri alınıyor...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+        Swal.fire({ 
+            title: 'Senkronize Ediliyor', 
+            html: 'Piyasa verileri güncelleniyor...', 
+            allowOutsideClick: false, 
+            customClass: { popup: 'premium-modal' },
+            didOpen: () => { Swal.showLoading(); } 
+        });
         
         usdRateCache = await fetchUsdTryRate();
         
@@ -264,26 +373,36 @@
         Swal.fire({
             title: 'Canlı Varlık Ekle',
             html: `
-                <input id="swal-asset-symbol" class="swal2-input" placeholder="Hisse/Fon Kodu (Örn: AAPL, THYAO)" style="text-transform: uppercase;">
-                <select id="swal-asset-type" class="swal2-select">
-                    <option value="TR">Türkiye (BİST / TEFAS)</option>
-                    <option value="US">ABD Borsası (USD)</option>
-                </select>
-                <input id="swal-asset-amount" type="number" class="swal2-input" placeholder="Adet/Miktar">
+                <div class="modal-form-group">
+                    <label>Varlık Kodu (Hisse / Fon)</label>
+                    <input id="swal-asset-symbol" class="modal-input" placeholder="Örn: AAPL, THYAO, IIH" style="text-transform: uppercase;">
+                </div>
+                <div class="modal-form-group">
+                    <label>Piyasa Türü</label>
+                    <select id="swal-asset-type" class="modal-input">
+                        <option value="TR">Türkiye (BİST / TEFAS Fonu)</option>
+                        <option value="US">ABD Borsası (USD)</option>
+                    </select>
+                </div>
+                <div class="modal-form-group" style="margin-bottom:0;">
+                    <label>Adet / Miktar</label>
+                    <input id="swal-asset-amount" type="number" class="modal-input" placeholder="Örn: 150">
+                </div>
             `,
-            showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal',
+            showCancelButton: true, confirmButtonText: 'Portföye Ekle', cancelButtonText: 'İptal',
+            customClass: { popup: 'premium-modal' },
             preConfirm: () => {
                 const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim();
                 const type = document.getElementById('swal-asset-type').value;
                 const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
-                if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli bir kod ve miktar girin'); return false; }
+                if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli bir varlık kodu ve miktar girmelisiniz.'); return false; }
                 return { id: Date.now().toString(), name, type, amount, manualValue: 0 };
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
                 appData.assets.push(result.value);
                 saveData();
-                await fetchAllLivePrices(); // Yeni eklenen varlığın fiyatını çekmek için
+                await fetchAllLivePrices(); 
             }
         });
     }
@@ -291,7 +410,7 @@
     function addManualAsset() {
         appData.assets.push({
             id: Date.now().toString(),
-            name: 'Yeni Manuel Varlık',
+            name: 'Yeni Nakit/Varlık',
             type: 'MANUAL',
             amount: 1,
             manualValue: 0
@@ -311,7 +430,7 @@
         if (asset) {
             asset[field] = field === 'name' ? value : (parseFloat(value) || 0);
             saveData();
-            renderAssets(false); // Sadece hesaplamaları güncelle, focus kaybolmasın diye false bayrağı
+            renderAssets(false); 
         }
     }
 
@@ -328,40 +447,45 @@
                 assetTotalTRY = asset.manualValue;
                 html += `
                     <div class="asset-card">
-                        <button class="btn-del" onclick="removeAsset('${asset.id}')">×</button>
+                        <button class="btn-del" onclick="removeAsset('${asset.id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
                         <div class="asset-header">
-                            <input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="width: 60%; background: transparent; border: none; padding: 0; font-size: 0.95rem; font-weight: 700; color: white;">
+                            <input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="width: 70%; background: transparent; border: none; padding: 0; font-size: 1rem; font-weight: 800; color: white; outline:none;">
                             <span class="badge-type bg-manual">MANUEL</span>
                         </div>
                         <div class="asset-inputs">
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Değer (₺):</span>
-                            <input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="flex: 1; padding: 6px;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Toplam Değer (₺):</label>
+                                <input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="padding: 8px; width: 100%; margin-top: 4px;">
+                            </div>
                         </div>
                     </div>`;
             } else {
-                // Canlı Varlık Hesaplamaları
                 const price = livePricesCache[asset.name] || 0;
                 
                 if (asset.type === 'US') {
                     const totalUSD = asset.amount * price;
                     assetTotalTRY = totalUSD * usdRateCache;
-                    displaySubText = `Fiyat: $${price.toFixed(2)} | Kur: ₺${usdRateCache.toFixed(2)}`;
+                    displaySubText = `Fiyat: $${price.toFixed(2)} &nbsp;|&nbsp; USD/TRY: ₺${usdRateCache.toFixed(2)}`;
                 } else if (asset.type === 'TR') {
                     assetTotalTRY = asset.amount * price;
-                    displaySubText = `Canlı Fiyat: ₺${price.toFixed(2)}`;
+                    displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`;
                 }
 
                 html += `
                     <div class="asset-card">
-                        <button class="btn-del" onclick="removeAsset('${asset.id}')">×</button>
+                        <button class="btn-del" onclick="removeAsset('${asset.id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
                         <div class="asset-header">
                             <div class="asset-title">${asset.name} <span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span></div>
                         </div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: -4px;">${displaySubText}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">${displaySubText}</div>
                         <div class="asset-inputs" style="margin-top: 4px;">
                             <div style="flex: 1;">
-                                <label style="font-size: 0.7rem; color: var(--text-muted);">Adet/Miktar:</label>
-                                <input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 6px; width: 100%;">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Adet / Miktar:</label>
+                                <input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 8px; width: 100%; margin-top: 4px;">
                             </div>
                             <div class="asset-val-display" style="flex: 1;">
                                 ${formatTL(assetTotalTRY)}
@@ -373,11 +497,7 @@
         });
 
         if (rebuildDOM) container.innerHTML = html;
-        else {
-            // Sadece DOM'u manuel güncelle (İnput focus'u kaybetmemek için karmaşık bir diff gerekirdi, 
-            // MVP yaklaşımı gereği HTML rebuild edip Live Total'i basıyoruz. UX açısından 'onchange' kullanımı ideal)
-            container.innerHTML = html; 
-        }
+        else container.innerHTML = html; 
         
         document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
     }
@@ -405,7 +525,6 @@
     }
 
     function saveLog() {
-        // Mevcut varlıkların o anki TL değerlerini ve isimlerini snapshot olarak kaydet
         const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
         let week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
         
@@ -428,16 +547,21 @@
         const dateKey = now.toLocaleDateString('tr-TR');
         const fullDateDisplay = dateKey + ' ' + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
 
-        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || l.date.startsWith(dateKey));
+        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey)));
         const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total };
 
-        if (existingLogIndex >= 0) { week.logs[existingLogIndex] = newLogEntry; Toast.fire({ icon: 'success', title: 'Bugünün kaydı güncellendi!' }); } 
-        else { week.logs.push(newLogEntry); Toast.fire({ icon: 'success', title: 'Yeni kayıt eklendi!' }); }
+        if (existingLogIndex >= 0) { 
+            week.logs[existingLogIndex] = newLogEntry; 
+            Toast.fire({ icon: 'success', title: 'Bugünün kaydı güncellendi!' }); 
+        } else { 
+            week.logs.push(newLogEntry); 
+            Toast.fire({ icon: 'success', title: 'Yeni gün kaydı eklendi!' }); 
+        }
 
         saveData(); updateDashboard();
     }
 
-    // --- Dashboard & Chart (Aynı Mantık) ---
+    // --- Dashboard, Geçmiş ve Grafikler ---
     function getWeekLatestTotal(weekNum) {
         const week = appData.weeks.find(w => w.weekNum === weekNum);
         if(!week || week.logs.length === 0) return null;
@@ -493,15 +617,102 @@
             container.innerHTML += `
                 <div class="history-item">
                     <div>
-                        <div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.7rem; opacity:0.5;">(${lastLog.date})</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">${Object.keys(lastLog.wallets).length} Farklı Varlık Kalemi</div>
+                        <div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.75rem; opacity:0.6; font-weight: 500;">(${lastLog.date})</span></div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık</div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 1.2rem; font-weight: 800; color: white;">${formatTL(lastLog.total)}</div>
-                        <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
+                    <div class="history-actions">
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.25rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div>
+                            <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
+                        </div>
+                        <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
                     </div>
                 </div>
             `;
+        });
+    }
+
+    // --- Hafta İçi Detay Modalı ---
+    function showWeekDetails(weekNum) {
+        const week = appData.weeks.find(w => w.weekNum === weekNum);
+        if(!week || week.logs.length === 0) return;
+
+        let tableHtml = `<div class="modal-table-container"><table class="log-table">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Varlık Dağılımı</th>
+                    <th style="text-align: right;">Günlük Kapanış</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        [...week.logs].reverse().forEach(log => {
+            let details = [];
+            for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); }
+            
+            tableHtml += `
+                <tr>
+                    <td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td>
+                    <td class="log-wallet-detail">${details.join('<br>')}</td>
+                    <td style="text-align: right; font-weight: 800; color: white; font-size: 1rem;">${formatTL(log.total)}</td>
+                </tr>
+            `;
+        });
+        tableHtml += `</tbody></table></div>`;
+
+        let modalHtml = `
+            <div class="modal-chart-area">
+                <canvas id="modalChartCanvas"></canvas>
+            </div>
+            ${tableHtml}
+        `;
+
+        Swal.fire({
+            title: `Hafta ${weekNum} İlerleme Analizi`,
+            html: modalHtml,
+            width: 800,
+            showCloseButton: true,
+            showConfirmButton: false,
+            customClass: { popup: 'premium-modal' },
+            didOpen: () => {
+                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
+                
+                const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]);
+                const data = week.logs.map(log => log.total);
+
+                if (modalChartInstance) modalChartInstance.destroy();
+
+                Chart.defaults.color = '#94a3b8';
+                modalChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Portföy Değeri',
+                            data: data,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -523,11 +734,18 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Gerçekleşen', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointRadius: 4, fill: true, tension: 0.3 },
+                    { label: 'Gerçekleşen', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 },
                     { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.3 }
                 ]
             },
-            options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' } }
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                interaction: { intersect: false, mode: 'index' },
+                scales: {
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    x: { grid: { display: false } }
+                } 
+            }
         });
     }
 
