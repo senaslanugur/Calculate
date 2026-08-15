@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (Optimizasyonlu Final)</title>
+    <title>Pro Varlık Terminali (Tam Optimize Final)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- TradingView Lightweight Charts -->
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Chart.js (Haftalık Modal Grafikleri İçin) -->
+    <!-- Chart.js (Modal İçi Analiz) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -94,25 +94,25 @@
 
         .text-success { color: var(--success); } .text-warning { color: var(--warning); } .text-danger { color: var(--danger); }
 
-        /* TradingView Lightweight Chart Container */
-        .tv-chart-box { height: 350px; width: 100%; position: relative; border-radius: 12px; overflow: hidden; background: #090d16; }
+        /* TradingView Chart Container */
+        .tv-chart-box { height: 350px; width: 100%; position: relative; border-radius: 12px; overflow: hidden; background: #090d16; border: 1px solid var(--panel-border); }
 
         /* History Table */
         .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; transition: 0.3s; margin-bottom: 16px;}
-        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); }
         @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
         .history-week { font-weight: 900; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 10px; }
         .history-actions { display: flex; align-items: center; gap: 20px; }
         .btn-icon { background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-main); border-radius: 10px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
         .badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; margin-top: 8px; text-align: right;}
         .badge.green { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4);}
         .badge.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4);}
         .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4);}
 
-        /* SweetAlert2 Premium Modals */
-        .swal2-popup.premium-modal { background: rgba(17, 24, 39, 0.96) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; padding: 30px !important; }
+        /* Modal Styles */
+        .swal2-popup.premium-modal { background: rgba(17, 24, 39, 0.98) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; padding: 30px !important; }
         .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.4rem !important; margin-bottom: 20px !important;}
         .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; }
         .premium-modal .swal2-actions { margin-top: 24px !important; gap: 14px; }
@@ -123,27 +123,23 @@
         .news-title a { color: white; text-decoration: none; font-weight: 800; font-size: 1rem; }
         .news-title a:hover { color: var(--primary); }
 
-        /* Modal Chart & Table Area */
-        .modal-chart-area { height: 220px; width: 100%; margin-bottom: 24px; position: relative; background: var(--input-bg); border-radius: 12px; padding: 12px; border: 1px solid var(--panel-border); }
+        .modal-chart-area { height: 250px; width: 100%; margin-bottom: 24px; position: relative; background: var(--input-bg); border-radius: 12px; padding: 12px; border: 1px solid var(--panel-border); }
         .modal-table-container { max-height: 250px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--input-bg); }
         .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
         .log-table th, .log-table td { padding: 14px 16px; border-bottom: 1px solid var(--panel-border); }
-        .log-table thead { background: rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 1; backdrop-filter: blur(4px); }
+        .log-table thead { background: rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 1; }
         .log-table th { color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; }
         .log-table tr:last-child td { border-bottom: none; }
         .log-wallet-detail { color: var(--text-main); line-height: 1.6; }
         .log-wallet-detail b { color: var(--text-muted); font-weight: 600; }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
 
-<!-- ÜST MENÜ -->
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
@@ -185,7 +181,7 @@
         <div class="panel">
             <div class="panel-title">
                 Varlık Terminali
-                <button onclick="forceSyncPrices()" class="btn-outline" style="width: auto; padding: 6px 14px; font-size: 0.75rem; border-radius: 8px; font-weight: 700;">🔄 Fiyatları Yenile</button>
+                <button onclick="forceSyncPrices()" class="btn-outline" style="width: auto; padding: 6px 14px; font-size: 0.75rem; border-radius: 8px; font-weight: 700;">🔄 Yenile</button>
             </div>
             
             <div id="assetsContainer" style="max-height: 400px; overflow-y: auto; padding-right: 6px; margin-bottom: 16px;"></div>
@@ -212,11 +208,11 @@
         </div>
     </div>
 
-    <!-- SAĞ PANEL: TradingView Grafiği ve Tarihçe -->
+    <!-- SAĞ PANEL: Dashboard, Grafikler ve Geçmiş -->
     <div class="main-content">
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Son Kayıtlı Portföy</div>
+                <div class="stat-label">Son Kayıtlı Portföy Değeri</div>
                 <div class="stat-value" id="statCurrentTotal">0 ₺</div>
                 <div class="stat-sub" id="statTotalProfit">Net Kar: %0</div>
             </div>
@@ -227,16 +223,14 @@
             </div>
         </div>
 
-        <!-- TradingView Lightweight Chart Paneli -->
         <div class="panel">
             <div class="panel-title">
-                TradingView Büyüme Grafiği
-                <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">Canlı İnteraktif Eğri</span>
+                Büyüme Grafiği
+                <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">TradingView Lightweight</span>
             </div>
             <div class="tv-chart-box" id="tvChartContainer"></div>
         </div>
 
-        <!-- Haftalık Tarihçe -->
         <div class="panel">
             <div class="panel-title">Haftalık İlerleme Tarihçesi</div>
             <div class="history-list" id="historyContainer"></div>
@@ -246,7 +240,7 @@
 </div>
 
 <script>
-    // --- Finansal Duygu Sözlüğü (Lexicon NLP) ---
+    // --- Lexicon & Sentiment NLP ---
     const FINANCE_LEXICON = {
         "beats": 3.0, "beat estimates": 3.5, "surge": 3.0, "rally": 2.5, "record high": 3.0, "upgrade": 2.5, "outperform": 2.5, "buyback": 2.0, "raises guidance": 3.0, "strong demand": 2.0, "profit rises": 2.5, "bullish": 2.5,
         "artış": 2.5, "yükseldi": 2.5, "rekor": 3.0, "kar açıkladı": 2.5, "beklentileri aştı": 3.5, "ihracat rekoru": 2.5, "yükseliş": 2.5, "temettü dağıtımı": 2.0, "tavan": 3.0, "büyüme": 2.0, "ihale kazandı": 3.0, "anlaşma imzaladı": 2.5,
@@ -262,8 +256,7 @@
 
         for (const [term, weight] of Object.entries(FINANCE_LEXICON)) {
             if (textLower.includes(term)) {
-                let actualWeight = weight;
-                let isNegated = false;
+                let actualWeight = weight, isNegated = false;
                 let termIndex = textLower.indexOf(term);
                 let precedingText = textLower.substring(Math.max(0, termIndex - 25), termIndex);
                 for (let neg of NEGATIONS) { if (precedingText.includes(neg)) { isNegated = true; break; } }
@@ -341,9 +334,7 @@
             if (filteredItems.length > 0) {
                 let latestNews = filteredItems[0];
                 let latestScore = latestNews.sentiment.score;
-
-                let overallSignal = 'NÖTR';
-                let signalClass = 'signal-neutral';
+                let overallSignal = 'NÖTR', signalClass = 'signal-neutral';
                 if (latestScore >= 0.15) { overallSignal = 'AL'; signalClass = 'signal-buy'; }
                 else if (latestScore <= -0.15) { overallSignal = 'SAT'; signalClass = 'signal-sell'; }
 
@@ -351,15 +342,11 @@
             } else {
                 window.newsSignalCache[ticker] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
             }
-
-        } catch (e) {
-            console.warn("Haber analizi başarısız oldu: ", e);
-        }
+        } catch (e) { console.warn("Haber hatası: ", e); }
     }
 
     function showAssetNewsModal(ticker) {
         const newsItems = window.newsItemsCache[ticker] || [];
-        
         if (newsItems.length === 0) {
             Swal.fire({ title: `${ticker} Haberleri`, html: '<div style="padding: 20px; opacity: 0.6; font-weight:600;">Son 7 gün içerisinde piyasa haberi bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' });
             return;
@@ -369,15 +356,12 @@
         newsItems.forEach((item, index) => {
             let colorClass = item.sentiment.score >= 0.15 ? 'text-success' : (item.sentiment.score <= -0.15 ? 'text-danger' : 'text-muted');
             let isLatest = index === 0 ? '<span style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;">SON HABER</span>' : '';
-            
             html += `
                 <div class="news-item" style="${index===0 ? 'border-color:var(--primary); box-shadow:0 0 15px rgba(59,130,246,0.15);' : ''}">
                     <div class="news-header">
                         <div class="news-title">${isLatest}<a href="${item.link}" target="_blank">${item.title}</a></div>
                         <div class="news-sentiment">
-                            <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">
-                                ${item.sentiment.emoji} ${item.sentiment.label}
-                            </div>
+                            <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">${item.sentiment.emoji} ${item.sentiment.label}</div>
                             <div class="news-score">Skor: ${item.sentiment.score.toFixed(2)}</div>
                         </div>
                     </div>
@@ -387,17 +371,17 @@
             `;
         });
         html += '</div>';
-
         Swal.fire({ title: `📰 ${ticker} Haber Akışı`, html: html, width: 750, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
     }
 
     // --- Global Değişkenler & State ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerFinalOpt';
+    const STORAGE_KEY = 'proApp_wealthTrackerFinalRes';
     
-    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
-    };
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!appData || !appData.weeks) {
+        appData = { baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ] };
+    }
 
     let livePricesCache = {}; 
     let usdRateCache = 34.0;
@@ -407,7 +391,7 @@
 
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
     const formatPct = (num) => num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-    const getTargetAmt = (weekNum) => appData.baseCapital * Math.pow(1 + (appData.targetRate / 100), weekNum);
+    const getTargetAmt = (weekNum) => parseFloat(appData.baseCapital) * Math.pow(1 + (parseFloat(appData.targetRate) / 100), weekNum);
 
     // --- Başlangıç ---
     async function init() {
@@ -423,8 +407,8 @@
     function initLightweightChart() {
         const container = document.getElementById('tvChartContainer');
         container.innerHTML = '';
-
         tvChart = LightweightCharts.createChart(container, {
+            width: container.clientWidth, height: 350,
             layout: { background: { color: '#090d16' }, textColor: '#94a3b8', fontFamily: "'Inter', sans-serif" },
             grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.03)' } },
             crosshair: { vertLine: { color: '#3b82f6', width: 1, style: 2 }, horzLine: { color: '#3b82f6', width: 1, style: 2 } },
@@ -446,29 +430,17 @@
         window.addEventListener('resize', () => { if (tvChart) tvChart.resize(container.clientWidth, 350); });
     }
 
-    // Tarih ayrıştırma (Bug fix: format çevirici)
-    function parseTRDateStr(dateStr) {
-        if(!dateStr) return new Date();
-        let parts = dateStr.split(/[\.\/ -]/);
-        if(parts.length >= 3) {
-            if (parts[2].length === 4) return new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00Z`);
-            if (parts[0].length === 4) return new Date(`${parts[0]}-${parts[1]}-${parts[2]}T12:00:00Z`);
-        }
-        return new Date(dateStr);
-    }
-
     function updateLightweightChartData() {
         if (!tvChart || !tvAreaSeries) return;
 
-        const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
         let allLogs = [];
-        
-        weeksWithLogs.forEach(w => {
+        appData.weeks.forEach(w => {
             w.logs.forEach(log => {
-                let d = parseTRDateStr(log.dateKey);
-                if (!isNaN(d)) {
-                    let isoDate = d.toISOString().split('T')[0];
-                    allLogs.push({ time: isoDate, total: log.total, target: getTargetAmt(w.weekNum) });
+                // dateKey formatı: DD.MM.YYYY
+                const nums = log.dateKey.match(/\d+/g);
+                if (nums && nums.length >= 3) {
+                    const iso = `${nums[2]}-${nums[1].padStart(2, '0')}-${nums[0].padStart(2, '0')}`;
+                    allLogs.push({ time: iso, total: parseFloat(log.total), target: getTargetAmt(w.weekNum) });
                 }
             });
         });
@@ -477,36 +449,36 @@
         let targetTVData = [];
 
         if (allLogs.length === 0) {
-            let today = new Date().toISOString().split('T')[0];
+            let todayObj = new Date();
+            let today = todayObj.toISOString().split('T')[0];
+            todayObj.setDate(todayObj.getDate() + 1);
+            let tmrw = todayObj.toISOString().split('T')[0];
+            
             actualTVData.push({ time: today, value: parseFloat(appData.baseCapital) });
             targetTVData.push({ time: today, value: parseFloat(appData.baseCapital) });
+            actualTVData.push({ time: tmrw, value: parseFloat(appData.baseCapital) });
+            targetTVData.push({ time: tmrw, value: getTargetAmt(1) });
         } else {
-            // TradingView, verilerin zamana göre sıralı olmasını şart koşar
+            // Zamana göre sırala
             allLogs.sort((a,b) => new Date(a.time) - new Date(b.time));
             
-            // Aynı güne ait çoklu kayıtları filtrele (Sadece en güncel kapanış kalır)
-            let uniqueLogs = [];
-            let lastTime = "";
-            allLogs.forEach(log => {
-                if (log.time !== lastTime) {
-                    uniqueLogs.push(log);
-                    lastTime = log.time;
-                } else {
-                    uniqueLogs[uniqueLogs.length - 1] = log;
-                }
-            });
+            // Aynı güne ait birden fazla kayıt varsa en sonuncuyu tut
+            let uniqueMap = {};
+            allLogs.forEach(log => { uniqueMap[log.time] = log; });
+            
+            let sortedTimes = Object.keys(uniqueMap).sort();
+            
+            // Başlangıç noktasını grafiğe ekle (İlk veriden 1 gün önce)
+            let d0 = new Date(sortedTimes[0]);
+            d0.setDate(d0.getDate() - 1);
+            let time0 = d0.toISOString().split('T')[0];
 
-            // Başlangıç sermayesini grafiğin en başına ekle (İlk kayıttan 1 gün önce)
-            let firstD = new Date(uniqueLogs[0].time);
-            firstD.setDate(firstD.getDate() - 1);
-            let firstTimeStr = firstD.toISOString().split('T')[0];
+            actualTVData.push({ time: time0, value: parseFloat(appData.baseCapital) });
+            targetTVData.push({ time: time0, value: parseFloat(appData.baseCapital) });
 
-            actualTVData.push({ time: firstTimeStr, value: parseFloat(appData.baseCapital) });
-            targetTVData.push({ time: firstTimeStr, value: parseFloat(appData.baseCapital) });
-
-            uniqueLogs.forEach(log => {
-                actualTVData.push({ time: log.time, value: parseFloat(log.total) });
-                targetTVData.push({ time: log.time, value: parseFloat(log.target) });
+            sortedTimes.forEach(t => {
+                actualTVData.push({ time: t, value: uniqueMap[t].total });
+                targetTVData.push({ time: t, value: uniqueMap[t].target });
             });
         }
 
@@ -559,9 +531,7 @@
             if (asset.type === 'US') fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             else if (asset.type === 'TR') fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             
-            if (asset.type !== 'MANUAL') {
-                fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
-            }
+            if (asset.type !== 'MANUAL') fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
         }
         
         await Promise.all(fetchPromises);
@@ -708,7 +678,13 @@
 
         if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
 
-        const now = new Date(); const dateKey = now.toLocaleDateString('tr-TR'); const fullDateDisplay = dateKey + ' ' + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+        const now = new Date(); 
+        const dd = String(now.getDate()).padStart(2, '0');
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const yyyy = now.getFullYear();
+        const dateKey = `${dd}.${mm}.${yyyy}`;
+        const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        
         const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey)));
         const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total };
 
@@ -720,17 +696,17 @@
     }
 
     function updateDashboard() {
-        let latestTotal = appData.baseCapital;
+        let latestTotal = parseFloat(appData.baseCapital);
         for(let i = appData.weeks.length - 1; i >= 0; i--) { 
-            if(appData.weeks[i].logs.length > 0) { latestTotal = appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total; break; } 
+            if(appData.weeks[i].logs.length > 0) { latestTotal = parseFloat(appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total); break; } 
         }
         
         const currentTarget = getTargetAmt(appData.currentWeekNum);
         document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal);
         document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
         
-        const netProfit = latestTotal - appData.baseCapital;
-        const netProfitPct = ((latestTotal - appData.baseCapital) / appData.baseCapital) * 100;
+        const netProfit = latestTotal - parseFloat(appData.baseCapital);
+        const netProfitPct = ((latestTotal - parseFloat(appData.baseCapital)) / parseFloat(appData.baseCapital)) * 100;
         const diff = latestTotal - currentTarget;
         
         const totalProfitEl = document.getElementById('statTotalProfit');
@@ -749,14 +725,14 @@
         const container = document.getElementById('historyContainer'); container.innerHTML = '';
         const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
 
-        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor.</div>'; return; }
+        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor. Sol panelden Günü Kaydedin.</div>'; return; }
 
         [...weeksWithLogs].reverse().forEach(week => {
             const lastLog = week.logs[week.logs.length - 1];
-            let prevTotal = appData.baseCapital; 
+            let prevTotal = parseFloat(appData.baseCapital); 
             if(week.weekNum > 1) {
                 const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1);
-                if(prev && prev.logs.length > 0) prevTotal = prev.logs[prev.logs.length - 1].total;
+                if(prev && prev.logs.length > 0) prevTotal = parseFloat(prev.logs[prev.logs.length - 1].total);
             }
             const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100;
             let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
@@ -773,7 +749,7 @@
                             <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
                         </div>
                         <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                         </button>
                     </div>
                 </div>
@@ -781,7 +757,7 @@
         });
     }
 
-    // Modal İçi Grafik/Tablo Analizi (KUSURSUZ GERİ EKLENDİ)
+    // Modal İçi Grafik/Tablo Analizi 
     function showWeekDetails(weekNum) {
         const week = appData.weeks.find(w => w.weekNum === weekNum);
         if(!week || week.logs.length === 0) return;
@@ -821,26 +797,30 @@
             title: `Hafta ${weekNum} İlerleme Analizi`,
             html: modalHtml, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
             didOpen: () => {
-                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
-                const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]);
-                const data = week.logs.map(log => log.total);
+                try {
+                    const ctx = document.getElementById('modalChartCanvas').getContext('2d');
+                    
+                    // Grafik için tarihleri düzgün formatla
+                    const labels = week.logs.map(log => log.dateKey);
+                    const data = week.logs.map(log => parseFloat(log.total));
 
-                if (modalChartInstance) modalChartInstance.destroy();
-                Chart.defaults.color = '#94a3b8';
-                modalChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 3, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 4, fill: true, tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                        scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false } } }
-                    }
-                });
+                    if (modalChartInstance) modalChartInstance.destroy();
+                    Chart.defaults.color = '#94a3b8';
+                    modalChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 3, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 4, fill: true, tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                            scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false } } }
+                        }
+                    });
+                } catch(e) { console.error("Modal Chart Error", e); }
             }
         });
     }
@@ -857,7 +837,7 @@
             title: 'Sistemi Sıfırla',
             html: "Tüm portföy verileriniz sıfırlanacak. Onaylıyor musunuz?",
             icon: 'warning', showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal',
-            customClass: { popup: 'premium-modal' }, confirmButtonColor: '#ef4444'
+            customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' }, confirmButtonColor: '#ef4444'
         }).then((result) => {
             if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
         });
