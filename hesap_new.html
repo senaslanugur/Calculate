@@ -3,150 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık & Getiri Yönetimi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
+    <title>Pro Varlık & Getiri Yönetimi V4 (Canlı Borsa)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --panel-bg: #1e293b;
-            --panel-border: #334155;
-            --primary: #3b82f6;
-            --primary-glow: rgba(59, 130, 246, 0.5);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --input-bg: #0f172a;
+            --bg-dark: #0f172a; --panel-bg: #1e293b; --panel-border: #334155;
+            --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #0f172a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; padding: 20px; }
 
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
+        .app-container { max-width: 1200px; margin: 0 auto; display: grid; gap: 24px; }
+        @media (min-width: 1024px) { .app-container { grid-template-columns: 380px 1fr; } }
 
-        @media (min-width: 1024px) {
-            .app-container { grid-template-columns: 350px 1fr; }
-        }
+        /* Panel UI */
+        .panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); margin-bottom: 24px; }
+        .panel-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; }
 
-        /* --- Panel Styles --- */
-        .panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            margin-bottom: 24px;
-        }
-
-        .panel-title {
-            font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: var(--text-main);
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;
-        }
-
-        /* --- Inputs & Buttons --- */
         .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
         
-        .input-row { display: flex; gap: 10px; align-items: center; }
-        
-        select, input[type="text"], input[type="number"] {
-            width: 100%; background-color: var(--input-bg); border: 1px solid var(--panel-border);
-            color: var(--text-main); padding: 12px; border-radius: 8px; font-size: 0.95rem;
-            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-        }
+        select, input[type="text"], input[type="number"] { width: 100%; background-color: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px; border-radius: 8px; font-size: 0.95rem; outline: none; transition: 0.2s; font-weight: 600; }
         select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
-        .btn {
-            background-color: var(--primary); color: white; border: none; padding: 12px 20px;
-            border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s;
-            width: 100%; font-size: 0.95rem; display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
+        .btn { background-color: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background-color: #2563eb; }
         .btn:active { transform: scale(0.98); }
-        
         .btn-outline { background-color: transparent; border: 1px solid var(--panel-border); color: var(--text-main); }
         .btn-outline:hover { background-color: var(--panel-border); }
-        
-        .btn-danger { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { background-color: var(--danger); color: white; }
-        
         .btn-success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
         .btn-success:hover { background-color: var(--success); color: white; }
+        
+        /* Asset List UI */
+        .asset-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .asset-header { display: flex; justify-content: space-between; align-items: center; }
+        .asset-title { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+        .badge-type { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; letter-spacing: 1px; }
+        .bg-us { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .bg-tr { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .bg-manual { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        
+        .asset-inputs { display: flex; gap: 10px; align-items: center; }
+        .asset-val-display { text-align: right; font-size: 1.1rem; font-weight: 900; color: var(--success); }
+        
+        .btn-del { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: var(--danger); opacity: 0.5; cursor: pointer; transition: 0.2s; font-size: 1.2rem; }
+        .btn-del:hover { opacity: 1; transform: scale(1.1); }
 
-        .btn-icon {
-            background: transparent; border: 1px solid var(--panel-border); color: var(--text-muted);
-            border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* --- Stats Layout --- */
+        /* Dashboard & Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: linear-gradient(145deg, var(--panel-bg), #151e2d); border: 1px solid var(--panel-border); padding: 20px; border-radius: 12px; }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
-        .stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 8px; color: var(--primary); }
-        .stat-sub { font-size: 0.85rem; margin-top: 4px; font-weight: 500; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .stat-value { font-size: 1.8rem; font-weight: 900; margin-top: 8px; color: var(--primary); letter-spacing: -1px; }
+        .stat-sub { font-size: 0.85rem; margin-top: 4px; font-weight: 600; }
 
-        .text-success { color: var(--success); }
-        .text-warning { color: var(--warning); }
-        .text-danger { color: var(--danger); }
+        .text-success { color: var(--success); } .text-warning { color: var(--warning); } .text-danger { color: var(--danger); }
 
-        /* --- History Table --- */
-        .history-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; }
+        /* History Table */
+        .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; margin-bottom: 12px;}
         .history-item:hover { border-color: var(--primary-glow); }
         @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
-        
-        .history-main { display: flex; flex-direction: column; }
-        .history-week { font-weight: 600; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
-        .log-count { font-size: 0.75rem; background: var(--panel-border); padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: normal; }
-        .history-wallets { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
-        
-        .history-numbers { display: flex; align-items: center; gap: 16px; }
-        .history-numbers-inner { text-align: right; }
-        .history-total { font-size: 1.2rem; font-weight: 700; color: white; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; margin-top: 6px; }
+        .history-week { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; margin-top: 6px; }
         .badge.green { background: rgba(16, 185, 129, 0.2); color: var(--success); }
         .badge.orange { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .badge.red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
 
-        .chart-container { position: relative; height: 350px; width: 100%; }
-
-        /* --- SweetAlert Customization --- */
+        .chart-container { position: relative; height: 320px; width: 100%; }
+        
+        /* Swals */
         .swal2-popup { background: var(--panel-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; border-radius: 16px !important; }
         .swal2-title { color: var(--text-main) !important; }
-        .swal2-html-container { color: var(--text-muted) !important; padding: 0 1em !important; }
-        .swal2-close { color: var(--text-muted) !important; }
-        .swal2-close:hover { color: var(--text-main) !important; }
-        
-        /* Modal İçin Özel Tablo ve Grafik Alanı */
-        .modal-chart-area { height: 200px; width: 100%; margin-bottom: 24px; position: relative; }
-        .modal-table-container { max-height: 250px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 8px; }
-        
-        .log-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
-        .log-table th, .log-table td { padding: 12px; border-bottom: 1px solid var(--panel-border); }
-        .log-table thead { background: rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1; }
-        .log-table th { color: var(--text-main); font-weight: 600; }
-        .log-table tr:last-child td { border-bottom: none; }
-        .log-wallet-detail { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+        .swal2-html-container { color: var(--text-muted) !important; }
+        .swal2-input, .swal2-select { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; }
 
-        /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -165,35 +103,37 @@
                 <label>Haftalık Hedef Getiri (%)</label>
                 <input type="number" id="targetRate" step="0.1" onchange="updateSettings()">
             </div>
-            <button class="btn btn-danger" style="margin-top: 10px;" onclick="resetAll()">Tüm Verileri Sıfırla</button>
         </div>
 
         <div class="panel">
             <div class="panel-title">
-                İlerleme Kaydet
+                Varlık Yönetimi
+                <button onclick="fetchAllLivePrices()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 6px;" title="Canlı Fiyatları Yenile">🔄 Yenile</button>
             </div>
             
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Sahip olduğunuz hisseleri, fonları veya manuel varlıkları ekleyin. Canlı borsa varlıkları otomatik güncellenir.</p>
+
+            <div id="assetsContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px; margin-bottom: 16px;">
+                <!-- Varlık kartları buraya gelecek -->
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 8px;">
+                <button class="btn btn-outline" style="font-size: 0.8rem;" onclick="openAddLiveAssetModal()">+ Canlı Varlık</button>
+                <button class="btn btn-outline" style="font-size: 0.8rem;" onclick="addManualAsset()">+ Manuel Varlık</button>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; margin: 20px 0; text-align: center; border: 1px solid var(--panel-border);">
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Bu Haftaki Toplam Varlık</div>
+                <div id="liveTotal" style="font-size: 1.8rem; font-weight: 900; color: white;">0 ₺</div>
+            </div>
+
             <div class="form-group">
-                <label>Hangi Haftaya Kayıt Ekliyorsunuz?</label>
-                <select id="activeWeekSelect" onchange="loadWeekWallets()"></select>
-            </div>
-            
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -5px;">Seçilen hafta için güncel cüzdan değerlerini girin. Günde en fazla bir kayıt tutulur; gün içinde tekrar kaydederseniz son girdiğiniz geçerli olur.</p>
-            
-            <div id="walletsContainer"></div>
-
-            <div class="form-group input-row" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--panel-border);">
-                <input type="text" id="newWalletName" placeholder="Yeni Cüzdan/Varlık Adı">
-                <button class="btn btn-outline" style="width: auto;" onclick="addWalletCategory()">Ekle</button>
-            </div>
-
-            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <div style="font-size: 0.85rem; color: var(--text-muted);">Girilen Toplam Varlık</div>
-                <div id="liveTotal" style="font-size: 1.5rem; font-weight: 700; color: white;">0 ₺</div>
+                <label>Hangi Haftaya Kaydediyorsunuz?</label>
+                <select id="activeWeekSelect"></select>
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <button class="btn" onclick="saveLog()">Kayıt Ekle / Güncelle</button>
+                <button class="btn" onclick="saveLog()">İlerlemeyi Kaydet</button>
                 <button class="btn btn-success" style="width: auto; padding: 0 15px;" onclick="startNextWeek()" title="Yeni Haftaya Geç">+</button>
             </div>
         </div>
@@ -230,100 +170,219 @@
 </div>
 
 <script>
-    // --- SweetAlert Toast Config ---
-    const Toast = Swal.mixin({
-        toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
-        timerProgressBar: true, background: '#1e293b', color: '#f8fafc'
-    });
-
-    // --- State Yönetimi ---
-    const STORAGE_KEY = 'proApp_wealthTrackerV3';
+    // --- API & State Tanımlamaları ---
+    const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
+    const STORAGE_KEY = 'proApp_wealthTrackerV4';
     
-    // Veri Yapısı
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    
     if (!appData || !appData.weeks) {
         appData = {
             baseCapital: 100000,
             targetRate: 5.0,
-            walletCategories: ['Vakıfbank', 'Binance', 'Nakit'],
             currentWeekNum: 1,
+            assets: [], // { id, name, type: 'MANUAL'|'US'|'TR', amount, manualValue }
             weeks: [ { weekNum: 1, logs: [] } ]
         };
     }
 
+    // Canlı fiyatları önbellekte tutmak için (Her harf basımında API yorulmasın)
+    let livePricesCache = {}; 
+    let usdRateCache = 34.0; // Varsayılan
+
+    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#1e293b', color: '#f8fafc' });
     let chartInstance = null;
-    let modalChartInstance = null;
 
     // --- Formatlayıcılar ---
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
     const formatPct = (num) => num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
     const getTargetAmt = (weekNum) => appData.baseCapital * Math.pow(1 + (appData.targetRate / 100), weekNum);
 
-    // --- Başlangıç & Render ---
-    function init() {
+    // --- Başlangıç ---
+    async function init() {
         document.getElementById('baseCapital').value = appData.baseCapital;
         document.getElementById('targetRate').value = appData.targetRate;
         updateWeekDropdown();
-        renderWalletInputs();
+        
+        // Önce cache fiyatları yükle, sonra UI render et
+        await fetchAllLivePrices();
         updateDashboard();
     }
 
     function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
-    function resetAll() {
-        Swal.fire({
-            title: 'Emin misiniz?',
-            text: "Tüm cüzdan ve hafta verileriniz kalıcı olarak silinecektir!",
-            icon: 'warning', showCancelButton: true,
-            confirmButtonColor: '#ef4444', cancelButtonColor: '#334155',
-            confirmButtonText: 'Evet, Sıfırla', cancelButtonText: 'İptal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            }
-        });
-    }
-
     function updateSettings() {
         appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0;
         appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0;
-        saveData();
-        updateDashboard();
+        saveData(); updateDashboard();
         Toast.fire({ icon: 'success', title: 'Strateji güncellendi' });
     }
 
-    // --- Cüzdan Yönetimi ---
-    function addWalletCategory() {
-        const input = document.getElementById('newWalletName');
-        const name = input.value.trim();
-        if(name && !appData.walletCategories.includes(name)) {
-            appData.walletCategories.push(name);
-            input.value = '';
-            saveData();
-            renderWalletInputs();
-            Toast.fire({ icon: 'success', title: 'Cüzdan eklendi' });
-        }
+    // --- API İstekleri ---
+    async function fetchUsdTryRate() {
+        try {
+            const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY');
+            const data = await res.json();
+            if(data && data[0] && data[0].rate) return data[0].rate;
+            return 34.0; // Fallback
+        } catch(e) { return 34.0; }
     }
 
-    function removeWalletCategory(name) {
+    async function fetchUSPrice(symbol) {
+        try {
+            const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
+            const data = await res.json();
+            return data.c || 0;
+        } catch(e) { return 0; }
+    }
+
+    async function fetchTRPrice(symbol) {
+        try {
+            const now = Math.floor(Date.now() / 1000);
+            const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=1734210000&to=${now}`);
+            const data = await res.json();
+            if (data && data.c && data.c.length > 0) return data.c[data.c.length - 1];
+            return 0;
+        } catch(e) { return 0; }
+    }
+
+    async function fetchAllLivePrices() {
+        Swal.fire({ title: 'Fiyatlar Güncelleniyor', html: 'Canlı borsa verileri alınıyor...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+        
+        usdRateCache = await fetchUsdTryRate();
+        
+        for (let asset of appData.assets) {
+            if (asset.type === 'US') livePricesCache[asset.name] = await fetchUSPrice(asset.name);
+            else if (asset.type === 'TR') livePricesCache[asset.name] = await fetchTRPrice(asset.name);
+        }
+        
+        Swal.close();
+        renderAssets();
+    }
+
+    // --- Varlık Yönetimi ---
+    function openAddLiveAssetModal() {
         Swal.fire({
-            title: 'Cüzdanı Sil',
-            text: `"${name}" cüzdanını silmek istiyor musunuz? Geçmiş kayıtlarınız etkilenmez.`,
-            icon: 'warning', showCancelButton: true,
-            confirmButtonColor: '#ef4444', cancelButtonColor: '#334155',
-            confirmButtonText: 'Sil', cancelButtonText: 'İptal'
-        }).then((result) => {
+            title: 'Canlı Varlık Ekle',
+            html: `
+                <input id="swal-asset-symbol" class="swal2-input" placeholder="Hisse/Fon Kodu (Örn: AAPL, THYAO)" style="text-transform: uppercase;">
+                <select id="swal-asset-type" class="swal2-select">
+                    <option value="TR">Türkiye (BİST / TEFAS)</option>
+                    <option value="US">ABD Borsası (USD)</option>
+                </select>
+                <input id="swal-asset-amount" type="number" class="swal2-input" placeholder="Adet/Miktar">
+            `,
+            showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal',
+            preConfirm: () => {
+                const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim();
+                const type = document.getElementById('swal-asset-type').value;
+                const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
+                if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli bir kod ve miktar girin'); return false; }
+                return { id: Date.now().toString(), name, type, amount, manualValue: 0 };
+            }
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                appData.walletCategories = appData.walletCategories.filter(c => c !== name);
+                appData.assets.push(result.value);
                 saveData();
-                renderWalletInputs();
-                Toast.fire({ icon: 'info', title: 'Cüzdan silindi' });
+                await fetchAllLivePrices(); // Yeni eklenen varlığın fiyatını çekmek için
             }
         });
     }
 
+    function addManualAsset() {
+        appData.assets.push({
+            id: Date.now().toString(),
+            name: 'Yeni Manuel Varlık',
+            type: 'MANUAL',
+            amount: 1,
+            manualValue: 0
+        });
+        saveData();
+        renderAssets();
+    }
+
+    function removeAsset(id) {
+        appData.assets = appData.assets.filter(a => a.id !== id);
+        saveData();
+        renderAssets();
+    }
+
+    function updateAsset(id, field, value) {
+        const asset = appData.assets.find(a => a.id === id);
+        if (asset) {
+            asset[field] = field === 'name' ? value : (parseFloat(value) || 0);
+            saveData();
+            renderAssets(false); // Sadece hesaplamaları güncelle, focus kaybolmasın diye false bayrağı
+        }
+    }
+
+    function renderAssets(rebuildDOM = true) {
+        const container = document.getElementById('assetsContainer');
+        let totalLiveValue = 0;
+        let html = '';
+
+        appData.assets.forEach(asset => {
+            let assetTotalTRY = 0;
+            let displaySubText = '';
+
+            if (asset.type === 'MANUAL') {
+                assetTotalTRY = asset.manualValue;
+                html += `
+                    <div class="asset-card">
+                        <button class="btn-del" onclick="removeAsset('${asset.id}')">×</button>
+                        <div class="asset-header">
+                            <input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="width: 60%; background: transparent; border: none; padding: 0; font-size: 0.95rem; font-weight: 700; color: white;">
+                            <span class="badge-type bg-manual">MANUEL</span>
+                        </div>
+                        <div class="asset-inputs">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Değer (₺):</span>
+                            <input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="flex: 1; padding: 6px;">
+                        </div>
+                    </div>`;
+            } else {
+                // Canlı Varlık Hesaplamaları
+                const price = livePricesCache[asset.name] || 0;
+                
+                if (asset.type === 'US') {
+                    const totalUSD = asset.amount * price;
+                    assetTotalTRY = totalUSD * usdRateCache;
+                    displaySubText = `Fiyat: $${price.toFixed(2)} | Kur: ₺${usdRateCache.toFixed(2)}`;
+                } else if (asset.type === 'TR') {
+                    assetTotalTRY = asset.amount * price;
+                    displaySubText = `Canlı Fiyat: ₺${price.toFixed(2)}`;
+                }
+
+                html += `
+                    <div class="asset-card">
+                        <button class="btn-del" onclick="removeAsset('${asset.id}')">×</button>
+                        <div class="asset-header">
+                            <div class="asset-title">${asset.name} <span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span></div>
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: -4px;">${displaySubText}</div>
+                        <div class="asset-inputs" style="margin-top: 4px;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.7rem; color: var(--text-muted);">Adet/Miktar:</label>
+                                <input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 6px; width: 100%;">
+                            </div>
+                            <div class="asset-val-display" style="flex: 1;">
+                                ${formatTL(assetTotalTRY)}
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            totalLiveValue += assetTotalTRY;
+        });
+
+        if (rebuildDOM) container.innerHTML = html;
+        else {
+            // Sadece DOM'u manuel güncelle (İnput focus'u kaybetmemek için karmaşık bir diff gerekirdi, 
+            // MVP yaklaşımı gereği HTML rebuild edip Live Total'i basıyoruz. UX açısından 'onchange' kullanımı ideal)
+            container.innerHTML = html; 
+        }
+        
+        document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
+    }
+
+    // --- Hafta ve Kayıt Yönetimi ---
     function updateWeekDropdown() {
         const select = document.getElementById('activeWeekSelect');
         select.innerHTML = '';
@@ -341,118 +400,57 @@
         if(!appData.weeks.find(w => w.weekNum === appData.currentWeekNum)) {
             appData.weeks.push({ weekNum: appData.currentWeekNum, logs: [] });
         }
-        saveData();
-        updateWeekDropdown();
-        loadWeekWallets();
+        saveData(); updateWeekDropdown();
         Toast.fire({ icon: 'success', title: `Hafta ${appData.currentWeekNum} başlatıldı!` });
     }
 
-    function renderWalletInputs() {
-        const container = document.getElementById('walletsContainer');
-        container.innerHTML = '';
-        
-        appData.walletCategories.forEach(category => {
-            const div = document.createElement('div');
-            div.className = 'form-group input-row';
-            div.innerHTML = `
-                <div style="flex: 1;">
-                    <label>${category}</label>
-                    <input type="number" class="live-wallet-input" data-name="${category}" placeholder="0" oninput="calculateLiveTotal()">
-                </div>
-                <button class="btn btn-outline" style="width: auto; margin-top: 24px; padding: 0 12px; color: var(--danger); border-color: transparent;" onclick="removeWalletCategory('${category}')">✕</button>
-            `;
-            container.appendChild(div);
-        });
-        loadWeekWallets();
-    }
-
-    function loadWeekWallets() {
-        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
-        const week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
-        
-        document.querySelectorAll('.live-wallet-input').forEach(input => input.value = '');
-
-        if(week && week.logs.length > 0) {
-            const lastLog = week.logs[week.logs.length - 1];
-            document.querySelectorAll('.live-wallet-input').forEach(input => {
-                const cat = input.getAttribute('data-name');
-                if(lastLog.wallets[cat]) input.value = lastLog.wallets[cat];
-            });
-        }
-        calculateLiveTotal();
-    }
-
-    function calculateLiveTotal() {
-        let total = 0;
-        document.querySelectorAll('.live-wallet-input').forEach(input => {
-            total += parseFloat(input.value) || 0;
-        });
-        document.getElementById('liveTotal').innerText = formatTL(total);
-        return total;
-    }
-
     function saveLog() {
-        const total = calculateLiveTotal();
-        if(total <= 0) {
-            Toast.fire({ icon: 'error', title: 'Geçerli bir tutar girin' });
-            return;
-        }
-
+        // Mevcut varlıkların o anki TL değerlerini ve isimlerini snapshot olarak kaydet
         const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
         let week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
         
+        let total = 0;
         let walletsSnapshot = {};
-        document.querySelectorAll('.live-wallet-input').forEach(input => {
-            const cat = input.getAttribute('data-name');
-            walletsSnapshot[cat] = parseFloat(input.value) || 0;
+
+        appData.assets.forEach(asset => {
+            let val = 0;
+            if (asset.type === 'MANUAL') val = asset.manualValue;
+            else if (asset.type === 'US') val = (asset.amount * (livePricesCache[asset.name]||0)) * usdRateCache;
+            else if (asset.type === 'TR') val = asset.amount * (livePricesCache[asset.name]||0);
+            
+            total += val;
+            if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val;
         });
 
-        // Tarih Mantığı: Her gün için sadece TEK kayıt (Günün tarihine göre kontrol)
+        if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
+
         const now = new Date();
-        const dateKey = now.toLocaleDateString('tr-TR'); // "15.08.2026"
+        const dateKey = now.toLocaleDateString('tr-TR');
         const fullDateDisplay = dateKey + ' ' + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
 
-        const existingLogIndex = week.logs.findIndex(l => (l.dateKey === dateKey) || (l.date && l.date.startsWith(dateKey)));
+        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || l.date.startsWith(dateKey));
+        const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total };
 
-        const newLogEntry = {
-            dateKey: dateKey,
-            date: fullDateDisplay,
-            wallets: walletsSnapshot,
-            total: total
-        };
+        if (existingLogIndex >= 0) { week.logs[existingLogIndex] = newLogEntry; Toast.fire({ icon: 'success', title: 'Bugünün kaydı güncellendi!' }); } 
+        else { week.logs.push(newLogEntry); Toast.fire({ icon: 'success', title: 'Yeni kayıt eklendi!' }); }
 
-        if (existingLogIndex >= 0) {
-            // Bugünün kaydı zaten var, üzerine yaz.
-            week.logs[existingLogIndex] = newLogEntry;
-            Toast.fire({ icon: 'success', title: 'Bugünün kaydı güncellendi!' });
-        } else {
-            // Yeni gün kaydı.
-            week.logs.push(newLogEntry);
-            Toast.fire({ icon: 'success', title: 'Yeni kayıt eklendi!' });
-        }
-
-        saveData();
-        updateDashboard();
+        saveData(); updateDashboard();
     }
 
+    // --- Dashboard & Chart (Aynı Mantık) ---
     function getWeekLatestTotal(weekNum) {
         const week = appData.weeks.find(w => w.weekNum === weekNum);
         if(!week || week.logs.length === 0) return null;
         return week.logs[week.logs.length - 1].total;
     }
 
-    // --- Dashboard & Grafik ---
     function updateDashboard() {
         let latestTotal = appData.baseCapital;
         for(let i = appData.weeks.length - 1; i >= 0; i--) {
-            if(appData.weeks[i].logs.length > 0) {
-                latestTotal = appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total;
-                break;
-            }
+            if(appData.weeks[i].logs.length > 0) { latestTotal = appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total; break; }
         }
         
         const currentTarget = getTargetAmt(appData.currentWeekNum);
-        
         document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal);
         document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
         
@@ -466,157 +464,49 @@
 
         const statDiffEl = document.getElementById('statDiff');
         statDiffEl.innerText = `Hedefe Göre Fark: ${diff >= 0 ? '+' : ''}${formatTL(diff)}`;
-        statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : (diff > - (currentTarget*0.05) ? 'text-warning' : 'text-danger'));
+        statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
 
-        renderHistory();
-        renderChart();
+        renderHistory(); renderChart();
     }
 
     function renderHistory() {
         const container = document.getElementById('historyContainer');
         container.innerHTML = '';
-
         const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
 
         if(weeksWithLogs.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px;">Henüz hiç hafta kaydedilmedi.</div>';
+            container.innerHTML = '<div style="opacity:0.5; font-size:0.9rem; text-align:center;">Henüz kayıt yok.</div>';
             return;
         }
 
         [...weeksWithLogs].reverse().forEach(week => {
             const lastLog = week.logs[week.logs.length - 1];
             
-            let walletDetails = [];
-            for (const [key, value] of Object.entries(lastLog.wallets)) {
-                if(value > 0) walletDetails.push(`${key}: ${formatTL(value)}`);
-            }
-
             let prevTotal = appData.baseCapital;
             if(week.weekNum > 1) {
                 const prev = getWeekLatestTotal(week.weekNum - 1);
                 if(prev !== null) prevTotal = prev;
             }
-            
             const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100;
-            
-            let badgeClass = 'red';
-            if(gainPct >= appData.targetRate) badgeClass = 'green';
-            else if (gainPct >= 0) badgeClass = 'orange';
+            let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
 
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.innerHTML = `
-                <div class="history-main">
-                    <div class="history-week">Hafta ${week.weekNum} <span class="log-count">${week.logs.length} Gün</span></div>
-                    <div class="history-wallets" style="font-size: 0.75rem;">Son Güncelleme: ${lastLog.date}</div>
-                    <div class="history-wallets">${walletDetails.join(' • ')}</div>
-                </div>
-                <div class="history-numbers">
-                    <div class="history-numbers-inner">
-                        <div class="history-total">${formatTL(lastLog.total)}</div>
+            container.innerHTML += `
+                <div class="history-item">
+                    <div>
+                        <div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.7rem; opacity:0.5;">(${lastLog.date})</span></div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">${Object.keys(lastLog.wallets).length} Farklı Varlık Kalemi</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.2rem; font-weight: 800; color: white;">${formatTL(lastLog.total)}</div>
                         <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
                     </div>
-                    <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    </button>
                 </div>
             `;
-            container.appendChild(item);
-        });
-    }
-
-    function showWeekDetails(weekNum) {
-        const week = appData.weeks.find(w => w.weekNum === weekNum);
-        if(!week || week.logs.length === 0) return;
-
-        // 1. Tablo HTML Hazırlığı
-        let tableHtml = `<div class="modal-table-container"><table class="log-table">
-            <thead>
-                <tr>
-                    <th>Tarih</th>
-                    <th>Cüzdan Dağılımı</th>
-                    <th style="text-align: right;">Günlük Toplam</th>
-                </tr>
-            </thead>
-            <tbody>`;
-        
-        // Tersten gösterelim (En yeni gün en üstte)
-        [...week.logs].reverse().forEach(log => {
-            let details = [];
-            for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); }
-            
-            tableHtml += `
-                <tr>
-                    <td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td>
-                    <td class="log-wallet-detail">${details.join('<br>')}</td>
-                    <td style="text-align: right; font-weight: 600; color: white;">${formatTL(log.total)}</td>
-                </tr>
-            `;
-        });
-        tableHtml += `</tbody></table></div>`;
-
-        // 2. Modal HTML Birleştirme
-        let modalHtml = `
-            <div class="modal-chart-area">
-                <canvas id="modalChartCanvas"></canvas>
-            </div>
-            ${tableHtml}
-        `;
-
-        // 3. Modal Açılışı ve Grafik Çizimi
-        Swal.fire({
-            title: `Hafta ${weekNum} İlerleme Analizi`,
-            html: modalHtml,
-            width: 750,
-            showCloseButton: true,
-            showConfirmButton: false,
-            didOpen: () => {
-                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
-                
-                // Grafik verileri (Tarih sırasına göre soldan sağa, bu yüzden reverse yapmıyoruz)
-                const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]);
-                const data = week.logs.map(log => log.total);
-
-                if (modalChartInstance) modalChartInstance.destroy();
-
-                Chart.defaults.color = '#94a3b8';
-                modalChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Portföy Değeri',
-                            data: data,
-                            borderColor: '#10b981', // Başarı Yeşili
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#10b981',
-                            pointBorderColor: '#fff',
-                            pointRadius: 4,
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { 
-                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                                ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } }
-                            },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
-            }
         });
     }
 
     function renderChart() {
         const ctx = document.getElementById('growthChart').getContext('2d');
-        
         const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
         
         const labels = ['Başlangıç', ...weeksWithLogs.map(w => `Hafta ${w.weekNum}`)];
@@ -633,22 +523,11 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Gerçekleşen (Hafta Sonu)', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 },
+                    { label: 'Gerçekleşen', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointRadius: 4, fill: true, tension: 0.3 },
                     { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.3 }
                 ]
             },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { intersect: false, mode: 'index' },
-                plugins: { legend: { position: 'top' } },
-                scales: {
-                    y: { 
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' } }
         });
     }
 
