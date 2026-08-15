@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali V12 (Kusursuz AI Radar)</title>
+    <title>Pro Varlık Terminali (Haber & Grafik Optimizasyonu)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- TradingView Lightweight Charts -->
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -35,33 +35,8 @@
         .dropdown-item:hover { background: rgba(255,255,255,0.05); }
         .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        /* RADAR SLIDER SECTION */
-        .radar-section { max-width: 1240px; margin: 20px auto 0; padding: 0 20px; }
-        .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
-        .radar-title { font-size: 0.95rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .radar-title span { color: var(--success); font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); }
-        
-        .radar-controls { display: flex; align-items: center; gap: 10px; }
-        .radar-select { background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; outline: none; }
-        
-        .radar-progress-bar { width: 100%; height: 4px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 10px; display: none; }
-        .radar-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.2s; }
-
-        .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; }
-        .radar-card { flex: 0 0 240px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-        .radar-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 8px 20px var(--primary-glow); }
-        .radar-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .radar-symbol { font-size: 1.15rem; font-weight: 900; color: white; }
-        .radar-name { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
-        .radar-score { font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
-        .score-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
-        .score-neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3); }
-        .score-sell { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
-        .radar-headline { font-size: 0.75rem; color: #cbd5e1; margin: 10px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35; font-weight: 500; }
-        .radar-footer { font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
-
         /* Main Container */
-        .app-container { max-width: 1240px; margin: 16px auto; padding: 0 20px; display: grid; gap: 24px; }
+        .app-container { max-width: 1240px; margin: 24px auto; padding: 0 20px; display: grid; gap: 24px; }
         @media (min-width: 1024px) { .app-container { grid-template-columns: 400px 1fr; } }
 
         /* Panels */
@@ -92,7 +67,7 @@
         .bg-tr { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
         .bg-manual { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-        .signal-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
+        .signal-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; cursor: help; }
         .signal-buy { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
         .signal-sell { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
         .signal-neutral { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.2); }
@@ -157,7 +132,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V12</span>
+        ProPortföy <span>Terminal</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -168,10 +143,6 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                 Piyasayı Senkronize Et
             </a>
-            <a href="#" class="dropdown-item" onclick="runRadarScan()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
-                ABD Radarını Tara
-            </a>
             <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                 Tüm Verileri Sıfırla
@@ -179,33 +150,6 @@
         </div>
     </div>
 </header>
-
-<!-- RADAR SLIDER: Güvenli Fallback Mimarili ABD Radarı -->
-<div class="radar-section">
-    <div class="radar-header">
-        <div class="radar-title">
-            🔥 AI Piyasa Radarı: Güçlü Alım Sinyalleri 
-            <span id="radarCountBadge">HİSSE HAVUZU</span>
-        </div>
-        <div class="radar-controls">
-            <select id="radarPoolSize" class="radar-select" onchange="runRadarScan()">
-                <option value="100">100 Hisse</option>
-                <option value="300">300 Hisse</option>
-                <option value="500" selected>500 Hisse</option>
-                <option value="1000">1000 Hisse</option>
-            </select>
-            <button onclick="runRadarScan()" class="btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; font-weight: 700;">Yeniden Tara</button>
-        </div>
-    </div>
-    
-    <div class="radar-progress-bar" id="radarProgressBar">
-        <div class="radar-progress-fill" id="radarProgressFill"></div>
-    </div>
-
-    <div class="radar-slider" id="radarSlider">
-        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">ABD hisseleri çekiliyor ve yapay zeka analizinden geçiriliyor...</div>
-    </div>
-</div>
 
 <div class="app-container">
     
@@ -328,222 +272,113 @@
         else return { score, label: "NÖTR", emoji: "⚪", reasons };
     }
 
-    // --- GÜVENLİ TRADINGVIEW / FINNHUB SCANNER KÖPRÜSÜ ---
-    async function fetchTradingViewSymbols(maxCount = 500) {
-        const url = "https://scanner.tradingview.com/america/scan";
-        let symbols = [];
-        let start = 0;
-        const pageSize = 150;
-        let tvFailed = false;
+    // --- Haber Analiz & Çekim Motoru ---
+    window.newsSignalCache = {}; 
+    window.newsItemsCache = {};  
 
-        // Tarayıcı engelini aşmak için POST destekli CORS Proxy
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    async function fetchAndAnalyzeNewsSilently(ticker, type) {
+        let filteredItems = [];
+        const now = new Date();
+        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
 
-        while (start < maxCount) {
-            const payload = {
-                filter: [{ left: "type", operation: "equal", right: "stock" }],
-                symbols: { query: { types: [] }, tickers: [] },
-                columns: ["name", "description"],
-                sort: { sortBy: "market_cap_basic", sortOrder: "desc" },
-                range: [start, Math.min(start + pageSize, maxCount)]
-            };
-
-            try {
-                const resp = await fetch(proxyUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+        try {
+            if (type === 'US') {
+                const toDate = now.toISOString().split('T')[0];
+                const fromDate = past7Days.toISOString().split('T')[0];
+                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${ticker}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
+                const data = await res.json();
+                
+                if (data && data.length > 0) {
+                    data.slice(0, 15).forEach(news => {
+                        const pubDate = new Date(news.datetime * 1000);
+                        const sentiment = analyzeHeadline(news.headline);
+                        filteredItems.push({ title: news.headline, link: news.url, date: pubDate.toLocaleString('tr-TR'), source: news.source, sentiment: sentiment, rawDate: pubDate });
+                    });
+                }
+            } else {
+                const cleanTicker = ticker.replace(".IS", ""); 
+                const query = `${cleanTicker} hisse haber`; 
+                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+                
+                const resp = await fetch(proxyUrl);
+                const xmlText = await resp.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "application/xml");
+                const items = xml.querySelectorAll("item");
+                
+                items.forEach(item => {
+                    const title = item.querySelector("title")?.textContent || "";
+                    const link = item.querySelector("link")?.textContent || "";
+                    const pubDate = new Date(item.querySelector("pubDate")?.textContent || "");
+                    const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
+                    
+                    if (pubDate >= past7Days) {
+                        const sentiment = analyzeHeadline(title);
+                        filteredItems.push({ title, link, date: pubDate.toLocaleString('tr-TR'), source, sentiment, rawDate: pubDate });
+                    }
                 });
-
-                if (!resp.ok) throw new Error("CORS Proxy veya TV engelledi.");
-
-                const data = await resp.json();
-                if (!data.data || data.data.length === 0) break;
-
-                data.data.forEach(item => {
-                    let rawSymbol = item.s || "";
-                    let sym = rawSymbol.includes(":") ? rawSymbol.split(":")[1] : rawSymbol;
-                    let desc = (item.d && item.d[1]) ? item.d[1] : sym;
-                    symbols.push({ symbol: sym.replace(".", "-"), name: desc });
-                });
-
-                start += pageSize;
-                if (data.data.length < pageSize) break;
-            } catch (err) {
-                console.warn("TradingView aracı başarısız oldu. Finnhub yedeği devreye giriyor...", err);
-                tvFailed = true;
-                break;
             }
-        }
+            
+            filteredItems.sort((a,b) => b.rawDate - a.rawDate);
+            window.newsItemsCache[ticker] = filteredItems;
 
-        // KUSURSUZ YEDEK PLAN (FAILOVER): Eğer tarayıcı/proxy TradingView'i ezerse, doğrudan Finnhub API'sinden 10.000+ hisseyi çekip doldururuz.
-        if (tvFailed || symbols.length === 0) {
-            try {
-                const fhRes = await fetch(`https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${FINNHUB_KEY}`);
-                const fhData = await fhRes.json();
-                
-                // Common Stock olanları filtrele
-                const commonStocks = fhData.filter(d => d.type === "Common Stock" && !d.symbol.includes("."));
-                
-                // En güçlü devleri zorunlu olarak başa alalım
-                const popular = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK.B","AVGO","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK","ABBV","CRM","BAC","CVX","NFLX","AMD","KO","PEP"];
-                
-                let fallbackSymbols = [];
-                popular.forEach(p => fallbackSymbols.push({ symbol: p.replace(".","-"), name: p }));
-                commonStocks.forEach(item => { if (!popular.includes(item.symbol)) fallbackSymbols.push({ symbol: item.symbol, name: item.description }); });
+            if (filteredItems.length > 0) {
+                let latestNews = filteredItems[0];
+                let latestScore = latestNews.sentiment.score;
 
-                symbols = fallbackSymbols;
-            } catch(e) {
-                console.error("Finnhub yedeği de başarısız", e);
+                let overallSignal = 'NÖTR';
+                let signalClass = 'signal-neutral';
+                if (latestScore >= 0.15) { overallSignal = 'AL'; signalClass = 'signal-buy'; }
+                else if (latestScore <= -0.15) { overallSignal = 'SAT'; signalClass = 'signal-sell'; }
+
+                window.newsSignalCache[ticker] = { signal: overallSignal, class: signalClass, score: latestScore, time: latestNews.date };
+            } else {
+                window.newsSignalCache[ticker] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
             }
-        }
 
-        return symbols.slice(0, maxCount);
+        } catch (e) {
+            console.warn("Haber analizi başarısız oldu: ", e);
+        }
     }
 
-    // --- ABD RADAR TARAMASI (TÜM HİSSELERİ İŞLEYİP SIRALAMA) ---
-    async function runRadarScan() {
-        const slider = document.getElementById('radarSlider');
-        const countBadge = document.getElementById('radarCountBadge');
-        const progressBar = document.getElementById('radarProgressBar');
-        const progressFill = document.getElementById('radarProgressFill');
-        const poolSize = parseInt(document.getElementById('radarPoolSize').value) || 500;
-
-        progressBar.style.display = 'block';
-        progressFill.style.width = '5%';
-        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">ABD hisseleri çekiliyor (Bu işlem tarayıcı hızınıza göre birkaç saniye sürebilir)...</div>';
-
-        const tvSymbols = await fetchTradingViewSymbols(poolSize);
-        countBadge.innerText = `${tvSymbols.length} HİSSE TARANIYOR`;
-
-        const now = new Date();
-        const toDate = now.toISOString().split('T')[0];
-        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
-
-        // Finnhub Genel Piyasa Haberlerini Toplu Çek (Tek tek istek atmamak ve sistemi hızlandırmak için)
-        let marketNewsMap = {};
-        try {
-            const res = await fetch(`https://finnhub.io/api/v1/news?category=general&token=${FINNHUB_KEY}`);
-            const genNews = await res.json();
-            if (Array.isArray(genNews)) {
-                genNews.forEach(n => {
-                    if (n.related) marketNewsMap[n.related.toUpperCase()] = n;
-                });
-            }
-        } catch(e) {}
-
-        let analyzedResults = [];
-        const batchSize = 15; // Asenkron istek kuyruğu
+    function showAssetNewsModal(ticker) {
+        const newsItems = window.newsItemsCache[ticker] || [];
         
-        for (let i = 0; i < tvSymbols.length; i += batchSize) {
-            const chunk = tvSymbols.slice(i, i + batchSize);
-
-            const chunkPromises = chunk.map(async (item) => {
-                try {
-                    let latestNews = marketNewsMap[item.symbol];
-                    
-                    if (!latestNews) {
-                        const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${item.symbol}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
-                        const newsData = await res.json();
-                        if (Array.isArray(newsData) && newsData.length > 0) latestNews = newsData[0];
-                    }
-
-                    if (latestNews) {
-                        const sentiment = analyzeHeadline(latestNews.headline || latestNews.summary);
-                        return {
-                            symbol: item.symbol,
-                            name: item.name,
-                            headline: latestNews.headline || latestNews.summary,
-                            url: latestNews.url || "",
-                            source: latestNews.source || "Piyasa",
-                            date: new Date(latestNews.datetime * 1000).toLocaleDateString('tr-TR'),
-                            sentiment: sentiment
-                        };
-                    }
-                } catch (e) {}
-                return null;
-            });
-
-            const batchRes = await Promise.all(chunkPromises);
-            batchRes.forEach(r => { if (r) analyzedResults.push(r); });
-
-            const pct = Math.min(100, Math.round(((i + batchSize) / tvSymbols.length) * 100));
-            progressFill.style.width = `${pct}%`;
-        }
-
-        progressBar.style.display = 'none';
-
-        if (analyzedResults.length === 0) {
-            slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Haber akışı olan hisse bulunamadı veya API limiti aşıldı. Lütfen tekrar deneyin.</div>';
+        if (newsItems.length === 0) {
+            Swal.fire({ title: `${ticker} Haberleri`, html: '<div style="padding: 20px; opacity: 0.6; font-weight:600;">Son 7 gün içerisinde piyasa haberi bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' });
             return;
         }
 
-        // EN YÜKSEK AL SKORUNA GÖRE SIRALA
-        analyzedResults.sort((a, b) => b.sentiment.score - a.sentiment.score);
-        countBadge.innerText = `${analyzedResults.length} HABERLİ HİSSE`;
-
-        let html = '';
-        analyzedResults.forEach(res => {
-            let scoreClass = res.sentiment.score >= 0.15 ? 'score-buy' : (res.sentiment.score <= -0.15 ? 'score-sell' : 'score-neutral');
+        let html = '<div style="max-height: 450px; overflow-y: auto; padding-right: 8px;">';
+        newsItems.forEach((item, index) => {
+            let colorClass = item.sentiment.score >= 0.15 ? 'text-success' : (item.sentiment.score <= -0.15 ? 'text-danger' : 'text-muted');
+            let isLatest = index === 0 ? '<span style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;">SON HABER</span>' : '';
+            
             html += `
-                <div class="radar-card" onclick="openRadarDetail('${res.symbol}', '${encodeURIComponent(res.name)}', '${encodeURIComponent(res.headline)}', '${encodeURIComponent(res.url)}', '${encodeURIComponent(res.source)}', ${res.sentiment.score}, '${encodeURIComponent(res.sentiment.reasons.join(' | '))}')">
-                    <div class="radar-card-top">
-                        <div>
-                            <div class="radar-symbol">${res.symbol}</div>
-                            <div class="radar-name">${res.name}</div>
-                        </div>
-                        <div class="radar-score ${scoreClass}">
-                            ${res.sentiment.emoji} ${res.sentiment.label}
+                <div class="news-item" style="${index===0 ? 'border-color:var(--primary); box-shadow:0 0 15px rgba(59,130,246,0.15);' : ''}">
+                    <div class="news-header">
+                        <div class="news-title">${isLatest}<a href="${item.link}" target="_blank">${item.title}</a></div>
+                        <div class="news-sentiment">
+                            <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">
+                                ${item.sentiment.emoji} ${item.sentiment.label}
+                            </div>
+                            <div class="news-score">Skor: ${item.sentiment.score.toFixed(2)}</div>
                         </div>
                     </div>
-                    <div class="radar-headline">"${res.headline}"</div>
-                    <div class="radar-footer">
-                        <span>${res.source}</span>
-                        <span>${res.date}</span>
-                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);"><b>${item.source}</b> &bull; ${item.date}</div>
+                    <div class="news-reasons">${item.sentiment.reasons.join('<br>')}</div>
                 </div>
             `;
         });
+        html += '</div>';
 
-        slider.innerHTML = html;
-    }
-
-    function openRadarDetail(symbol, name, headline, url, source, score, reasonsStr) {
-        name = decodeURIComponent(name);
-        headline = decodeURIComponent(headline);
-        url = decodeURIComponent(url);
-        source = decodeURIComponent(source);
-        let reasons = decodeURIComponent(reasonsStr).split(' | ');
-
-        Swal.fire({
-            title: `🚀 ${symbol} — ${name}`,
-            html: `
-                <div style="text-align: left; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 14px; border: 1px solid var(--panel-border); margin-bottom: 16px;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 6px;">SON PİYASA HABERİ</div>
-                    <div style="font-size: 1rem; font-weight: 800; color: white; line-height: 1.4; margin-bottom: 8px;">"${headline}"</div>
-                    <div style="font-size: 0.75rem; color: var(--primary);">Kaynak: ${source}</div>
-                </div>
-                <div style="text-align: left; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-                    <b>Algoritma Görüşü:</b><br>${reasons.join('<br>') || 'Nötr akış'}
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: '+ Portföyüme Ekle',
-            cancelButtonText: 'Kapat',
-            customClass: { popup: 'premium-modal' }
-        }).then((res) => {
-            if (res.isConfirmed) {
-                appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 });
-                saveData();
-                fetchAllLivePrices();
-                Toast.fire({ icon: 'success', title: `${symbol} portföyünüze eklendi!` });
-            }
-        });
+        Swal.fire({ title: `📰 ${ticker} Haber Akışı`, html: html, width: 750, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
     }
 
     // --- Global Değişkenler & State ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV12';
+    const STORAGE_KEY = 'proApp_wealthTrackerFinal';
     
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
@@ -566,7 +401,6 @@
         initLightweightChart();
         await fetchAllLivePrices();
         updateDashboard();
-        runRadarScan(); 
     }
 
     // --- TRADINGVIEW LIGHTWEIGHT CHARTS ---
@@ -575,19 +409,9 @@
         container.innerHTML = '';
 
         tvChart = LightweightCharts.createChart(container, {
-            layout: {
-                background: { color: '#090d16' },
-                textColor: '#94a3b8',
-                fontFamily: "'Inter', sans-serif"
-            },
-            grid: {
-                vertLines: { color: 'rgba(255, 255, 255, 0.03)' },
-                horzLines: { color: 'rgba(255, 255, 255, 0.03)' },
-            },
-            crosshair: {
-                vertLine: { color: '#3b82f6', width: 1, style: 2 },
-                horzLine: { color: '#3b82f6', width: 1, style: 2 },
-            },
+            layout: { background: { color: '#090d16' }, textColor: '#94a3b8', fontFamily: "'Inter', sans-serif" },
+            grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.03)' } },
+            crosshair: { vertLine: { color: '#3b82f6', width: 1, style: 2 }, horzLine: { color: '#3b82f6', width: 1, style: 2 } },
             rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.1)' },
             timeScale: { borderColor: 'rgba(255, 255, 255, 0.1)', timeVisible: true, secondsVisible: false },
             handleScroll: { mouseWheel: true, pressedMouseMove: true },
@@ -595,23 +419,15 @@
         });
 
         tvAreaSeries = tvChart.addAreaSeries({
-            lineColor: '#3b82f6',
-            topColor: 'rgba(59, 130, 246, 0.4)',
-            bottomColor: 'rgba(59, 130, 246, 0.01)',
-            lineWidth: 3,
-            priceFormat: { type: 'custom', formatter: val => formatTL(val) }
+            lineColor: '#3b82f6', topColor: 'rgba(59, 130, 246, 0.4)', bottomColor: 'rgba(59, 130, 246, 0.01)',
+            lineWidth: 3, priceFormat: { type: 'custom', formatter: val => formatTL(val) }
         });
 
         tvTargetSeries = tvChart.addLineSeries({
-            color: '#ef4444',
-            lineWidth: 2,
-            lineStyle: 2,
-            priceFormat: { type: 'custom', formatter: val => formatTL(val) }
+            color: '#ef4444', lineWidth: 2, lineStyle: 2, priceFormat: { type: 'custom', formatter: val => formatTL(val) }
         });
 
-        window.addEventListener('resize', () => {
-            if (tvChart) tvChart.resize(container.clientWidth, 350);
-        });
+        window.addEventListener('resize', () => { if (tvChart) tvChart.resize(container.clientWidth, 350); });
     }
 
     function updateLightweightChartData() {
@@ -673,22 +489,19 @@
     }
 
     async function fetchAllLivePrices() {
-        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Borsa ve döviz kurları alınıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Portföyünüz taranıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         usdRateCache = await fetchUsdTryRate();
         let fetchPromises = [];
 
         window.newsSignalCache = window.newsSignalCache || {};
 
         for (let asset of appData.assets) {
-            if (asset.type === 'US') {
-                fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-            } else if (asset.type === 'TR') {
-                fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-            }
+            if (asset.type === 'US') fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
+            else if (asset.type === 'TR') fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
             
-            // Eğer daha önceden arka planda sinyali oluşmamışsa, hızlıca oluştur
-            if (!window.newsSignalCache[asset.name]) {
-                window.newsSignalCache[asset.name] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
+            // Fiyatla birlikte arka planda haber analizi de çek
+            if (asset.type !== 'MANUAL') {
+                fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
             }
         }
         
@@ -735,14 +548,19 @@
                     displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`;
                 }
 
+                const signalData = window.newsSignalCache[asset.name] || { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
+                let signalTooltip = signalData.score !== 0 ? `Son Haber Skoru: ${signalData.score.toFixed(2)}` : 'Haber bulunamadı';
+
                 html += `
                     <div class="asset-card">
                         <div class="asset-header">
                             <div class="asset-title-group">
                                 <div class="asset-title">${asset.name}</div>
                                 <span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span>
+                                <div class="signal-badge ${signalData.class}" title="${signalTooltip}">${signalData.signal}</div>
                             </div>
                             <div class="asset-actions">
+                                <button onclick="showAssetNewsModal('${asset.name}')" class="btn-news" title="Son Haber Analizi">📰 Haber</button>
                                 <button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                             </div>
                         </div>
