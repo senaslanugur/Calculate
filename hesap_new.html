@@ -127,15 +127,26 @@
         /* --- SweetAlert Customization --- */
         .swal2-popup { background: var(--panel-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; border-radius: 16px !important; }
         .swal2-title { color: var(--text-main) !important; }
-        .swal2-html-container { color: var(--text-muted) !important; }
-        .swal2-input { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--panel-border) !important; }
+        .swal2-html-container { color: var(--text-muted) !important; padding: 0 1em !important; }
+        .swal2-close { color: var(--text-muted) !important; }
+        .swal2-close:hover { color: var(--text-main) !important; }
         
-        .log-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; text-align: left; }
-        .log-table th, .log-table td { padding: 10px; border-bottom: 1px solid var(--panel-border); }
+        /* Modal İçin Özel Tablo ve Grafik Alanı */
+        .modal-chart-area { height: 200px; width: 100%; margin-bottom: 24px; position: relative; }
+        .modal-table-container { max-height: 250px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 8px; }
+        
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
+        .log-table th, .log-table td { padding: 12px; border-bottom: 1px solid var(--panel-border); }
+        .log-table thead { background: rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1; }
         .log-table th { color: var(--text-main); font-weight: 600; }
         .log-table tr:last-child td { border-bottom: none; }
-        .log-wallet-detail { font-size: 0.8rem; color: var(--text-muted); }
+        .log-wallet-detail { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
 
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -167,7 +178,7 @@
                 <select id="activeWeekSelect" onchange="loadWeekWallets()"></select>
             </div>
             
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -5px;">Seçilen hafta için güncel cüzdan değerlerini girin. Önceki değerlerin üzerine eklenerek tarihçe oluşturulur.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; margin-top: -5px;">Seçilen hafta için güncel cüzdan değerlerini girin. Günde en fazla bir kayıt tutulur; gün içinde tekrar kaydederseniz son girdiğiniz geçerli olur.</p>
             
             <div id="walletsContainer"></div>
 
@@ -182,7 +193,7 @@
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <button class="btn" onclick="saveLog()">Kayıt Ekle</button>
+                <button class="btn" onclick="saveLog()">Kayıt Ekle / Güncelle</button>
                 <button class="btn btn-success" style="width: auto; padding: 0 15px;" onclick="startNextWeek()" title="Yeni Haftaya Geç">+</button>
             </div>
         </div>
@@ -226,9 +237,9 @@
     });
 
     // --- State Yönetimi ---
-    const STORAGE_KEY = 'proApp_wealthTrackerV2';
+    const STORAGE_KEY = 'proApp_wealthTrackerV3';
     
-    // Veri Yapısı: Her haftanın birden fazla 'log' kaydı var
+    // Veri Yapısı
     let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     
     if (!appData || !appData.weeks) {
@@ -237,13 +248,12 @@
             targetRate: 5.0,
             walletCategories: ['Vakıfbank', 'Binance', 'Nakit'],
             currentWeekNum: 1,
-            weeks: [
-                { weekNum: 1, logs: [] }
-            ]
+            weeks: [ { weekNum: 1, logs: [] } ]
         };
     }
 
     let chartInstance = null;
+    let modalChartInstance = null;
 
     // --- Formatlayıcılar ---
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
@@ -397,19 +407,32 @@
             walletsSnapshot[cat] = parseFloat(input.value) || 0;
         });
 
-        // Yeni günlük/anlık kayıt
+        // Tarih Mantığı: Her gün için sadece TEK kayıt (Günün tarihine göre kontrol)
         const now = new Date();
-        const dateStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+        const dateKey = now.toLocaleDateString('tr-TR'); // "15.08.2026"
+        const fullDateDisplay = dateKey + ' ' + now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
 
-        week.logs.push({
-            date: dateStr,
+        const existingLogIndex = week.logs.findIndex(l => (l.dateKey === dateKey) || (l.date && l.date.startsWith(dateKey)));
+
+        const newLogEntry = {
+            dateKey: dateKey,
+            date: fullDateDisplay,
             wallets: walletsSnapshot,
             total: total
-        });
+        };
+
+        if (existingLogIndex >= 0) {
+            // Bugünün kaydı zaten var, üzerine yaz.
+            week.logs[existingLogIndex] = newLogEntry;
+            Toast.fire({ icon: 'success', title: 'Bugünün kaydı güncellendi!' });
+        } else {
+            // Yeni gün kaydı.
+            week.logs.push(newLogEntry);
+            Toast.fire({ icon: 'success', title: 'Yeni kayıt eklendi!' });
+        }
 
         saveData();
         updateDashboard();
-        Toast.fire({ icon: 'success', title: 'Kayıt başarıyla eklendi!' });
     }
 
     function getWeekLatestTotal(weekNum) {
@@ -420,7 +443,6 @@
 
     // --- Dashboard & Grafik ---
     function updateDashboard() {
-        // En son verisi girilmiş haftayı bul
         let latestTotal = appData.baseCapital;
         for(let i = appData.weeks.length - 1; i >= 0; i--) {
             if(appData.weeks[i].logs.length > 0) {
@@ -469,7 +491,6 @@
                 if(value > 0) walletDetails.push(`${key}: ${formatTL(value)}`);
             }
 
-            // Bir önceki haftanın sonucunu bul (getiri hesaplamak için)
             let prevTotal = appData.baseCapital;
             if(week.weekNum > 1) {
                 const prev = getWeekLatestTotal(week.weekNum - 1);
@@ -486,7 +507,7 @@
             item.className = 'history-item';
             item.innerHTML = `
                 <div class="history-main">
-                    <div class="history-week">Hafta ${week.weekNum} <span class="log-count">${week.logs.length} Kayıt</span></div>
+                    <div class="history-week">Hafta ${week.weekNum} <span class="log-count">${week.logs.length} Gün</span></div>
                     <div class="history-wallets" style="font-size: 0.75rem;">Son Güncelleme: ${lastLog.date}</div>
                     <div class="history-wallets">${walletDetails.join(' • ')}</div>
                 </div>
@@ -508,36 +529,88 @@
         const week = appData.weeks.find(w => w.weekNum === weekNum);
         if(!week || week.logs.length === 0) return;
 
-        let tableHtml = `<table class="log-table">
+        // 1. Tablo HTML Hazırlığı
+        let tableHtml = `<div class="modal-table-container"><table class="log-table">
             <thead>
                 <tr>
                     <th>Tarih</th>
-                    <th>Cüzdan Detayı</th>
-                    <th style="text-align: right;">Toplam</th>
+                    <th>Cüzdan Dağılımı</th>
+                    <th style="text-align: right;">Günlük Toplam</th>
                 </tr>
             </thead>
             <tbody>`;
         
-        week.logs.forEach(log => {
+        // Tersten gösterelim (En yeni gün en üstte)
+        [...week.logs].reverse().forEach(log => {
             let details = [];
-            for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`${k}: ${formatTL(v)}`); }
+            for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); }
             
             tableHtml += `
                 <tr>
-                    <td style="white-space: nowrap;">${log.date}</td>
+                    <td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td>
                     <td class="log-wallet-detail">${details.join('<br>')}</td>
                     <td style="text-align: right; font-weight: 600; color: white;">${formatTL(log.total)}</td>
                 </tr>
             `;
         });
-        tableHtml += `</tbody></table>`;
+        tableHtml += `</tbody></table></div>`;
 
+        // 2. Modal HTML Birleştirme
+        let modalHtml = `
+            <div class="modal-chart-area">
+                <canvas id="modalChartCanvas"></canvas>
+            </div>
+            ${tableHtml}
+        `;
+
+        // 3. Modal Açılışı ve Grafik Çizimi
         Swal.fire({
-            title: `Hafta ${weekNum} Detayları`,
-            html: tableHtml,
-            width: 600,
+            title: `Hafta ${weekNum} İlerleme Analizi`,
+            html: modalHtml,
+            width: 750,
             showCloseButton: true,
-            showConfirmButton: false
+            showConfirmButton: false,
+            didOpen: () => {
+                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
+                
+                // Grafik verileri (Tarih sırasına göre soldan sağa, bu yüzden reverse yapmıyoruz)
+                const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]);
+                const data = week.logs.map(log => log.total);
+
+                if (modalChartInstance) modalChartInstance.destroy();
+
+                Chart.defaults.color = '#94a3b8';
+                modalChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Portföy Değeri',
+                            data: data,
+                            borderColor: '#10b981', // Başarı Yeşili
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -560,14 +633,21 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Gerçekleşen (Hafta Sonu)', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, fill: true, tension: 0.3 },
-                    { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3 }
+                    { label: 'Gerçekleşen (Hafta Sonu)', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#3b82f6', fill: true, tension: 0.3 },
+                    { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.3 }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { intersect: false, mode: 'index' },
-                plugins: { legend: { position: 'top' } }
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } }
+                    },
+                    x: { grid: { display: false } }
+                }
             }
         });
     }
