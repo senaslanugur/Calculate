@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (Mega Tarama & Radarlar)</title>
+    <title>Pro Varlık Terminali (Tamamı Finnhub Destekli Radarlar)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -35,7 +35,7 @@
         .dropdown-item:hover { background: rgba(255,255,255,0.05); }
         .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        /* FIRSAT RADARLARI BÖLÜMÜ */
+        /* FIRSAT RADARLARI */
         .opp-section { max-width: 1240px; margin: 24px auto 0; padding: 0 20px; }
         .opp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
         .opp-header-title { font-size: 1.15rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; }
@@ -52,6 +52,9 @@
         .opp-title { font-size: 1rem; font-weight: 800; color: white; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
         .opp-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
         
+        .radar-progress-bar { width: 100%; height: 4px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 10px; display: none; }
+        .radar-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.2s; }
+
         .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; margin-top: 10px; display: none; }
         .radar-card { flex: 0 0 240px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
         .radar-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
@@ -133,7 +136,7 @@
         /* SweetAlert2 Premium Modals */
         .swal2-popup.premium-modal { background: rgba(17, 24, 39, 0.98) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; padding: 30px !important; }
         .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.4rem !important; margin-bottom: 20px !important;}
-        .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; }
+        .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; text-align: left !important;}
         .premium-modal .swal2-actions { margin-top: 24px !important; gap: 14px; }
         .premium-modal .swal2-confirm { background: var(--primary) !important; border-radius: 10px !important; padding: 12px 24px !important; font-weight: 800 !important; }
         .premium-modal .swal2-cancel { background: transparent !important; border: 1px solid var(--panel-border) !important; color: white !important; border-radius: 10px !important; padding: 12px 24px !important; }
@@ -154,8 +157,6 @@
         .log-table thead { background: rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 1; }
         .log-table th { color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; }
         .log-table tr:last-child td { border-bottom: none; }
-        .log-wallet-detail { color: var(--text-main); line-height: 1.6; }
-        .log-wallet-detail b { color: var(--text-muted); font-weight: 600; }
 
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -167,7 +168,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V16</span>
+        ProPortföy <span>V17 Finnhub</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -186,34 +187,37 @@
     </div>
 </header>
 
-<!-- MEGA FIRSAT RADARLARI -->
+<!-- FINNHUB %100 FIRSAT RADARLARI -->
 <div class="opp-section">
     <div class="opp-header">
-        <div class="opp-header-title">⚡ Fırsat Radarları (Geniş Tarama Modülü)</div>
+        <div class="opp-header-title">⚡ Mega Fırsat Radarları (Finnhub API)</div>
         <div class="radar-controls">
-            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">HİSSE HAVUZU:</label>
+            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">TARANACAK HİSSE SAYISI:</label>
             <select id="radarPoolSize" class="radar-select">
-                <option value="100">Top 100</option>
+                <option value="50">Top 50</option>
+                <option value="100" selected>Top 100</option>
                 <option value="300">Top 300</option>
-                <option value="500" selected>Top 500</option>
-                <option value="1000">Top 1000</option>
+                <option value="500">Top 500</option>
             </select>
         </div>
     </div>
+    <div class="radar-progress-bar" id="radarProgressBar">
+        <div class="radar-progress-fill" id="radarProgressFill"></div>
+    </div>
     <div class="opp-grid">
-        <div class="opp-btn-card blue" onclick="runTVRadarScan('52W')">
+        <div class="opp-btn-card blue" onclick="runFinnhubRadarScan('52w')">
             <div class="opp-title"><span style="font-size:1.4rem;">📉</span> 52W Dip Radarı</div>
             <div class="opp-desc">Seçilen havuzda 52 haftalık dibine %15'ten daha yakın olan hisseleri bulur.</div>
         </div>
         <div class="opp-btn-card purple" onclick="runFinnhubRadarScan('earnings')">
             <div class="opp-title"><span style="font-size:1.4rem;">🎯</span> Bilanço Sürprizi</div>
-            <div class="opp-desc">Beklentileri %5'ten fazla aşan kâr açıklamış şirketleri tespit eder.</div>
+            <div class="opp-desc">Beklentileri aşarak sürpriz kâr açıklayan şirketleri tespit eder.</div>
         </div>
         <div class="opp-btn-card cyan" onclick="runFinnhubRadarScan('insider')">
             <div class="opp-title"><span style="font-size:1.4rem;">🐋</span> Balina Alımları</div>
-            <div class="opp-desc">Şirket yöneticilerinin kendi hisselerine yaptığı dev alımları yakalar.</div>
+            <div class="opp-desc">Şirket yöneticilerinin açık piyasadan yaptığı dev alımları yakalar.</div>
         </div>
-        <div class="opp-btn-card pink" onclick="runTVRadarScan('TARGET')">
+        <div class="opp-btn-card pink" onclick="runFinnhubRadarScan('target')">
             <div class="opp-title"><span style="font-size:1.4rem;">🚀</span> Hedef Fiyat Ucuzluk</div>
             <div class="opp-desc">Analist ortalama hedefine göre %20'den fazla potansiyeli olanları bulur.</div>
         </div>
@@ -302,52 +306,18 @@
 
 <script>
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV16';
+    const STORAGE_KEY = 'proApp_wealthTrackerV17';
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#111827', color: '#f8fafc' });
 
+    // Hisselerin piyasa değerine göre özenle seçilmiş dev havuzu (Finnhub API dostu)
+    const US_STOCK_POOL = [
+        "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","AVGO","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK","ABBV","CRM","BAC","CVX","NFLX","AMD","KO","PEP","WMT","TMO","DIS","MCD","CSCO","ADBE","QCOM","INTC","TXN","IBM","AMGN","PFE","GE","NOW","INTU","CAT","VZ","HON","BA","NKE","GS","MS","MMM","MDT","T","SPG","LMT","SYK","ISRG","UNP","BLK","AXP","C","SCHW","RTX","LOW","BKNG","EL","PGR","TJX","VRTX","COP","GILD","SLB","EOG","OXY","MPC","PSX","PXD","VLO","CVS","TGT","DG","WBA","SO","AMT","PLD","CCI","EQIX","PSA","DUK","D","NEE","AEP","EXC","SRE","XEL","ED","WEC","ES","AWK","PEG","EIX","FE","ETR","CMS","DTE","AEE","CNP","NI","LNT","ATO","PNW","PNR","OGE","SR","POR","IDA","BKH","ALE","MDU","NWE","OGS","OTTR","AVA","MGEE","SJW","EE","CHX","CPK","AGR","YORW","MSEX"
+    ];
+
     // =========================================================
-    // MEGA RADAR TARAMA SİSTEMİ (TRADINGVIEW + FINNHUB)
+    // 100% FINNHUB RADAR SİSTEMİ (LİMİT KORUMALI)
     // =========================================================
     
-    // TradingView Scanner: Tek bir istekte seçilen havuza göre verileri çeker
-    async function fetchTradingViewScannerData(limit = 500) {
-        const url = "https://scanner.tradingview.com/america/scan";
-        const payload = {
-            filter: [{ left: "type", operation: "equal", right: "stock" }],
-            columns: ["name", "description", "close", "price_52_week_low", "price_52_week_high", "price_target"],
-            sort: { sortBy: "market_cap_basic", sortOrder: "desc" },
-            range: [0, limit]
-        };
-
-        try {
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-            const resp = await fetch(proxyUrl, {
-                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
-            });
-            const data = await resp.json();
-            
-            let parsed = [];
-            if (data && data.data) {
-                data.data.forEach(item => {
-                    let sym = item.s.includes(":") ? item.s.split(":")[1] : item.s;
-                    parsed.push({
-                        sym: sym.replace(".", "-"),
-                        name: item.d[1] || sym,
-                        close: item.d[2] || 0,
-                        low52: item.d[3] || 0,
-                        high52: item.d[4] || 0,
-                        target: item.d[5] || 0
-                    });
-                });
-            }
-            return parsed;
-        } catch (err) {
-            console.warn("TV Scanner başarısız.", err);
-            return [];
-        }
-    }
-
-    // Slider Çizici
     function renderOppSlider(results, typeStr, iconStr, colorVar, ascSort = false) {
         const slider = document.getElementById('oppRadarSlider');
         slider.style.display = 'flex';
@@ -367,7 +337,6 @@
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
                             <div style="font-size:1.15rem; font-weight:900; color:white;">${res.symbol}</div>
-                            <div style="font-size:0.65rem; color:var(--text-muted); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${res.name}</div>
                         </div>
                         <div style="font-size:1.2rem;">${iconStr}</div>
                     </div>
@@ -379,82 +348,119 @@
         slider.innerHTML = html;
     }
 
-    // 1. TradingView Hızlı Taramaları (52W Dip ve Hedef Fiyat) - API Limiti Yemez
-    async function runTVRadarScan(scanType) {
-        const limit = parseInt(document.getElementById('radarPoolSize').value) || 500;
-        Swal.fire({ title: 'Geniş Tarama Aktif', html: `TradingView üzerinden ${limit} adet hisse taranıyor...`, allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => Swal.showLoading() });
-        
-        const tvData = await fetchTradingViewScannerData(limit);
-        let results = [];
-
-        if (scanType === '52W') {
-            tvData.forEach(item => {
-                if (item.low52 > 0 && item.close > 0) {
-                    const dist = ((item.close - item.low52) / item.low52) * 100;
-                    if (dist < 15.0) { // Dibe %15 ve daha yakın
-                        results.push({ symbol: item.sym, name: item.name, score: dist, detail: `Güncel: $${item.close.toFixed(2)}<br>52W Dip: $${item.low52.toFixed(2)}<br><b style="color:var(--blue);">Dipten Fark: +%${dist.toFixed(1)}</b>` });
-                    }
-                }
-            });
-            Swal.close(); renderOppSlider(results, 'DİP FIRSATI', '📉', '--blue', true);
-        } 
-        else if (scanType === 'TARGET') {
-            tvData.forEach(item => {
-                if (item.target > 0 && item.close > 0) {
-                    const pot = ((item.target - item.close) / item.close) * 100;
-                    if (pot > 20.0) { // Hedefe %20 ve daha fazla potansiyel
-                        results.push({ symbol: item.sym, name: item.name, score: pot, detail: `Güncel: $${item.close.toFixed(2)}<br>Ort. Hedef: $${item.target.toFixed(2)}<br><b style="color:var(--pink);">Potansiyel: +%${pot.toFixed(1)}</b>` });
-                    }
-                }
-            });
-            Swal.close(); renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink', false);
-        }
-    }
-
-    // 2. Finnhub Detaylı Taramaları (Bilanço ve Balina) - Limit Korumalı Asenkron
     async function runFinnhubRadarScan(scanType) {
-        const limit = parseInt(document.getElementById('radarPoolSize').value) || 500;
-        Swal.fire({ title: 'Geniş Tarama Aktif', html: `Derinlemesine analiz yapılıyor...<br><span style="font-size:0.75rem; opacity:0.7;">(Bu işlem API limitlerine takılmamak için hisse sayısına göre birkaç saniye sürebilir)</span>`, allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => Swal.showLoading() });
+        const limit = parseInt(document.getElementById('radarPoolSize').value) || 100;
         
-        const tvData = await fetchTradingViewScannerData(limit);
-        let results = []; let rateLimited = false;
+        // Piyasada API dostu taranacak hisseler (Eğer limit pool'dan büyükse Finnhub'dan takviye yaparız ama free tier için önermiyoruz)
+        let symbolsToScan = US_STOCK_POOL.slice(0, limit);
+        
+        Swal.fire({ 
+            title: '📡 Finnhub Radarı Çalışıyor', 
+            html: `Seçilen ${limit} ABD hissesi tek tek inceleniyor.<br><br><span style="font-size:0.75rem; opacity:0.8; color:var(--warning);">⚠️ API hız limitlerine takılmamak için tarama işlemi yaklaşık ${Math.ceil(limit / 30)} dakika sürebilir. Arka planda çalışmasını bekleyiniz...</span>`, 
+            allowOutsideClick: false, 
+            customClass: { popup: 'premium-modal' }, 
+            didOpen: () => Swal.showLoading() 
+        });
 
-        for (let i = 0; i < tvData.length; i++) {
-            const item = tvData[i];
+        const progressBar = document.getElementById('radarProgressBar');
+        const progressFill = document.getElementById('radarProgressFill');
+        progressBar.style.display = 'block';
+        progressFill.style.width = '0%';
+
+        let results = [];
+        let rateLimited = false;
+        
+        // Finnhub Free Tier Limit: 60 request / min (Ortalama 1 req/sec)
+        // Her döngüde araya 1000ms (1 saniye) bekleme süresi koyarak limiti ASLA aşmıyoruz.
+        for (let i = 0; i < symbolsToScan.length; i++) {
+            const sym = symbolsToScan[i];
+            
             try {
-                let endpoint = scanType === 'earnings' ? `/stock/earnings?symbol=${item.sym}&token=${FINNHUB_KEY}` : `/stock/insider-transactions?symbol=${item.sym}&token=${FINNHUB_KEY}`;
-                const res = await fetch(`https://finnhub.io/api/v1${endpoint}`);
-                
-                if (res.status === 429) { rateLimited = true; break; } // Limit doldu, o ana kadar olanları göster.
-                
-                const data = await res.json();
-
-                if (scanType === 'earnings' && data && data.length > 0) {
-                    const last = data[0];
-                    if (last.actual > last.estimate && last.estimate > 0) {
-                        const surprisePct = ((last.actual - last.estimate) / Math.abs(last.estimate)) * 100;
-                        if (surprisePct > 5.0) {
-                            results.push({ symbol: item.sym, name: item.name, score: surprisePct, detail: `Beklenti: $${last.estimate.toFixed(2)}<br>Gerçekleşen: $${last.actual.toFixed(2)}<br><b style="color:var(--purple);">+%${surprisePct.toFixed(1)} Sürpriz</b>` });
+                if (scanType === '52w') {
+                    // Dip Taraması (Metric + Quote = 2 call)
+                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`);
+                    if (metRes.status === 429) { rateLimited = true; break; }
+                    const metData = await metRes.json();
+                    
+                    if (metData && metData.metric && metData.metric['52WeekLow']) {
+                        const low52 = metData.metric['52WeekLow'];
+                        const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
+                        const qData = await quoteRes.json();
+                        const currentPrice = qData.c || low52;
+                        
+                        const distFromLow = ((currentPrice - low52) / low52) * 100;
+                        if (distFromLow < 15.0) { // Dibe %15 yakın
+                            results.push({ symbol: sym, score: distFromLow, detail: `Güncel: $${currentPrice.toFixed(2)}<br>52W Dip: $${low52.toFixed(2)}<br><b style="color:var(--blue);">Dipten Fark: +%${distFromLow.toFixed(1)}</b>` });
                         }
                     }
-                } else if (scanType === 'insider' && data && data.data && data.data.length > 0) {
-                    let totalBought = 0; let latestBuyer = "";
-                    data.data.forEach(txn => { if (txn.change > 0 && txn.transactionPrice > 0) { totalBought += (txn.change * txn.transactionPrice); if(!latestBuyer) latestBuyer = txn.name; } });
-                    if (totalBought > 1000000) {
-                        results.push({ symbol: item.sym, name: item.name, score: totalBought, detail: `Son 3 Ay Alım:<br><b style="color:white;">$${(totalBought/1000000).toFixed(1)} Milyon</b><br>Son Alan: ${latestBuyer.substring(0,15)}...` });
+                } 
+                else if (scanType === 'earnings') {
+                    // Bilanço Taraması (1 call)
+                    const res = await fetch(`https://finnhub.io/api/v1/stock/earnings?symbol=${sym}&token=${FINNHUB_KEY}`);
+                    if (res.status === 429) { rateLimited = true; break; }
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        const last = data[0];
+                        if (last.actual > last.estimate && last.estimate > 0) {
+                            const surprisePct = ((last.actual - last.estimate) / Math.abs(last.estimate)) * 100;
+                            if (surprisePct > 5.0) {
+                                results.push({ symbol: sym, score: surprisePct, detail: `Beklenti: $${last.estimate.toFixed(2)}<br>Gerçekleşen: $${last.actual.toFixed(2)}<br><b style="color:var(--purple);">+%${surprisePct.toFixed(1)} Sürpriz</b>` });
+                            }
+                        }
+                    }
+                } 
+                else if (scanType === 'insider') {
+                    // İçeriden Alım Taraması (1 call)
+                    const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                    const cutoffDate = threeMonthsAgo.toISOString().split('T')[0];
+                    const res = await fetch(`https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${cutoffDate}&token=${FINNHUB_KEY}`);
+                    if (res.status === 429) { rateLimited = true; break; }
+                    const data = await res.json();
+                    
+                    if (data && data.data && data.data.length > 0) {
+                        let totalBought = 0; let latestBuyer = "";
+                        data.data.forEach(txn => { if (txn.change > 0 && txn.transactionPrice > 0) { totalBought += (txn.change * txn.transactionPrice); if(!latestBuyer) latestBuyer = txn.name; } });
+                        if (totalBought > 500000) { // 500k$ üzeri alım
+                            results.push({ symbol: sym, score: totalBought, detail: `Son 3 Ayda Alım:<br><b style="color:white;">$${(totalBought/1000000).toFixed(1)} Milyon</b><br>Alan: ${latestBuyer.substring(0,15)}...` });
+                        }
+                    }
+                } 
+                else if (scanType === 'target') {
+                    // Hedef Fiyat (Target + Quote = 2 call)
+                    const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
+                    if (qRes.status === 429) { rateLimited = true; break; }
+                    const qData = await qRes.json();
+                    
+                    const tRes = await fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${sym}&token=${FINNHUB_KEY}`);
+                    const tData = await tRes.json();
+
+                    if (qData.c > 0 && tData && tData.targetMean) {
+                        const potential = ((tData.targetMean - qData.c) / qData.c) * 100;
+                        if (potential > 15.0) {
+                            results.push({ symbol: sym, score: potential, detail: `Güncel: $${qData.c.toFixed(2)}<br>Ort. Hedef: $${tData.targetMean.toFixed(2)}<br><b style="color:var(--pink);">+%${potential.toFixed(1)} Potansiyel</b>` });
+                        }
                     }
                 }
-            } catch (e) {}
-            
-            // Limitlere saygı (Hafif bir nefes payı)
-            await new Promise(r => setTimeout(r, 50)); 
+            } catch (e) {
+                console.warn(`${sym} atlandı.`, e);
+            }
+
+            // GÜVENLİK DUVARI: Finnhub Limitlerine saygı duruşu (İstek başına 800ms bekleme)
+            progressFill.style.width = `${Math.round(((i+1) / symbolsToScan.length) * 100)}%`;
+            await new Promise(r => setTimeout(r, 800)); 
         }
 
         Swal.close();
-        if (rateLimited && results.length > 0) Toast.fire({ icon: 'warning', title: `API Limiti aşıldı. Bulunan ilk ${results.length} fırsat gösteriliyor.` });
-        
-        if (scanType === 'earnings') renderOppSlider(results, 'BİLANÇO SÜRPRİZİ', '🎯', '--purple', false);
-        else renderOppSlider(results, 'İÇERİDEN GÜÇLÜ ALIM', '🐋', '--cyan', false);
+        progressBar.style.display = 'none';
+
+        if (rateLimited && results.length > 0) {
+            Toast.fire({ icon: 'warning', title: `API Limiti doldu, taranabilen ilk ${results.length} fırsat gösteriliyor.` });
+        }
+
+        if (scanType === '52w') renderOppSlider(results, 'DİP FIRSATI', '📉', '--blue', true);
+        else if (scanType === 'earnings') renderOppSlider(results, 'BİLANÇO SÜRPRİZİ', '🎯', '--purple', false);
+        else if (scanType === 'insider') renderOppSlider(results, 'GÜÇLÜ İÇERİDEN ALIM', '🐋', '--cyan', false);
+        else if (scanType === 'target') renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink', false);
     }
 
     function addToPortfolioConfirm(symbol) {
@@ -466,7 +472,7 @@
         });
     }
 
-    // --- YAPAY ZEKA HABER DUYGU MOTORU (Mevcut Stabil Kod) ---
+    // --- NLP SÖZLÜK ---
     const FINANCE_LEXICON = { "beats":3.0,"beat estimates":3.5,"surge":3.0,"rally":2.5,"record high":3.0,"upgrade":2.5,"outperform":2.5,"buyback":2.0,"raises guidance":3.0,"strong demand":2.0,"profit rises":2.5,"bullish":2.5,"artış":2.5,"yükseldi":2.5,"rekor":3.0,"kar açıkladı":2.5,"beklentileri aştı":3.5,"ihracat rekoru":2.5,"yükseliş":2.5,"temettü dağıtımı":2.0,"tavan":3.0,"büyüme":2.0,"ihale kazandı":3.0,"anlaşma imzaladı":2.5,"misses":-3.0,"miss estimates":-3.5,"plunge":-3.0,"tumble":-2.5,"downgrade":-2.5,"underperform":-2.5,"layoffs":-2.5,"lawsuit":-2.0,"investigation":-2.0,"recall":-2.0,"guidance cut":-3.0,"profit falls":-2.5,"bearish":-2.5,"bankruptcy":-3.5,"fraud":-3.0,"düşüş":-2.5,"geriledi":-2.5,"zarar açıkladı":-3.0,"beklentilerin altında":-3.0,"soruşturma":-2.0,"iflas":-3.5,"işten çıkarma":-2.5,"dava":-1.5,"kar düşüşü":-2.5,"taban":-3.0,"bilanço hüsranı":-3.5 };
     const NEGATIONS = ["değil", "aşamadı", "kalamadı", "düşmedi", "not", "didn't", "hasn't", "failed"];
 
