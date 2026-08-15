@@ -3,40 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık & Getiri Yönetimi V9 (Terminal)</title>
+    <title>Pro Varlık Terminali V10 (TradingView & AI Radar)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- TradingView Lightweight Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-dark: #090e17; --panel-bg: #151e2d; --panel-border: #2a374a;
-            --primary: #3b82f6; --primary-hover: #2563eb; --primary-glow: rgba(59, 130, 246, 0.4);
+            --bg-dark: #070b12; --panel-bg: #111827; --panel-border: #1f293d;
+            --primary: #3b82f6; --primary-hover: #2563eb; --primary-glow: rgba(59, 130, 246, 0.35);
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #0b111d;
+            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #090d16;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; }
 
         /* Navbar */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: rgba(21, 30, 45, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); position: sticky; top: 0; z-index: 50; }
-        .logo { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.5px; color: white; display: flex; align-items: center; gap: 8px; }
-        .logo span { background: linear-gradient(135deg, var(--primary), #60a5fa); color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; box-shadow: 0 0 10px var(--primary-glow); }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); position: sticky; top: 0; z-index: 50; }
+        .logo { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; color: white; display: flex; align-items: center; gap: 8px; }
+        .logo span { background: linear-gradient(135deg, var(--primary), #60a5fa); color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; }
         
         .menu-container { position: relative; }
-        .btn-hamburger { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.2rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-hamburger { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.2rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .btn-hamburger:hover { background: var(--input-bg); border-color: var(--primary); color: var(--primary); }
         .dropdown-menu { position: absolute; right: 0; top: calc(100% + 12px); background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; width: 240px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
         .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; color: var(--text-main); text-decoration: none; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--panel-border); transition: 0.2s; }
         .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: rgba(255,255,255,0.05); padding-left: 22px; }
+        .dropdown-item:hover { background: rgba(255,255,255,0.05); }
         .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        .app-container { max-width: 1200px; margin: 24px auto; padding: 0 20px; display: grid; gap: 24px; }
+        /* RADAR SLIDER SECTION */
+        .radar-section { max-width: 1240px; margin: 20px auto 0; padding: 0 20px; }
+        .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .radar-title { font-size: 0.95rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .radar-title span { color: var(--success); font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; }
+        .radar-card { flex: 0 0 220px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .radar-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 8px 20px var(--primary-glow); }
+        .radar-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .radar-symbol { font-size: 1.15rem; font-weight: 900; color: white; }
+        .radar-name { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+        .radar-score { font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; }
+        .score-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .score-neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3); }
+        .radar-headline { font-size: 0.75rem; color: #cbd5e1; margin: 10px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35; font-weight: 500; }
+        .radar-footer { font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
+
+        /* Main Container Layout */
+        .app-container { max-width: 1240px; margin: 16px auto; padding: 0 20px; display: grid; gap: 24px; }
         @media (min-width: 1024px) { .app-container { grid-template-columns: 400px 1fr; } }
 
-        /* Panel UI */
+        /* Panels */
         .panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3); margin-bottom: 24px; }
         .panel-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 20px; color: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 16px; }
 
@@ -47,16 +68,14 @@
 
         .btn { background-color: var(--primary); color: white; border: none; padding: 14px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 0.95rem; }
         .btn:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
-        .btn:active { transform: translateY(1px); }
         .btn-outline { background-color: transparent; border: 1px solid var(--panel-border); color: var(--text-main); }
         .btn-outline:hover { background-color: rgba(255,255,255,0.05); border-color: var(--text-muted); }
         .btn-success { background-color: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
         .btn-success:hover { background-color: var(--success); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        
-        /* Asset Card UI - KUSURSUZ HİZALAMA */
+
+        /* Asset Card */
         .asset-card { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; }
-        .asset-card:hover { border-color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(-2px); }
-        
+        .asset-card:hover { border-color: var(--primary); }
         .asset-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
         .asset-title-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
         .asset-title { font-weight: 900; font-size: 1.05rem; color: white; }
@@ -65,8 +84,8 @@
         .bg-us { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .bg-tr { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
         .bg-manual { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        
-        .signal-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+
+        .signal-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
         .signal-buy { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
         .signal-sell { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
         .signal-neutral { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.2); }
@@ -75,64 +94,54 @@
         .btn-news { background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
         .btn-news:hover { background: var(--primary); color: white; }
         .btn-del { background: transparent; border: 1px solid transparent; color: var(--text-muted); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; }
-        .btn-del:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-del:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 
         .asset-info { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 6px; display: inline-block;}
-        
         .asset-inputs { display: flex; gap: 16px; align-items: flex-end; margin-top: 4px; }
         .asset-val-display { text-align: right; font-size: 1.25rem; font-weight: 900; color: white; letter-spacing: -0.5px;}
 
-        /* Dashboard & Stats */
+        /* Dashboard Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
         .stat-card { background: linear-gradient(135deg, var(--panel-bg), #101623); border: 1px solid var(--panel-border); padding: 24px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; overflow: hidden;}
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary); opacity: 0.8; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary); }
         .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-size: 2.2rem; font-weight: 900; margin-top: 10px; color: white; letter-spacing: -1px; }
         .stat-sub { font-size: 0.85rem; margin-top: 8px; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: inline-block; background: rgba(0,0,0,0.2);}
 
         .text-success { color: var(--success); } .text-warning { color: var(--warning); } .text-danger { color: var(--danger); }
 
+        /* TradingView Lightweight Chart Container */
+        .tv-chart-box { height: 350px; width: 100%; position: relative; border-radius: 12px; overflow: hidden; }
+
         /* History Table */
         .history-item { background-color: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; transition: 0.3s; margin-bottom: 16px;}
-        .history-item:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .history-item:hover { border-color: var(--primary); transform: translateY(-2px); }
         @media (min-width: 600px) { .history-item { flex-direction: row; justify-content: space-between; align-items: center; } }
         .history-week { font-weight: 900; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 10px; }
-        
         .history-actions { display: flex; align-items: center; gap: 20px; }
-        .btn-icon { background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-main); border-radius: 10px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+        .btn-icon { background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-main); border-radius: 10px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .btn-icon:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
         .badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; margin-top: 8px; text-align: right;}
         .badge.green { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4);}
         .badge.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4);}
         .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4);}
 
-        .chart-container { position: relative; height: 350px; width: 100%; }
-        
-        /* SweetAlert2 Premium Customization */
-        .swal2-popup.premium-modal { background: rgba(21, 30, 45, 0.95) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7) !important; padding: 32px !important; }
-        .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.5rem !important; margin-bottom: 20px !important; }
-        .premium-modal .swal2-html-container { margin: 0 !important; color: var(--text-muted) !important; }
-        .premium-modal .swal2-actions { margin-top: 30px !important; gap: 16px; }
-        .premium-modal .swal2-confirm { background: var(--primary) !important; border-radius: 10px !important; padding: 14px 30px !important; font-weight: 800 !important; font-size: 1rem !important;}
-        .premium-modal .swal2-cancel { background: transparent !important; border: 1px solid var(--panel-border) !important; color: white !important; border-radius: 10px !important; padding: 14px 30px !important; font-weight: 800 !important; font-size: 1rem !important;}
-        
-        /* News Layout in Modal */
-        .news-item { background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 20px; border-radius: 16px; margin-bottom: 16px; text-align: left; transition: 0.2s;}
-        .news-item:hover { border-color: rgba(255,255,255,0.2); }
-        .news-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px; }
-        .news-title { font-weight: 800; font-size: 1.05rem; color: white; flex: 1; line-height: 1.4;}
-        .news-title a { color: inherit; text-decoration: none; transition: 0.2s;}
+        /* SweetAlert2 Premium Modals */
+        .swal2-popup.premium-modal { background: rgba(17, 24, 39, 0.96) !important; backdrop-filter: blur(20px) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; padding: 30px !important; }
+        .swal2-title { color: white !important; font-weight: 900 !important; font-size: 1.4rem !important; }
+        .premium-modal .swal2-actions { margin-top: 24px !important; gap: 14px; }
+        .premium-modal .swal2-confirm { background: var(--primary) !important; border-radius: 10px !important; padding: 12px 24px !important; font-weight: 800 !important; }
+        .premium-modal .swal2-cancel { background: transparent !important; border: 1px solid var(--panel-border) !important; color: white !important; border-radius: 10px !important; padding: 12px 24px !important; }
+
+        .news-item { background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 18px; border-radius: 14px; margin-bottom: 14px; text-align: left; }
+        .news-title a { color: white; text-decoration: none; font-weight: 800; font-size: 1rem; }
         .news-title a:hover { color: var(--primary); }
-        .news-sentiment { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .news-score { font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-weight: 700; color: white; border: 1px solid rgba(255,255,255,0.1);}
-        .news-reasons { font-size: 0.8rem; color: var(--text-muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); line-height: 1.5; }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -141,7 +150,7 @@
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V9</span>
+        ProPortföy <span>V10</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -152,6 +161,10 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                 Piyasayı Senkronize Et
             </a>
+            <a href="#" class="dropdown-item" onclick="runRadarScan()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                ABD Radarını Tara
+            </a>
             <a href="#" class="dropdown-item text-danger" onclick="resetAllData()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                 Tüm Verileri Sıfırla
@@ -160,9 +173,22 @@
     </div>
 </header>
 
+<!-- RADAR SLIDER: En Güçlü AL Veren ABD Hisseleri -->
+<div class="radar-section">
+    <div class="radar-header">
+        <div class="radar-title">
+            🔥 AI Piyasa Radarı: Güçlü Alım Sinyalleri <span>CANLI HABER ANALİZİ</span>
+        </div>
+        <button onclick="runRadarScan()" class="btn-outline" style="width: auto; padding: 4px 12px; font-size: 0.75rem; border-radius: 6px; font-weight: 700;">Yeniden Tara</button>
+    </div>
+    <div class="radar-slider" id="radarSlider">
+        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Hisseler taranıyor ve duygu skorlarına göre sıralanıyor...</div>
+    </div>
+</div>
+
 <div class="app-container">
     
-    <!-- SOL PANEL -->
+    <!-- SOL PANEL: Varlık Yönetimi -->
     <div class="sidebar">
         <div class="panel">
             <div class="panel-title">Strateji Ayarları</div>
@@ -179,23 +205,19 @@
         <div class="panel">
             <div class="panel-title">
                 Varlık Terminali
-                <button onclick="forceSyncPrices()" class="btn-outline" style="width: auto; padding: 6px 14px; font-size: 0.75rem; border-radius: 8px; font-weight: 700;" title="Canlı Fiyatları Yenile">🔄 Yenile</button>
+                <button onclick="forceSyncPrices()" class="btn-outline" style="width: auto; padding: 6px 14px; font-size: 0.75rem; border-radius: 8px; font-weight: 700;">🔄 Fiyatları Yenile</button>
             </div>
             
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 500;">Piyasa haberleri anlık taranır ve <b>EN SON HABERE</b> göre Al/Sat sinyali üretilir.</p>
-
-            <div id="assetsContainer" style="max-height: 420px; overflow-y: auto; padding-right: 8px; margin-bottom: 20px;">
-                <!-- Varlık kartları buraya gelecek -->
-            </div>
+            <div id="assetsContainer" style="max-height: 400px; overflow-y: auto; padding-right: 6px; margin-bottom: 16px;"></div>
 
             <div class="form-group" style="display: flex; gap: 10px;">
-                <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="openAddLiveAssetModal()">+ Canlı Ekle</button>
+                <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="openAddLiveAssetModal()">+ Canlı Varlık</button>
                 <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="addManualAsset()">+ Nakit/Manuel</button>
             </div>
 
-            <div style="background: var(--input-bg); padding: 20px; border-radius: 16px; margin: 24px 0; text-align: center; border: 1px solid var(--panel-border); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">Güncel Portföy Değeri</div>
-                <div id="liveTotal" style="font-size: 2.2rem; font-weight: 900; color: white; letter-spacing: -1px; margin-top: 6px;">0 ₺</div>
+            <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; margin: 20px 0; text-align: center; border: 1px solid var(--panel-border);">
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">Portföy Toplamı</div>
+                <div id="liveTotal" style="font-size: 2rem; font-weight: 900; color: white; letter-spacing: -1px; margin-top: 4px;">0 ₺</div>
             </div>
 
             <div class="form-group">
@@ -210,7 +232,7 @@
         </div>
     </div>
 
-    <!-- SAĞ PANEL -->
+    <!-- SAĞ PANEL: TradingView Grafiği ve Tarihçe -->
     <div class="main-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -219,19 +241,22 @@
                 <div class="stat-sub" id="statTotalProfit">Net Kar: %0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Teorik Hedef (Bu Hafta)</div>
-                <div class="stat-value" style="color: var(--text-main);" id="statTargetTotal">0 ₺</div>
+                <div class="stat-label">Teorik Hedef (Aktif Hafta)</div>
+                <div class="stat-value" id="statTargetTotal">0 ₺</div>
                 <div class="stat-sub text-warning" id="statDiff">Fark: 0 ₺</div>
             </div>
         </div>
 
+        <!-- TradingView Lightweight Chart Paneli -->
         <div class="panel">
-            <div class="panel-title">Büyüme Eğrisi</div>
-            <div class="chart-container">
-                <canvas id="growthChart"></canvas>
+            <div class="panel-title">
+                TradingView Büyüme Grafiği
+                <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">Canlı İnteraktif Eğri</span>
             </div>
+            <div class="tv-chart-box" id="tvChartContainer"></div>
         </div>
 
+        <!-- Haftalık Tarihçe -->
         <div class="panel">
             <div class="panel-title">Haftalık İlerleme Tarihçesi</div>
             <div class="history-list" id="historyContainer"></div>
@@ -241,223 +266,292 @@
 </div>
 
 <script>
-    // --- Menü İşlemleri ---
-    const menuBtn = document.getElementById('menuBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
-    document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
-
-    function resetAllData() {
-        dropdownMenu.classList.remove('active');
-        Swal.fire({
-            title: 'Sistemi Sıfırla',
-            html: "Tüm verileriniz kalıcı olarak silinecektir. Onaylıyor musunuz?",
-            icon: 'warning',
-            showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal',
-            customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' },
-            confirmButtonColor: '#ef4444'
-        }).then((result) => {
-            if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
-        });
-    }
-
-    function forceSyncPrices() {
-        dropdownMenu.classList.remove('active');
-        fetchAllLivePrices();
-    }
-
-    // --- GELİŞMİŞ DUYGU (SENTIMENT) MOTORU ---
+    // --- Finansal Duygu Sözlüğü (Lexicon NLP) ---
     const FINANCE_LEXICON = {
         "beats": 3.0, "beat estimates": 3.5, "surge": 3.0, "rally": 2.5, "record high": 3.0, "upgrade": 2.5, "outperform": 2.5, "buyback": 2.0, "raises guidance": 3.0, "strong demand": 2.0, "profit rises": 2.5, "bullish": 2.5,
         "artış": 2.5, "yükseldi": 2.5, "rekor": 3.0, "kar açıkladı": 2.5, "beklentileri aştı": 3.5, "ihracat rekoru": 2.5, "yükseliş": 2.5, "temettü dağıtımı": 2.0, "tavan": 3.0, "büyüme": 2.0, "ihale kazandı": 3.0, "anlaşma imzaladı": 2.5,
         "misses": -3.0, "miss estimates": -3.5, "plunge": -3.0, "tumble": -2.5, "downgrade": -2.5, "underperform": -2.5, "layoffs": -2.5, "lawsuit": -2.0, "investigation": -2.0, "recall": -2.0, "guidance cut": -3.0, "profit falls": -2.5, "bearish": -2.5, "bankruptcy": -3.5, "fraud": -3.0,
-        "düşüş": -2.5, "geriledi": -2.5, "zarar açıkladı": -3.0, "beklentilerin altında": -3.0, "soruşturma": -2.0, "iflas": -3.5, "işten çıkarma": -2.5, "dava": -1.5, "kar düşüşü": -2.5, "taban": -3.0, "bilanço hüsranı": -3.5, "ertelenme": -1.5
+        "düşüş": -2.5, "geriledi": -2.5, "zarar açıkladı": -3.0, "beklentilerin altında": -3.0, "soruşturma": -2.0, "iflas": -3.5, "işten çıkarma": -2.5, "dava": -1.5, "kar düşüşü": -2.5, "taban": -3.0, "bilanço hüsranı": -3.5
     };
-
     const NEGATIONS = ["değil", "aşamadı", "kalamadı", "düşmedi", "not", "didn't", "hasn't", "failed"];
 
     function analyzeHeadline(text) {
-        if (!text) return { score: 0.0, label: "Nötr", emoji: "⚪", reasons: ["Başlık metni bulunamadı."] };
-        
-        let bonus = 0.0; let hits = 0; let matchedPos = []; let matchedNeg = [];
+        if (!text) return { score: 0.0, label: "NÖTR", emoji: "⚪", reasons: ["Metin bulunamadı."] };
+        let bonus = 0.0, hits = 0, matchedPos = [], matchedNeg = [];
         let textLower = text.toLowerCase();
 
         for (const [term, weight] of Object.entries(FINANCE_LEXICON)) {
             if (textLower.includes(term)) {
                 let actualWeight = weight;
                 let isNegated = false;
-
                 let termIndex = textLower.indexOf(term);
                 let precedingText = textLower.substring(Math.max(0, termIndex - 25), termIndex);
                 for (let neg of NEGATIONS) { if (precedingText.includes(neg)) { isNegated = true; break; } }
-                
                 let followingText = textLower.substring(termIndex, termIndex + term.length + 15);
                 for (let neg of NEGATIONS) { if (followingText.includes(neg)) { isNegated = true; break; } }
 
                 if (isNegated) actualWeight = actualWeight * -0.5;
-
                 bonus += actualWeight; hits += 1;
-
                 if (actualWeight > 0) matchedPos.push(isNegated ? `(Zıt) ${term}` : term);
                 else matchedNeg.push(isNegated ? `(Zıt) ${term}` : term);
             }
         }
-        
-        let score = 0;
-        if (hits > 0) score = Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits)));
-
+        let score = hits > 0 ? Math.max(-1.0, Math.min(1.0, bonus / (3.5 * hits))) : 0;
         let reasons = [];
-        if (matchedPos.length) reasons.push("Olumlu sinyal: " + matchedPos.map(m => `'${m}'`).join(", "));
-        if (matchedNeg.length) reasons.push("Olumsuz sinyal: " + matchedNeg.map(m => `'${m}'`).join(", "));
-        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki bulunamadı (Nötr).");
+        if (matchedPos.length) reasons.push("Olumlu sinyaller: " + matchedPos.join(", "));
+        if (matchedNeg.length) reasons.push("Olumsuz sinyaller: " + matchedNeg.join(", "));
+        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki yok (Nötr).");
 
         if (score >= 0.15) return { score, label: "AL", emoji: "🟢", reasons };
         else if (score <= -0.15) return { score, label: "SAT", emoji: "🔴", reasons };
         else return { score, label: "NÖTR", emoji: "⚪", reasons };
     }
 
-    // --- OTOMATİK HABER & SİNYAL ÇEKİMİ ---
-    window.newsSignalCache = {}; 
-    window.newsItemsCache = {};  
+    // --- ABD RADAR HAVUZU (S&P 500 / NASDAQ Devleri) ---
+    const US_RADAR_POOL = [
+        { symbol: "NVDA", name: "NVIDIA Corp." },
+        { symbol: "AAPL", name: "Apple Inc." },
+        { symbol: "MSFT", name: "Microsoft Corp." },
+        { symbol: "AMZN", name: "Amazon.com Inc." },
+        { symbol: "GOOGL", name: "Alphabet Inc." },
+        { symbol: "META", name: "Meta Platforms" },
+        { symbol: "TSLA", name: "Tesla Inc." },
+        { symbol: "AVGO", name: "Broadcom Inc." },
+        { symbol: "AMD",  name: "Advanced Micro Devices" },
+        { symbol: "NFLX", name: "Netflix Inc." },
+        { symbol: "PLTR", name: "Palantir Tech" },
+        { symbol: "LLY",  name: "Eli Lilly and Co." }
+    ];
 
-    async function fetchAndAnalyzeNewsSilently(ticker, type) {
-        let filteredItems = [];
+    async function runRadarScan() {
+        const slider = document.getElementById('radarSlider');
+        slider.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">ABD hisseleri yapay zeka ile taranıyor...</div>';
+
         const now = new Date();
-        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+        const toDate = now.toISOString().split('T')[0];
+        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
 
-        try {
-            if (type === 'US') {
-                const toDate = now.toISOString().split('T')[0];
-                const fromDate = past7Days.toISOString().split('T')[0];
-                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${ticker}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
+        let results = [];
+
+        for (let item of US_RADAR_POOL) {
+            try {
+                const res = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${item.symbol}&from=${fromDate}&to=${toDate}&token=${FINNHUB_KEY}`);
                 const data = await res.json();
-                
                 if (data && data.length > 0) {
-                    data.slice(0, 15).forEach(news => {
-                        const pubDate = new Date(news.datetime * 1000);
-                        const sentiment = analyzeHeadline(news.headline);
-                        filteredItems.push({ title: news.headline, link: news.url, date: pubDate.toLocaleString('tr-TR'), source: news.source, sentiment: sentiment, rawDate: pubDate });
+                    const latest = data[0];
+                    const sentiment = analyzeHeadline(latest.headline);
+                    results.push({
+                        symbol: item.symbol,
+                        name: item.name,
+                        headline: latest.headline,
+                        url: latest.url,
+                        source: latest.source,
+                        date: new Date(latest.datetime * 1000).toLocaleDateString('tr-TR'),
+                        sentiment: sentiment
+                    });
+                } else {
+                    results.push({
+                        symbol: item.symbol,
+                        name: item.name,
+                        headline: "Son 7 günde önemli haber bulunamadı.",
+                        url: "",
+                        source: "Piyasa",
+                        date: "Güncel",
+                        sentiment: { score: 0, label: "NÖTR", emoji: "⚪", reasons: [] }
                     });
                 }
-            } else {
-                const cleanTicker = ticker.replace(".IS", ""); 
-                const query = `${cleanTicker} hisse haber`; 
-                const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
-                
-                const resp = await fetch(proxyUrl);
-                const xmlText = await resp.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(xmlText, "application/xml");
-                const items = xml.querySelectorAll("item");
-                
-                items.forEach(item => {
-                    const title = item.querySelector("title")?.textContent || "";
-                    const link = item.querySelector("link")?.textContent || "";
-                    const pubDate = new Date(item.querySelector("pubDate")?.textContent || "");
-                    const source = item.querySelector("source")?.textContent || "Haber Kaynağı";
-                    
-                    if (pubDate >= past7Days) {
-                        const sentiment = analyzeHeadline(title);
-                        filteredItems.push({ title, link, date: pubDate.toLocaleString('tr-TR'), source, sentiment, rawDate: pubDate });
-                    }
-                });
+            } catch (e) {
+                console.warn(item.symbol + " taranamadı");
             }
-            
-            // Yeniden Eskiye Sırala
-            filteredItems.sort((a,b) => b.rawDate - a.rawDate);
-            window.newsItemsCache[ticker] = filteredItems;
-
-            // SADECE EN SON HABERİN SKORUNA GÖRE SİNYAL ÜRETİMİ (İstek 2)
-            if (filteredItems.length > 0) {
-                let latestNews = filteredItems[0];
-                let latestScore = latestNews.sentiment.score;
-
-                let overallSignal = 'NÖTR';
-                let signalClass = 'signal-neutral';
-                if (latestScore >= 0.15) { overallSignal = 'AL'; signalClass = 'signal-buy'; }
-                else if (latestScore <= -0.15) { overallSignal = 'SAT'; signalClass = 'signal-sell'; }
-
-                window.newsSignalCache[ticker] = { signal: overallSignal, class: signalClass, score: latestScore, time: latestNews.date };
-            } else {
-                window.newsSignalCache[ticker] = { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
-            }
-
-        } catch (e) {
-            console.error("Haber analizi başarısız oldu: ", e);
-        }
-    }
-
-    function showAssetNewsModal(ticker) {
-        const newsItems = window.newsItemsCache[ticker] || [];
-        
-        if (newsItems.length === 0) {
-            Swal.fire({ title: `${ticker} Haberleri`, html: '<div style="padding: 20px; opacity: 0.6; font-weight:600;">Son 7 gün içerisinde piyasa haberi bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' });
-            return;
         }
 
-        let html = '<div style="max-height: 450px; overflow-y: auto; padding-right: 8px;">';
-        newsItems.forEach((item, index) => {
-            let colorClass = item.sentiment.score >= 0.15 ? 'text-success' : (item.sentiment.score <= -0.15 ? 'text-danger' : 'text-muted');
-            let isLatest = index === 0 ? '<span style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;">SON HABER</span>' : '';
-            
+        // EN YÜKSEK SKORLU (GÜÇLÜ AL) OLANLAR EN BAŞA
+        results.sort((a, b) => b.sentiment.score - a.sentiment.score);
+
+        let html = '';
+        results.forEach(res => {
+            let scoreClass = res.sentiment.score >= 0.15 ? 'score-buy' : 'score-neutral';
             html += `
-                <div class="news-item" style="${index===0 ? 'border-color:var(--primary); box-shadow:0 0 15px rgba(59,130,246,0.15);' : ''}">
-                    <div class="news-header">
-                        <div class="news-title">${isLatest}<a href="${item.link}" target="_blank">${item.title}</a></div>
-                        <div class="news-sentiment">
-                            <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">
-                                ${item.sentiment.emoji} ${item.sentiment.label}
-                            </div>
-                            <div class="news-score">Skor: ${item.sentiment.score.toFixed(2)}</div>
+                <div class="radar-card" onclick="openRadarDetail('${res.symbol}', '${encodeURIComponent(res.name)}', '${encodeURIComponent(res.headline)}', '${encodeURIComponent(res.url)}', '${encodeURIComponent(res.source)}', ${res.sentiment.score}, '${encodeURIComponent(res.sentiment.reasons.join(' | '))}')">
+                    <div class="radar-card-top">
+                        <div>
+                            <div class="radar-symbol">${res.symbol}</div>
+                            <div class="radar-name">${res.name}</div>
+                        </div>
+                        <div class="radar-score ${scoreClass}">
+                            ${res.sentiment.emoji} ${res.sentiment.label}
                         </div>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);"><b>${item.source}</b> &bull; ${item.date}</div>
-                    <div class="news-reasons">${item.sentiment.reasons.join('<br>')}</div>
+                    <div class="radar-headline">"${res.headline}"</div>
+                    <div class="radar-footer">
+                        <span>${res.source}</span>
+                        <span>${res.date}</span>
+                    </div>
                 </div>
             `;
         });
-        html += '</div>';
 
-        Swal.fire({ title: `📰 ${ticker} Haber Akışı`, html: html, width: 750, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
+        slider.innerHTML = html;
     }
 
-    // --- API & State Tanımlamaları ---
+    function openRadarDetail(symbol, name, headline, url, source, score, reasonsStr) {
+        name = decodeURIComponent(name);
+        headline = decodeURIComponent(headline);
+        url = decodeURIComponent(url);
+        source = decodeURIComponent(source);
+        let reasons = decodeURIComponent(reasonsStr).split(' | ');
+
+        Swal.fire({
+            title: `🚀 ${symbol} — ${name}`,
+            html: `
+                <div style="text-align: left; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 14px; border: 1px solid var(--panel-border); margin-bottom: 16px;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 6px;">SON PİYASA HABERİ</div>
+                    <div style="font-size: 1rem; font-weight: 800; color: white; line-height: 1.4; margin-bottom: 8px;">"${headline}"</div>
+                    <div style="font-size: 0.75rem; color: var(--primary);">Kaynak: ${source}</div>
+                </div>
+                <div style="text-align: left; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                    <b>Algoritma Görüşü:</b><br>${reasons.join('<br>') || 'Nötr piyasa akışı'}
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '+ Portföyüme Ekle',
+            cancelButtonText: 'Kapat',
+            customClass: { popup: 'premium-modal' }
+        }).then((res) => {
+            if (res.isConfirmed) {
+                appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 });
+                saveData();
+                fetchAllLivePrices();
+                Toast.fire({ icon: 'success', title: `${symbol} portföyünüze eklendi!` });
+            }
+        });
+    }
+
+    // --- Menü & Global Değişkenler ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV9';
+    const STORAGE_KEY = 'proApp_wealthTrackerV10';
     
-    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (!appData || !appData.weeks) {
-        appData = { baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ] };
-    }
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ]
+    };
 
-    let livePricesCache = {}; let usdRateCache = 34.0; 
-    let chartInstance = null; let modalChartInstance = null;
-    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#1e293b', color: '#f8fafc' });
+    let livePricesCache = {}; 
+    let usdRateCache = 34.0;
+    let tvChart = null, tvAreaSeries = null, tvTargetSeries = null;
+    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#111827', color: '#f8fafc' });
 
     const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
     const formatPct = (num) => num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
     const getTargetAmt = (weekNum) => appData.baseCapital * Math.pow(1 + (appData.targetRate / 100), weekNum);
 
+    // --- Başlangıç ---
     async function init() {
         document.getElementById('baseCapital').value = appData.baseCapital;
         document.getElementById('targetRate').value = appData.targetRate;
         updateWeekDropdown();
+        initLightweightChart();
         await fetchAllLivePrices();
         updateDashboard();
+        runRadarScan(); // Arka planda radarı çalıştır
     }
 
+    // --- TRADINGVIEW LIGHTWEIGHT CHARTS ENTEGRASYONU ---
+    function initLightweightChart() {
+        const container = document.getElementById('tvChartContainer');
+        container.innerHTML = '';
+
+        tvChart = LightweightCharts.createChart(container, {
+            layout: {
+                background: { color: '#090d16' },
+                textColor: '#94a3b8',
+                fontFamily: "'Inter', sans-serif"
+            },
+            grid: {
+                vertLines: { color: 'rgba(255, 255, 255, 0.03)' },
+                horzLines: { color: 'rgba(255, 255, 255, 0.03)' },
+            },
+            crosshair: {
+                vertLine: { color: '#3b82f6', width: 1, style: 2 },
+                horzLine: { color: '#3b82f6', width: 1, style: 2 },
+            },
+            rightPriceScale: {
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+            },
+            timeScale: {
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                timeVisible: true,
+                secondsVisible: false,
+            },
+            handleScroll: { mouseWheel: true, pressedMouseMove: true },
+            handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
+        });
+
+        // Gerçekleşen Portföy Eğrisi (Degrade Alan)
+        tvAreaSeries = tvChart.addAreaSeries({
+            lineColor: '#3b82f6',
+            topColor: 'rgba(59, 130, 246, 0.4)',
+            bottomColor: 'rgba(59, 130, 246, 0.01)',
+            lineWidth: 3,
+            priceFormat: { type: 'custom', formatter: val => formatTL(val) }
+        });
+
+        // Hedeflenen Büyüme Eğrisi (Kırmızı Kesikli Çizgi)
+        tvTargetSeries = tvChart.addLineSeries({
+            color: '#ef4444',
+            lineWidth: 2,
+            lineStyle: 2, // Kesikli
+            priceFormat: { type: 'custom', formatter: val => formatTL(val) }
+        });
+
+        window.addEventListener('resize', () => {
+            if (tvChart) tvChart.resize(container.clientWidth, 350);
+        });
+    }
+
+    function updateLightweightChartData() {
+        if (!tvChart || !tvAreaSeries) return;
+
+        const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
+        
+        // Zaman bazlı TradingView verisi hazırlığı (YYYY-MM-DD)
+        const baseDate = new Date();
+        baseDate.setDate(baseDate.getDate() - (weeksWithLogs.length * 7));
+
+        let actualTVData = [];
+        let targetTVData = [];
+
+        // 0. Hafta Başlangıç
+        let d0 = new Date(baseDate);
+        let time0 = d0.toISOString().split('T')[0];
+        actualTVData.push({ time: time0, value: appData.baseCapital });
+        targetTVData.push({ time: time0, value: appData.baseCapital });
+
+        weeksWithLogs.forEach((w, i) => {
+            let d = new Date(baseDate);
+            d.setDate(d.getDate() + ((i + 1) * 7));
+            let timeStr = d.toISOString().split('T')[0];
+
+            actualTVData.push({ time: timeStr, value: w.logs[w.logs.length - 1].total });
+            targetTVData.push({ time: timeStr, value: getTargetAmt(w.weekNum) });
+        });
+
+        tvAreaSeries.setData(actualTVData);
+        tvTargetSeries.setData(targetTVData);
+        tvChart.timeScale().fitContent();
+    }
+
+    // --- State & Dashboard ---
     function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
     function updateSettings() {
         appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0;
         appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0;
         saveData(); updateDashboard();
-        Toast.fire({ icon: 'success', title: 'Ayarlar güncellendi' });
+        Toast.fire({ icon: 'success', title: 'Strateji güncellendi' });
     }
 
     async function fetchUsdTryRate() {
-        try { const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY'); const data = await res.json(); if(data && data[0] && data[0].rate) return data[0].rate; return 34.0; } 
+        try { const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY'); const data = await res.json(); return data[0]?.rate || 34.0; } 
         catch(e) { return 34.0; }
     }
 
@@ -471,23 +565,20 @@
             const now = Math.floor(Date.now() / 1000); const fromDate = now - (30 * 24 * 60 * 60); 
             const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${fromDate}&to=${now}`);
             const data = await res.json();
-            if (data && data.c && data.c.length > 0) return data.c[data.c.length - 1]; return 0;
+            return (data && data.c?.length > 0) ? data.c[data.c.length - 1] : 0;
         } catch(e) { return 0; }
     }
 
     async function fetchAllLivePrices() {
-        Swal.fire({ title: 'Sistem Güncelleniyor', html: 'Piyasa verileri ve analiz motoru çalışıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Canlı borsa ve döviz kurları senkronize ediliyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         usdRateCache = await fetchUsdTryRate();
         let fetchPromises = [];
 
         for (let asset of appData.assets) {
             if (asset.type === 'US') {
                 fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-                fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
-            }
-            else if (asset.type === 'TR') {
+            } else if (asset.type === 'TR') {
                 fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-                fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
             }
         }
         
@@ -495,44 +586,7 @@
         Swal.close(); renderAssets();
     }
 
-    function openAddLiveAssetModal() {
-        Swal.fire({
-            title: 'Canlı Varlık Ekle',
-            html: `
-                <div style="margin-bottom: 16px; text-align: left;">
-                    <label style="display:block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">Varlık Kodu (Hisse / Fon)</label>
-                    <input id="swal-asset-symbol" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: 600; outline: none;" placeholder="Örn: AAPL, THYAO" style="text-transform: uppercase;">
-                </div>
-                <div style="margin-bottom: 16px; text-align: left;">
-                    <label style="display:block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">Piyasa Türü</label>
-                    <select id="swal-asset-type" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: 600; outline: none;">
-                        <option value="TR">Türkiye (BİST / TEFAS Fonu)</option>
-                        <option value="US">ABD Borsası (USD)</option>
-                    </select>
-                </div>
-                <div style="text-align: left;">
-                    <label style="display:block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">Adet / Miktar</label>
-                    <input id="swal-asset-amount" type="number" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: 600; outline: none;" placeholder="Örn: 150">
-                </div>
-            `,
-            showCancelButton: true, confirmButtonText: 'Portföye Ekle', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' },
-            preConfirm: () => {
-                const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim();
-                const type = document.getElementById('swal-asset-type').value;
-                const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
-                if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli bir varlık kodu ve miktar girmelisiniz.'); return false; }
-                return { id: Date.now().toString(), name, type, amount, manualValue: 0 };
-            }
-        }).then(async (result) => {
-            if (result.isConfirmed) { appData.assets.push(result.value); saveData(); await fetchAllLivePrices(); }
-        });
-    }
-
-    function addManualAsset() { appData.assets.push({ id: Date.now().toString(), name: 'Yeni Nakit/Varlık', type: 'MANUAL', amount: 1, manualValue: 0 }); saveData(); renderAssets(); }
-    function removeAsset(id) { appData.assets = appData.assets.filter(a => a.id !== id); saveData(); renderAssets(); }
-    function updateAsset(id, field, value) { const asset = appData.assets.find(a => a.id === id); if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(false); } }
-
-    function renderAssets(rebuildDOM = true) {
+    function renderAssets() {
         const container = document.getElementById('assetsContainer');
         let totalLiveValue = 0; let html = '';
 
@@ -545,17 +599,17 @@
                     <div class="asset-card">
                         <div class="asset-header">
                             <div class="asset-title-group">
-                                <input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="background:transparent; border:none; padding:0; font-size:1.05rem; font-weight:900; color:white; outline:none; max-width:180px;">
+                                <input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="background:transparent; border:none; font-size:1.05rem; font-weight:900; color:white; outline:none; max-width:180px;">
                                 <span class="badge-type bg-manual">MANUEL</span>
                             </div>
                             <div class="asset-actions">
-                                <button class="btn-del" onclick="removeAsset('${asset.id}')" title="Sil"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                                <button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                             </div>
                         </div>
                         <div class="asset-inputs">
                             <div style="flex: 1;">
-                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform:uppercase;">Toplam Değer (₺)</label>
-                                <input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="padding: 10px; width: 100%; margin-top: 6px; background: rgba(0,0,0,0.3);">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Değer (₺)</label>
+                                <input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;">
                             </div>
                         </div>
                     </div>`;
@@ -565,15 +619,11 @@
                 
                 if (asset.type === 'US') {
                     assetTotalTRY = (asset.amount * price) * usdRateCache;
-                    displaySubText = `Fiyat: $${price.toFixed(2)} &bull; USD/TRY: ₺${usdRateCache.toFixed(2)}`;
+                    displaySubText = `Fiyat: $${price.toFixed(2)} &bull; Kur: ₺${usdRateCache.toFixed(2)}`;
                 } else if (asset.type === 'TR') {
                     assetTotalTRY = asset.amount * price;
-                    displaySubText = `Borsa Fiyatı: ₺${price.toFixed(4)}`;
+                    displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`;
                 }
-
-                // Sinyal Rozetini Al (İstek 2: Flexbox ile Çakışmayı Önleme)
-                const signalData = window.newsSignalCache[asset.name] || { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
-                let signalTooltip = signalData.score !== 0 ? `Son Haber Skoru: ${signalData.score.toFixed(2)}` : 'Haber bulunamadı';
 
                 html += `
                     <div class="asset-card">
@@ -581,23 +631,16 @@
                             <div class="asset-title-group">
                                 <div class="asset-title">${asset.name}</div>
                                 <span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span>
-                                <div class="signal-badge ${signalData.class}" title="${signalTooltip}">${signalData.signal}</div>
                             </div>
                             <div class="asset-actions">
-                                <button onclick="showAssetNewsModal('${asset.name}')" class="btn-news" title="Son Haber Analizi">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-                                    Haber
-                                </button>
-                                <button class="btn-del" onclick="removeAsset('${asset.id}')" title="Sil"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                                <button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                             </div>
                         </div>
-                        
                         <div class="asset-info">${displaySubText}</div>
-                        
                         <div class="asset-inputs">
                             <div style="flex: 1;">
-                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform:uppercase;">Miktar</label>
-                                <input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 10px; width: 100%; margin-top: 6px; background: rgba(0,0,0,0.3);">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Adet / Miktar</label>
+                                <input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;">
                             </div>
                             <div class="asset-val-display" style="flex: 1; margin-bottom: 4px;">
                                 ${formatTL(assetTotalTRY)}
@@ -608,10 +651,47 @@
             totalLiveValue += assetTotalTRY;
         });
 
-        container.innerHTML = html; document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
+        container.innerHTML = html; 
+        document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
     }
 
-    // --- Hafta ve Kayıt Yönetimi ---
+    function openAddLiveAssetModal() {
+        Swal.fire({
+            title: 'Canlı Varlık Ekle',
+            html: `
+                <div style="margin-bottom: 16px; text-align: left;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Hisse / Fon Kodu</label>
+                    <input id="swal-asset-symbol" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="Örn: NVDA, THYAO" style="text-transform: uppercase;">
+                </div>
+                <div style="margin-bottom: 16px; text-align: left;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Piyasa</label>
+                    <select id="swal-asset-type" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;">
+                        <option value="US">ABD Borsası (USD)</option>
+                        <option value="TR">Türkiye (BİST / TEFAS)</option>
+                    </select>
+                </div>
+                <div style="text-align: left;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adet</label>
+                    <input id="swal-asset-amount" type="number" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="10">
+                </div>
+            `,
+            showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' },
+            preConfirm: () => {
+                const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim();
+                const type = document.getElementById('swal-asset-type').value;
+                const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
+                if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli değerler girin.'); return false; }
+                return { id: Date.now().toString(), name, type, amount, manualValue: 0 };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) { appData.assets.push(result.value); saveData(); await fetchAllLivePrices(); }
+        });
+    }
+
+    function addManualAsset() { appData.assets.push({ id: Date.now().toString(), name: 'Nakit Portföyü', type: 'MANUAL', amount: 1, manualValue: 0 }); saveData(); renderAssets(); }
+    function removeAsset(id) { appData.assets = appData.assets.filter(a => a.id !== id); saveData(); renderAssets(); }
+    function updateAsset(id, field, value) { const asset = appData.assets.find(a => a.id === id); if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(); } }
+
     function updateWeekDropdown() {
         const select = document.getElementById('activeWeekSelect'); select.innerHTML = '';
         appData.weeks.forEach(w => {
@@ -629,7 +709,7 @@
     function saveLog() {
         const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value);
         let week = appData.weeks.find(w => w.weekNum === selectedWeekNum);
-        let total = 0; let walletsSnapshot = {};
+        let total = 0, walletsSnapshot = {};
 
         appData.assets.forEach(asset => {
             let val = 0;
@@ -645,24 +725,26 @@
         const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey)));
         const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total };
 
-        if (existingLogIndex >= 0) { week.logs[existingLogIndex] = newLogEntry; Toast.fire({ icon: 'success', title: 'Bugünün kaydı güncellendi!' }); } 
-        else { week.logs.push(newLogEntry); Toast.fire({ icon: 'success', title: 'Yeni gün kaydı eklendi!' }); }
+        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; 
+        else week.logs.push(newLogEntry);
 
         saveData(); updateDashboard();
+        Toast.fire({ icon: 'success', title: 'Kayıt başarıyla işlendi!' });
     }
-
-    // --- Dashboard, Geçmiş ve Grafikler ---
-    function getWeekLatestTotal(weekNum) { const week = appData.weeks.find(w => w.weekNum === weekNum); if(!week || week.logs.length === 0) return null; return week.logs[week.logs.length - 1].total; }
 
     function updateDashboard() {
         let latestTotal = appData.baseCapital;
-        for(let i = appData.weeks.length - 1; i >= 0; i--) { if(appData.weeks[i].logs.length > 0) { latestTotal = appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total; break; } }
+        for(let i = appData.weeks.length - 1; i >= 0; i--) { 
+            if(appData.weeks[i].logs.length > 0) { latestTotal = appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total; break; } 
+        }
         
         const currentTarget = getTargetAmt(appData.currentWeekNum);
         document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal);
         document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
         
-        const netProfit = latestTotal - appData.baseCapital; const netProfitPct = ((latestTotal - appData.baseCapital) / appData.baseCapital) * 100; const diff = latestTotal - currentTarget;
+        const netProfit = latestTotal - appData.baseCapital;
+        const netProfitPct = ((latestTotal - appData.baseCapital) / appData.baseCapital) * 100;
+        const diff = latestTotal - currentTarget;
         
         const totalProfitEl = document.getElementById('statTotalProfit');
         totalProfitEl.innerText = `Net Kar: ${formatTL(netProfit)} (%${netProfitPct.toFixed(2)})`;
@@ -672,87 +754,64 @@
         statDiffEl.innerText = `Hedefe Göre Fark: ${diff >= 0 ? '+' : ''}${formatTL(diff)}`;
         statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
 
-        renderHistory(); renderChart();
+        renderHistory();
+        updateLightweightChartData(); // TradingView Grafiğini güncelle
     }
 
     function renderHistory() {
         const container = document.getElementById('historyContainer'); container.innerHTML = '';
         const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
 
-        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="opacity:0.5; font-size:0.9rem; text-align:center; padding: 20px;">Henüz kayıt yok.</div>'; return; }
+        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor.</div>'; return; }
 
         [...weeksWithLogs].reverse().forEach(week => {
             const lastLog = week.logs[week.logs.length - 1];
-            let prevTotal = appData.baseCapital; if(week.weekNum > 1) { const prev = getWeekLatestTotal(week.weekNum - 1); if(prev !== null) prevTotal = prev; }
+            let prevTotal = appData.baseCapital; 
+            if(week.weekNum > 1) {
+                const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1);
+                if(prev && prev.logs.length > 0) prevTotal = prev.logs[prev.logs.length - 1].total;
+            }
             const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100;
             let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
 
             container.innerHTML += `
                 <div class="history-item">
                     <div>
-                        <div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight: 600;">(${lastLog.date})</span></div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; font-weight:500;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div>
+                        <div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div>
                     </div>
                     <div class="history-actions">
                         <div style="text-align: right;">
-                            <div style="font-size: 1.35rem; font-weight: 900; color: white; letter-spacing: -0.5px;">${formatTL(lastLog.total)}</div>
+                            <div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div>
                             <div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div>
                         </div>
-                        <button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Performans Grafiği">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                        </button>
                     </div>
                 </div>
             `;
         });
     }
 
-    function showWeekDetails(weekNum) {
-        const week = appData.weeks.find(w => w.weekNum === weekNum); if(!week || week.logs.length === 0) return;
-        let tableHtml = `<div class="modal-table-container"><table class="log-table"><thead><tr><th>Tarih</th><th>Varlık Dağılımı</th><th style="text-align: right;">Günlük Kapanış</th></tr></thead><tbody>`;
-        
-        [...week.logs].reverse().forEach(log => {
-            let details = []; for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); }
-            tableHtml += `<tr><td style="white-space: nowrap; font-weight:600;">${log.dateKey || log.date.split(' ')[0]}</td><td class="log-wallet-detail">${details.join('<br>')}</td><td style="text-align: right; font-weight: 900; color: white; font-size: 1.05rem;">${formatTL(log.total)}</td></tr>`;
-        });
-        tableHtml += `</tbody></table></div>`;
+    // Hamburger Dropdown Event
+    const menuBtn = document.getElementById('menuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); });
+    document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
 
+    function resetAllData() {
+        dropdownMenu.classList.remove('active');
         Swal.fire({
-            title: `Hafta ${weekNum} Analizi`, html: `<div class="modal-chart-area"><canvas id="modalChartCanvas"></canvas></div>${tableHtml}`, width: 850, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
-            didOpen: () => {
-                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
-                const labels = week.logs.map(log => log.dateKey || log.date.split(' ')[0]); const data = week.logs.map(log => log.total);
-                if (modalChartInstance) modalChartInstance.destroy();
-                Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = "'Inter', sans-serif";
-                modalChartInstance = new Chart(ctx, {
-                    type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5, fill: true, tension: 0.4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font:{weight:'bold'}, callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false }, ticks: {font:{weight:'bold'}} } } }
-                });
-            }
+            title: 'Sistemi Sıfırla',
+            html: "Tüm portföy verileriniz sıfırlanacak. Onaylıyor musunuz?",
+            icon: 'warning', showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal',
+            customClass: { popup: 'premium-modal' }, confirmButtonColor: '#ef4444'
+        }).then((result) => {
+            if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
         });
     }
 
-    function renderChart() {
-        const ctx = document.getElementById('growthChart').getContext('2d');
-        const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
-        const labels = ['Başlangıç', ...weeksWithLogs.map(w => `Hafta ${w.weekNum}`)];
-        const targetData = [appData.baseCapital, ...weeksWithLogs.map(w => getTargetAmt(w.weekNum))];
-        const actualData = [appData.baseCapital, ...weeksWithLogs.map(w => w.logs[w.logs.length - 1].total)];
-
-        if (chartInstance) chartInstance.destroy();
-        Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = "'Inter', sans-serif";
-
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Gerçekleşen', data: actualData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', fill: true, tension: 0.4 },
-                    { label: 'Hedef', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [6, 6], pointRadius: 0, fill: false, tension: 0.4 }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks:{font:{weight:'bold'}} }, x: { grid: { display: false }, ticks:{font:{weight:'bold'}} } } }
-        });
+    function forceSyncPrices() {
+        dropdownMenu.classList.remove('active');
+        fetchAllLivePrices();
     }
 
     window.onload = init;
