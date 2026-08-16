@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (Mega Radarlar & Altın Kesişim)</title>
+    <title>Pro Varlık Terminali (Tam Stabil Çalışan Sürüm)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -21,6 +20,8 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; padding-bottom: 40px; }
 
+        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
         /* Navbar */
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); position: sticky; top: 0; z-index: 50; }
         .logo { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; color: white; display: flex; align-items: center; gap: 8px; }
@@ -29,7 +30,7 @@
         .menu-container { position: relative; }
         .btn-hamburger { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.2rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-hamburger:hover { background: var(--input-bg); border-color: var(--primary); color: var(--primary); }
-        .dropdown-menu { position: absolute; right: 0; top: calc(100% + 12px); background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; width: 240px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .dropdown-menu { position: absolute; right: 0; top: calc(100% + 12px); background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; width: 240px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.25s ease-in-out; }
         .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
         .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; color: var(--text-main); text-decoration: none; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--panel-border); transition: 0.2s; }
         .dropdown-item:last-child { border-bottom: none; }
@@ -167,10 +168,11 @@
 </head>
 <body>
 
+<!-- ÜST MENÜ -->
 <header class="navbar">
     <div class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        ProPortföy <span>V20 Terminal</span>
+        ProPortföy <span>V19 STABLE</span>
     </div>
     <div class="menu-container">
         <button class="btn-hamburger" id="menuBtn">
@@ -192,9 +194,9 @@
 <!-- MEGA FIRSAT RADARLARI -->
 <div class="opp-section">
     <div class="opp-header">
-        <div class="opp-header-title">⚡ Akıllı Para & Fırsat Radarları (Finnhub API)</div>
+        <div class="opp-header-title">⚡ Akıllı Para Radarları (Finnhub API)</div>
         <div class="radar-controls">
-            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">TARANACAK HİSSE:</label>
+            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">HİSSE HAVUZU:</label>
             <select id="radarPoolSize" class="radar-select">
                 <option value="50">Top 50</option>
                 <option value="100" selected>Top 100</option>
@@ -213,11 +215,11 @@
         </div>
         <div class="opp-btn-card purple" onclick="runFinnhubRadarScan('earnings')">
             <div class="opp-title"><span style="font-size:1.4rem;">🎯</span> Bilanço Sürprizi</div>
-            <div class="opp-desc">Analistlerin kâr tahminini aşarak sürpriz kâr açıklayan şirketleri tespit eder.</div>
+            <div class="opp-desc">Beklentileri aşarak sürpriz kâr açıklayan şirketleri tespit eder.</div>
         </div>
         <div class="opp-btn-card cyan" onclick="runFinnhubRadarScan('insider')">
             <div class="opp-title"><span style="font-size:1.4rem;">🐋</span> Balina Alımları</div>
-            <div class="opp-desc">Şirket yöneticilerinin açık piyasadan yaptığı dev alımları ve tarihlerini yakalar.</div>
+            <div class="opp-desc">Şirket yöneticilerinin açık piyasadan yaptığı dev alımları yakalar.</div>
         </div>
         <div class="opp-btn-card pink" onclick="runFinnhubRadarScan('target')">
             <div class="opp-title"><span style="font-size:1.4rem;">🚀</span> Hedef Fiyat Ucuzluk</div>
@@ -225,11 +227,11 @@
         </div>
         <div class="opp-btn-card orange" onclick="runFinnhubRadarScan('upcoming_earnings')">
             <div class="opp-title"><span style="font-size:1.4rem;">⏳</span> Yaklaşan Bilanço</div>
-            <div class="opp-desc">Önümüzdeki 1 ay içinde bilanço açıklayacak ve haber akışı pozitif olan şirketler.</div>
+            <div class="opp-desc">Önümüzdeki 1 ay içinde bilanço açıklayacak ve haber akışı pozitif şirketler.</div>
         </div>
         <div class="opp-btn-card gold" onclick="runFinnhubRadarScan('golden_cross')">
             <div class="opp-title"><span style="font-size:1.4rem;">🔥</span> Altın Kesişim Radarı</div>
-            <div class="opp-desc">Dibe yakın + Balina Alımı var + Sürpriz Kâr etmiş çakışan kusursuz fırsatlar.</div>
+            <div class="opp-desc">Dibe yakın + Balina Alımı var + Sürpriz Kâr etmiş kusursuz fırsatlar.</div>
         </div>
     </div>
     <div class="radar-slider" id="oppRadarSlider"></div>
@@ -260,8 +262,8 @@
             <div id="assetsContainer" style="max-height: 400px; overflow-y: auto; padding-right: 6px; margin-bottom: 16px;"></div>
 
             <div class="form-group" style="display: flex; gap: 10px;">
-                <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="openAddLiveAssetModal()">+ Canlı Varlık</button>
-                <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="addManualAsset()">+ Nakit/Manuel</button>
+                <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="addLiveAssetUI()">+ Canlı Varlık</button>
+                <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="addManualAssetUI()">+ Nakit/Manuel</button>
             </div>
 
             <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; margin: 20px 0; text-align: center; border: 1px solid var(--panel-border);">
@@ -275,8 +277,8 @@
             </div>
 
             <div style="display: flex; gap: 12px;">
-                <button class="btn" onclick="saveLog()">Günü Kaydet</button>
-                <button class="btn btn-success" style="width: auto; padding: 0 20px;" onclick="startNextWeek()" title="Yeni Haftaya Geç">+</button>
+                <button class="btn" onclick="saveDailyLogUI()">Günü Kaydet</button>
+                <button class="btn btn-success" style="width: auto; padding: 0 20px;" onclick="startNextWeekUI()" title="Yeni Haftaya Geç">+</button>
             </div>
         </div>
     </div>
@@ -315,271 +317,40 @@
 </div>
 
 <script>
+    // --- GÜVENLİ BAŞLANGIÇ & DEĞİŞKENLER ---
     const FINNHUB_KEY = 'c94i99aad3if4j50rvn0';
-    const STORAGE_KEY = 'proApp_wealthTrackerV20';
+    const STORAGE_KEY = 'proApp_wealthTrackerV21_Stable'; // Yepyeni DB anahtarı (Eski bozuk verileri ezer)
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#111827', color: '#f8fafc' });
 
-    // Hisselerin piyasa değerine göre özenle seçilmiş dev havuzu (Finnhub API dostu)
+    let appData = { baseCapital: 100000, targetRate: 5.0, currentWeekNum: 1, assets: [], weeks: [ { weekNum: 1, logs: [] } ] };
+    try {
+        let stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            let parsed = JSON.parse(stored);
+            if (parsed && Array.isArray(parsed.assets) && Array.isArray(parsed.weeks)) {
+                appData = parsed;
+            }
+        }
+    } catch(e) { console.warn("Local storage parse error, using defaults"); }
+
+    let livePricesCache = {}; 
+    let usdRateCache = 34.0;
+    let chartInstance = null; 
+    let modalChartInstance = null;
+    window.newsSignalCache = {}; 
+    window.newsItemsCache = {};
+
     const US_STOCK_POOL = [
-        "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","AVGO","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK","ABBV","CRM","BAC","CVX","NFLX","AMD","KO","PEP","WMT","TMO","DIS","MCD","CSCO","ADBE","QCOM","INTC","TXN","IBM","AMGN","PFE","GE","NOW","INTU","CAT","VZ","HON","BA","NKE","GS","MS","MMM","MDT","T","SPG","LMT","SYK","ISRG","UNP","BLK","AXP","C","SCHW","RTX","LOW","BKNG","EL","PGR","TJX","VRTX","COP","GILD","SLB","EOG","OXY","MPC","PSX","PXD","VLO","CVS","TGT","DG","WBA","SO","AMT","PLD","CCI","EQIX","PSA","DUK","D","NEE","AEP","EXC","SRE","XEL","ED","WEC","ES","AWK","PEG","EIX","FE","ETR","CMS","DTE","AEE","CNP","NI","LNT","ATO","PNW","PNR","OGE","SR","POR","IDA","BKH","ALE","MDU","NWE","OGS","OTTR","AVA","MGEE","SJW","EE","CHX","CPK","AGR","YORW","MSEX"
+        "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","AVGO","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK","ABBV","CRM","BAC","CVX","NFLX","AMD","KO","PEP","WMT","TMO","DIS","MCD","CSCO","ADBE","QCOM","INTC","TXN","IBM","AMGN","PFE","GE","NOW","INTU","CAT","VZ","HON","BA","NKE","GS","MS"
     ];
 
-    // =========================================================
-    // 100% FINNHUB RADAR SİSTEMİ (LİMİT KORUMALI)
-    // =========================================================
-    
-    function renderOppSlider(results, typeStr, iconStr, colorVar, ascSort = false) {
-        const slider = document.getElementById('oppRadarSlider');
-        slider.style.display = 'flex';
-        
-        if (results.length === 0) {
-            slider.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Taranan havuzda güncel kriterlere uyan fırsat bulunamadı.</div>`;
-            return;
-        }
+    // --- YARDIMCI FONKSİYONLAR ---
+    const formatTL = (num) => new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num) + ' ₺';
+    const formatPct = (num) => num.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    const getTargetAmt = (weekNum) => parseFloat(appData.baseCapital) * Math.pow(1 + (parseFloat(appData.targetRate) / 100), weekNum);
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
-        if (ascSort) results.sort((a,b) => a.score - b.score);
-        else results.sort((a,b) => b.score - a.score);
-
-        let html = '';
-        results.forEach(res => {
-            html += `
-                <div class="radar-card" style="border-top: 3px solid var(${colorVar});" onclick="addToPortfolioConfirm('${res.symbol}')">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div style="font-size:1.15rem; font-weight:900; color:white;">${res.symbol}</div>
-                        <div style="font-size:1.2rem;">${iconStr}</div>
-                    </div>
-                    <div style="font-size:0.75rem; font-weight:800; color:var(${colorVar}); margin-top:8px;">${typeStr}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; line-height:1.4;">${res.detail}</div>
-                </div>
-            `;
-        });
-        slider.innerHTML = html;
-    }
-
-    async function runFinnhubRadarScan(scanType) {
-        const limit = parseInt(document.getElementById('radarPoolSize').value) || 100;
-        let symbolsToScan = US_STOCK_POOL.slice(0, limit);
-        
-        Swal.fire({ 
-            title: '📡 Finnhub Radarı Çalışıyor', 
-            html: `
-                <div style="font-size: 0.9rem; margin-bottom: 12px;">Seçilen ${limit} ABD hissesi tek tek inceleniyor.</div>
-                <div style="background: var(--input-bg); border: 1px solid var(--panel-border); padding: 12px; border-radius: 8px; font-family: monospace; color: var(--success); font-weight: bold; text-align: left; overflow: hidden; white-space: nowrap;">
-                    >_ Taranıyor: <span id="marqueeSymbol" style="animation: pulse 1s infinite;">BAŞLIYOR...</span>
-                </div>
-                <br><span style="font-size:0.75rem; opacity:0.8; color:var(--warning);">⚠️ API hız limitlerine takılmamak için tarama işlemi yaklaşık ${Math.ceil(limit / 30)} dakika sürebilir. Lütfen bekleyiniz...</span>
-            `, 
-            allowOutsideClick: false, 
-            customClass: { popup: 'premium-modal' }, 
-            didOpen: () => Swal.showLoading() 
-        });
-
-        const progressBar = document.getElementById('radarProgressBar');
-        const progressFill = document.getElementById('radarProgressFill');
-        progressBar.style.display = 'block';
-        progressFill.style.width = '0%';
-
-        let results = [];
-        let rateLimited = false;
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        
-        let upcomingEarningsSymbols = [];
-        if (scanType === 'upcoming_earnings') {
-            const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
-            const nextMonthStr = nextMonth.toISOString().split('T')[0];
-            try {
-                const calRes = await fetch(`https://finnhub.io/api/v1/calendar/earnings?from=${todayStr}&to=${nextMonthStr}&token=${FINNHUB_KEY}`);
-                const calData = await calRes.json();
-                if(calData && calData.earningsCalendar) {
-                    upcomingEarningsSymbols = calData.earningsCalendar.map(e => e.symbol);
-                }
-            } catch(e) {}
-        }
-        
-        for (let i = 0; i < symbolsToScan.length; i++) {
-            const sym = symbolsToScan[i];
-            
-            const marqueeEl = document.getElementById('marqueeSymbol');
-            if (marqueeEl) marqueeEl.innerText = sym;
-            
-            try {
-                if (scanType === '52w') {
-                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`);
-                    if (metRes.status === 429) { rateLimited = true; break; }
-                    const metData = await metRes.json();
-                    
-                    if (metData && metData.metric && metData.metric['52WeekLow']) {
-                        const low52 = metData.metric['52WeekLow'];
-                        const high52 = metData.metric['52WeekHigh'] || 0;
-                        const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
-                        const qData = await quoteRes.json();
-                        const currentPrice = qData.c || low52;
-                        
-                        const distFromLow = ((currentPrice - low52) / low52) * 100;
-                        if (distFromLow < 15.0) { 
-                            results.push({ 
-                                symbol: sym, score: distFromLow, 
-                                detail: `Güncel: $${currentPrice.toFixed(2)}<br>52W Dip: $${low52.toFixed(2)}<br><span style="color:var(--text-muted);">52W Zirve: $${high52.toFixed(2)}</span><br><b style="color:var(--blue);">Dipten Fark: +%${distFromLow.toFixed(1)}</b>` 
-                            });
-                        }
-                    }
-                } 
-                else if (scanType === 'earnings') {
-                    const res = await fetch(`https://finnhub.io/api/v1/stock/earnings?symbol=${sym}&token=${FINNHUB_KEY}`);
-                    if (res.status === 429) { rateLimited = true; break; }
-                    const data = await res.json();
-                    if (data && data.length > 0) {
-                        const last = data[0];
-                        if (last.actual > last.estimate && last.estimate > 0) {
-                            const surprisePct = ((last.actual - last.estimate) / Math.abs(last.estimate)) * 100;
-                            if (surprisePct > 5.0) {
-                                results.push({ 
-                                    symbol: sym, score: surprisePct, 
-                                    detail: `Tarih: ${last.period}<br>Beklenti: $${last.estimate.toFixed(2)}<br>Gerçekleşen: $${last.actual.toFixed(2)}<br><b style="color:var(--purple);">🚀 TAVSİYE: +%${surprisePct.toFixed(1)} KÂR</b>` 
-                                });
-                            }
-                        }
-                    }
-                } 
-                else if (scanType === 'insider') {
-                    const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-                    const cutoffDate = threeMonthsAgo.toISOString().split('T')[0];
-                    const res = await fetch(`https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${cutoffDate}&token=${FINNHUB_KEY}`);
-                    if (res.status === 429) { rateLimited = true; break; }
-                    const data = await res.json();
-                    
-                    if (data && data.data && data.data.length > 0) {
-                        let transactions = data.data.filter(t => t.change > 0 && t.transactionPrice > 0);
-                        if (transactions.length > 0) {
-                            transactions.sort((a,b) => new Date(b.transactionDate) - new Date(a.transactionDate));
-                            let latestTxn = transactions[0];
-                            let totalBought = 0;
-                            transactions.forEach(t => totalBought += (t.change * t.transactionPrice));
-
-                            if (totalBought > 500000) { 
-                                results.push({ 
-                                    symbol: sym, score: new Date(latestTxn.transactionDate).getTime(), 
-                                    detail: `Son İşlem: ${latestTxn.transactionDate}<br>Alan: ${latestTxn.name.substring(0,18)}...<br>3 Aylık Alım: <b style="color:white;">$${(totalBought/1000000).toFixed(1)} Milyon</b>` 
-                                });
-                            }
-                        }
-                    }
-                } 
-                else if (scanType === 'target') {
-                    const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
-                    if (qRes.status === 429) { rateLimited = true; break; }
-                    const qData = await qRes.json();
-                    
-                    const tRes = await fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${sym}&token=${FINNHUB_KEY}`);
-                    const tData = await tRes.json();
-
-                    if (qData.c > 0 && tData && tData.targetMean) {
-                        const potential = ((tData.targetMean - qData.c) / qData.c) * 100;
-                        if (potential > 15.0) {
-                            results.push({ symbol: sym, score: potential, detail: `Güncel: $${qData.c.toFixed(2)}<br>Ort. Hedef: $${tData.targetMean.toFixed(2)}<br><b style="color:var(--pink);">+%${potential.toFixed(1)} Potansiyel</b>` });
-                        }
-                    }
-                }
-                else if (scanType === 'upcoming_earnings') {
-                    if (upcomingEarningsSymbols.includes(sym)) {
-                        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
-                        const newsRes = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${sym}&from=${past7Days}&to=${todayStr}&token=${FINNHUB_KEY}`);
-                        if (newsRes.status === 429) { rateLimited = true; break; }
-                        const newsData = await newsRes.json();
-                        
-                        if (newsData && newsData.length > 0) {
-                            const sentiment = analyzeHeadline(newsData[0].headline);
-                            if (sentiment.score >= 0.15) {
-                                results.push({ symbol: sym, score: sentiment.score, detail: `Durum: Bilanço Açıklanacak<br>Son Haber Etkisi: <b style="color:var(--success);">AL (Pozitif Sinyal)</b><br>Haber Skoru: ${sentiment.score.toFixed(2)}` });
-                            }
-                        }
-                    }
-                }
-                else if (scanType === 'golden_cross') {
-                    // Altın Kesişim: Akıllı Short-Circuit (API limit koruması için kademeli eleme)
-                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`);
-                    if (metRes.status === 429) { rateLimited = true; break; }
-                    const metData = await metRes.json();
-                    
-                    let isDip = false, lowDist = 0;
-                    if (metData?.metric?.['52WeekLow']) {
-                        const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
-                        const qData = await qRes.json();
-                        lowDist = ((qData.c - metData.metric['52WeekLow']) / metData.metric['52WeekLow']) * 100;
-                        if (lowDist <= 20.0) isDip = true; // Kriter 1: Dibe %20 yakın
-                    }
-
-                    if (isDip) {
-                        const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-                        const cutoffDate = threeMonthsAgo.toISOString().split('T')[0];
-                        const insRes = await fetch(`https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${cutoffDate}&token=${FINNHUB_KEY}`);
-                        if (insRes.status === 429) { rateLimited = true; break; }
-                        const insData = await insRes.json();
-                        
-                        let totalBought = 0;
-                        if (insData?.data) {
-                            insData.data.forEach(t => { if (t.change > 0 && t.transactionPrice > 0) totalBought += t.change * t.transactionPrice; });
-                        }
-
-                        if (totalBought >= 200000) { // Kriter 2: 200k+ Balina Alımı
-                            const earnRes = await fetch(`https://finnhub.io/api/v1/stock/earnings?symbol=${sym}&token=${FINNHUB_KEY}`);
-                            if (earnRes.status === 429) { rateLimited = true; break; }
-                            const earnData = await earnRes.json();
-                            
-                            let surp = 0;
-                            if (earnData && earnData.length > 0) {
-                                if (earnData[0].actual > earnData[0].estimate && earnData[0].estimate > 0) {
-                                    surp = ((earnData[0].actual - earnData[0].estimate) / Math.abs(earnData[0].estimate)) * 100;
-                                }
-                            }
-
-                            if (surp > 2.0) { // Kriter 3: %2+ Kâr Sürprizi
-                                results.push({ 
-                                    symbol: sym, score: (100 - lowDist) + surp, 
-                                    detail: `<b>Dip Farkı:</b> <span style="color:var(--blue);">+%${lowDist.toFixed(1)}</span><br><b>Balina Alım:</b> <span style="color:var(--cyan);">$${(totalBought/1000).toFixed(0)}K</span><br><b>Kâr Sürprizi:</b> <span style="color:var(--purple);">+%${surp.toFixed(1)}</span>` 
-                                });
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                console.warn(`${sym} atlandı.`, e);
-            }
-
-            // GÜVENLİK DUVARI: Finnhub Limitlerine saygı duruşu
-            progressFill.style.width = `${Math.round(((i+1) / symbolsToScan.length) * 100)}%`;
-            await new Promise(r => setTimeout(r, 800)); 
-        }
-
-        Swal.close();
-        progressBar.style.display = 'none';
-
-        if (rateLimited && results.length > 0) {
-            Toast.fire({ icon: 'warning', title: `API Limiti doldu, taranabilen ilk ${results.length} fırsat gösteriliyor.` });
-        } else if (rateLimited && results.length === 0) {
-            Toast.fire({ icon: 'error', title: 'API hız limitine takıldı, lütfen 1 dakika bekleyip tekrar deneyin.' });
-            return;
-        }
-
-        if (scanType === '52w') renderOppSlider(results, 'DİP FIRSATI', '📉', '--blue', true);
-        else if (scanType === 'earnings') renderOppSlider(results, 'BİLANÇO SÜRPRİZİ', '🎯', '--purple', false);
-        else if (scanType === 'insider') renderOppSlider(results, 'GÜÇLÜ İÇERİDEN ALIM', '🐋', '--cyan', false);
-        else if (scanType === 'target') renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink', false);
-        else if (scanType === 'upcoming_earnings') renderOppSlider(results, 'YAKLAŞAN BİLANÇO', '⏳', '--orange', false);
-        else if (scanType === 'golden_cross') renderOppSlider(results, 'KUSURSUZ ÇAKIŞMA', '🔥', '--gold', false);
-    }
-
-    function addToPortfolioConfirm(symbol) {
-        Swal.fire({
-            title: `${symbol} Eklensin mi?`, text: "Bu hisseyi portföyünüze canlı varlık olarak eklemek istiyor musunuz?",
-            showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'Vazgeç', customClass: { popup: 'premium-modal' }
-        }).then(res => {
-            if(res.isConfirmed) { appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 }); saveData(); fetchAllLivePrices(); Toast.fire({ icon: 'success', title: `${symbol} portföyünüze eklendi!` }); }
-        });
-    }
-
-    // --- YAPAY ZEKA HABER DUYGU MOTORU ---
+    // --- NLP SÖZLÜK ---
     const FINANCE_LEXICON = { "beats":3.0,"beat estimates":3.5,"surge":3.0,"rally":2.5,"record high":3.0,"upgrade":2.5,"outperform":2.5,"buyback":2.0,"raises guidance":3.0,"strong demand":2.0,"profit rises":2.5,"bullish":2.5,"artış":2.5,"yükseldi":2.5,"rekor":3.0,"kar açıkladı":2.5,"beklentileri aştı":3.5,"ihracat rekoru":2.5,"yükseliş":2.5,"temettü dağıtımı":2.0,"tavan":3.0,"büyüme":2.0,"ihale kazandı":3.0,"anlaşma imzaladı":2.5,"misses":-3.0,"miss estimates":-3.5,"plunge":-3.0,"tumble":-2.5,"downgrade":-2.5,"underperform":-2.5,"layoffs":-2.5,"lawsuit":-2.0,"investigation":-2.0,"recall":-2.0,"guidance cut":-3.0,"profit falls":-2.5,"bearish":-2.5,"bankruptcy":-3.5,"fraud":-3.0,"düşüş":-2.5,"geriledi":-2.5,"zarar açıkladı":-3.0,"beklentilerin altında":-3.0,"soruşturma":-2.0,"iflas":-3.5,"işten çıkarma":-2.5,"dava":-1.5,"kar düşüşü":-2.5,"taban":-3.0,"bilanço hüsranı":-3.5 };
     const NEGATIONS = ["değil", "aşamadı", "kalamadı", "düşmedi", "not", "didn't", "hasn't", "failed"];
 
@@ -603,13 +374,77 @@
         let reasons = [];
         if (matchedPos.length) reasons.push("Olumlu sinyaller: " + matchedPos.join(", "));
         if (matchedNeg.length) reasons.push("Olumsuz sinyaller: " + matchedNeg.join(", "));
-        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki yok (Nötr).");
+        if (!matchedPos.length && !matchedNeg.length) reasons.push("Belirgin finansal etki yok.");
         if (score >= 0.15) return { score, label: "AL", emoji: "🟢", reasons };
         else if (score <= -0.15) return { score, label: "SAT", emoji: "🔴", reasons };
         else return { score, label: "NÖTR", emoji: "⚪", reasons };
     }
 
-    window.newsSignalCache = {}; window.newsItemsCache = {};  
+    // --- ARAYÜZ (VARLIK YÖNETİMİ) FONKSİYONLARI ---
+    
+    // Güvenli Try-Catch Blokları
+    function addManualAssetUI() {
+        try {
+            appData.assets.push({ id: Date.now().toString(), name: 'Nakit Portföyü', type: 'MANUAL', amount: 1, manualValue: 0 });
+            saveData(); renderAssets(); Toast.fire({ icon: 'success', title: 'Manuel varlık eklendi.' });
+        } catch(e) { console.error(e); }
+    }
+
+    function removeAssetUI(id) {
+        try {
+            appData.assets = appData.assets.filter(a => a.id !== id);
+            saveData(); renderAssets(); Toast.fire({ icon: 'info', title: 'Varlık silindi.' });
+        } catch(e) { console.error(e); }
+    }
+
+    function updateAssetUI(id, field, value) {
+        try {
+            const asset = appData.assets.find(a => a.id === id);
+            if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(false); }
+        } catch(e) { console.error(e); }
+    }
+
+    function openAddLiveAssetModal() {
+        Swal.fire({
+            title: 'Canlı Varlık Ekle',
+            html: `
+                <div style="margin-bottom: 16px; text-align: left;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Hisse / Fon Kodu</label>
+                    <input id="swal-asset-symbol" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="Örn: NVDA, THYAO" style="text-transform: uppercase;">
+                </div>
+                <div style="margin-bottom: 16px; text-align: left;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Piyasa</label>
+                    <select id="swal-asset-type" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;">
+                        <option value="US">ABD Borsası (USD)</option>
+                        <option value="TR">Türkiye (BİST / TEFAS)</option>
+                    </select>
+                </div>
+                <div style="text-align: left;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adet</label>
+                    <input id="swal-asset-amount" type="number" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="10">
+                </div>
+            `,
+            showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' },
+            preConfirm: () => {
+                const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim();
+                const type = document.getElementById('swal-asset-type').value;
+                const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0;
+                if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli değerler girin.'); return false; }
+                return { id: Date.now().toString(), name, type, amount, manualValue: 0 };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                appData.assets.push(result.value); saveData(); 
+                Toast.fire({ icon: 'info', title: 'Ekleniyor, veriler çekiliyor...' });
+                await fetchAllLivePrices(); 
+            }
+        });
+    }
+
+    // --- API & FİYAT ÇEKİMLERİ ---
+    async function fetchUsdTryRate() { try { const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY'); const data = await res.json(); return data[0]?.rate || 34.0; } catch(e) { return 34.0; } }
+    async function fetchUSPrice(symbol) { try { const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`); const data = await res.json(); return data.c || 0; } catch(e) { return 0; } }
+    async function fetchTRPrice(symbol) { try { const now = Math.floor(Date.now() / 1000); const fromDate = now - (30 * 24 * 60 * 60); const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${fromDate}&to=${now}`); const data = await res.json(); return (data && data.c?.length > 0) ? data.c[data.c.length - 1] : 0; } catch(e) { return 0; } }
 
     async function fetchAndAnalyzeNewsSilently(ticker, type) {
         let filteredItems = []; const now = new Date(); const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
@@ -645,15 +480,225 @@
         } catch (e) {}
     }
 
-    // --- ANALİST KURUMLARI & KURUMSAL DETAY MODALI ---
+    async function fetchAllLivePrices() {
+        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Fiyatlar ve haber analizleri çekiliyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
+        usdRateCache = await fetchUsdTryRate(); let fetchPromises = []; window.newsSignalCache = window.newsSignalCache || {};
+        for (let asset of appData.assets) {
+            if (asset.type === 'US') fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
+            else if (asset.type === 'TR') fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
+            if (asset.type !== 'MANUAL') fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
+        }
+        await Promise.all(fetchPromises); Swal.close(); renderAssets();
+    }
+
+    function renderAssets(rebuildDOM = true) {
+        const container = document.getElementById('assetsContainer'); let totalLiveValue = 0; let html = '';
+        appData.assets.forEach(asset => {
+            let assetTotalTRY = 0;
+            if (asset.type === 'MANUAL') {
+                assetTotalTRY = asset.manualValue;
+                html += `<div class="asset-card"><div class="asset-header"><div class="asset-title-group"><input type="text" value="${asset.name}" onchange="updateAssetUI('${asset.id}', 'name', this.value)" style="background:transparent; border:none; font-size:1.05rem; font-weight:900; color:white; outline:none; max-width:180px;"><span class="badge-type bg-manual">MANUEL</span></div><div class="asset-actions"><button class="btn-del" onclick="removeAssetUI('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div><div class="asset-inputs"><div style="flex: 1;"><label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Değer (₺)</label><input type="number" value="${asset.manualValue}" oninput="updateAssetUI('${asset.id}', 'manualValue', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;"></div></div></div>`;
+            } else {
+                const price = livePricesCache[asset.name] || 0; let displaySubText = '';
+                if (asset.type === 'US') { assetTotalTRY = (asset.amount * price) * usdRateCache; displaySubText = `Fiyat: $${price.toFixed(2)} &bull; Kur: ₺${usdRateCache.toFixed(2)}`; } 
+                else if (asset.type === 'TR') { assetTotalTRY = asset.amount * price; displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`; }
+                const signalData = window.newsSignalCache[asset.name] || { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
+                html += `<div class="asset-card"><div class="asset-header"><div class="asset-title-group"><div class="asset-title">${asset.name}</div><span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span><div class="signal-badge ${signalData.class}" title="Son Haber Skoru: ${signalData.score.toFixed(2)}">${signalData.signal}</div></div><div class="asset-actions"><button onclick="showAssetDetailModal('${asset.name}', '${asset.type}', ${price})" class="btn-news" title="Kurumsal Analiz ve Hedefler">📊 Analiz</button><button class="btn-del" onclick="removeAssetUI('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div><div class="asset-info">${displaySubText}</div><div class="asset-inputs"><div style="flex: 1;"><label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Adet / Miktar</label><input type="number" step="0.0001" value="${asset.amount}" oninput="updateAssetUI('${asset.id}', 'amount', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;"></div><div class="asset-val-display" style="flex: 1; margin-bottom: 4px;">${formatTL(assetTotalTRY)}</div></div></div>`;
+            }
+            totalLiveValue += assetTotalTRY;
+        });
+        container.innerHTML = html; document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
+    }
+
+    // --- KAYIT & GÖSTERGE PANELI (DASHBOARD) ---
+    function updateSettings() { appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0; appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0; saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Strateji güncellendi' }); }
+    function updateWeekDropdown() { const select = document.getElementById('activeWeekSelect'); select.innerHTML = ''; appData.weeks.forEach(w => { const opt = document.createElement('option'); opt.value = w.weekNum; opt.innerText = `Hafta ${w.weekNum} ${w.weekNum === appData.currentWeekNum ? '(Aktif)' : ''}`; if(w.weekNum === appData.currentWeekNum) opt.selected = true; select.appendChild(opt); }); }
+    function startNextWeekUI() { appData.currentWeekNum++; if(!appData.weeks.find(w => w.weekNum === appData.currentWeekNum)) appData.weeks.push({ weekNum: appData.currentWeekNum, logs: [] }); saveData(); updateWeekDropdown(); Toast.fire({ icon: 'success', title: `Hafta ${appData.currentWeekNum} başlatıldı!` }); }
+
+    function saveDailyLogUI() {
+        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value); let week = appData.weeks.find(w => w.weekNum === selectedWeekNum); let total = 0, totalUSD = 0, walletsSnapshot = {};
+        appData.assets.forEach(asset => { let val = 0; if (asset.type === 'MANUAL') val = asset.manualValue; else if (asset.type === 'US') val = (asset.amount * (livePricesCache[asset.name]||0)) * usdRateCache; else if (asset.type === 'TR') val = asset.amount * (livePricesCache[asset.name]||0); total += val; if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val; });
+        if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
+        totalUSD = total / usdRateCache; 
+        const now = new Date(); const dd = String(now.getDate()).padStart(2, '0'); const mm = String(now.getMonth() + 1).padStart(2, '0'); const yyyy = now.getFullYear(); const dateKey = `${dd}.${mm}.${yyyy}`; const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey))); const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total, totalUSD };
+        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; else week.logs.push(newLogEntry);
+        saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Günün kapanışı başarıyla kaydedildi!' });
+    }
+
+    function updateDashboard() {
+        let latestTotal = parseFloat(appData.baseCapital); for(let i = appData.weeks.length - 1; i >= 0; i--) { if(appData.weeks[i].logs.length > 0) { latestTotal = parseFloat(appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total); break; } }
+        const currentTarget = getTargetAmt(appData.currentWeekNum); document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal); document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
+        const netProfit = latestTotal - parseFloat(appData.baseCapital); const netProfitPct = ((latestTotal - parseFloat(appData.baseCapital)) / parseFloat(appData.baseCapital)) * 100; const diff = latestTotal - currentTarget;
+        const totalProfitEl = document.getElementById('statTotalProfit'); totalProfitEl.innerText = `Net Kar: ${formatTL(netProfit)} (%${netProfitPct.toFixed(2)})`; totalProfitEl.className = 'stat-sub ' + (netProfit >= 0 ? 'text-success' : 'text-danger');
+        const statDiffEl = document.getElementById('statDiff'); statDiffEl.innerText = `Hedefe Göre Fark: ${diff >= 0 ? '+' : ''}${formatTL(diff)}`; statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
+        renderHistory(); renderChart();
+    }
+
+    // --- GRAFİK VE GEÇMİŞ (CHART.JS) ---
+    function renderChart() {
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        let allLogs = []; appData.weeks.forEach(w => { w.logs.forEach(log => { let d = parseTRDateStr(log.dateKey); if (!isNaN(d)) { allLogs.push({ time: d.getTime(), dateStr: log.dateKey, totalTL: parseFloat(log.total), totalUSD: log.totalUSD ? parseFloat(log.totalUSD) : (parseFloat(log.total) / usdRateCache), targetTL: getTargetAmt(w.weekNum) }); } }); });
+        allLogs.sort((a,b) => a.time - b.time); let uniqueLogs = []; let lastDateStr = ""; allLogs.forEach(log => { if (log.dateStr !== lastDateStr) { uniqueLogs.push(log); lastDateStr = log.dateStr; } else { uniqueLogs[uniqueLogs.length - 1] = log; } });
+        const labels = ['Başlangıç', ...uniqueLogs.map(l => l.dateStr)]; const tlData = [parseFloat(appData.baseCapital), ...uniqueLogs.map(l => l.totalTL)]; const usdData = [parseFloat(appData.baseCapital) / usdRateCache, ...uniqueLogs.map(l => l.totalUSD)]; const targetData = [parseFloat(appData.baseCapital), ...uniqueLogs.map(l => l.targetTL)];
+        if (chartInstance) chartInstance.destroy(); Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = "'Inter', sans-serif";
+        chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy (TL)', data: tlData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', fill: true, tension: 0.4, yAxisID: 'yTL' }, { label: 'Portföy (USD)', data: usdData, borderColor: '#10b981', borderWidth: 3, borderDash: [5, 5], pointRadius: 4, pointBackgroundColor: '#10b981', pointBorderColor: '#fff', fill: false, tension: 0.4, yAxisID: 'yUSD' }, { label: 'Hedef (TL)', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [3, 3], pointRadius: 0, fill: false, tension: 0.4, yAxisID: 'yTL' }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {weight: 'bold'} } }, tooltip: { backgroundColor: 'rgba(17, 24, 39, 0.9)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13, weight: 'bold' }, padding: 12, callbacks: { label: function(context) { let val = context.parsed.y; if (context.datasetIndex === 1) return 'USD: $' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }); return context.dataset.label.replace(' (TL)', '') + ': ' + val.toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' ₺'; } } } }, scales: { x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }, yTL: { type: 'linear', position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font: { weight: 'bold' }, callback: val => val.toLocaleString('tr-TR') + ' ₺' } }, yUSD: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { weight: 'bold' }, color: '#10b981', callback: val => '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }) } } } } });
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('historyContainer'); container.innerHTML = ''; const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
+        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor. Sol panelden Günü Kaydedin.</div>'; return; }
+        [...weeksWithLogs].reverse().forEach(week => {
+            const lastLog = week.logs[week.logs.length - 1]; let prevTotal = parseFloat(appData.baseCapital); 
+            if(week.weekNum > 1) { const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1); if(prev && prev.logs.length > 0) prevTotal = parseFloat(prev.logs[prev.logs.length - 1].total); }
+            const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100; let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
+            container.innerHTML += `<div class="history-item"><div><div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div><div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div></div><div class="history-actions"><div style="text-align: right;"><div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div><div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div></div><button class="btn-icon" onclick="showWeekDetailsModal(${week.weekNum})" title="Hafta İçi Performansını Gör"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></button></div></div>`;
+        });
+    }
+
+    function showWeekDetailsModal(weekNum) {
+        const week = appData.weeks.find(w => w.weekNum === weekNum); if(!week || week.logs.length === 0) return;
+        let tableHtml = `<div class="modal-table-container"><table class="log-table"><thead><tr><th>Tarih</th><th>Varlık Dağılımı</th><th style="text-align: right;">Günlük Kapanış</th></tr></thead><tbody>`;
+        [...week.logs].reverse().forEach(log => { let details = []; for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); } tableHtml += `<tr><td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td><td class="log-wallet-detail">${details.join('<br>')}</td><td style="text-align: right; font-weight: 800; color: white; font-size: 1rem;">${formatTL(log.total)}</td></tr>`; });
+        tableHtml += `</tbody></table></div>`;
+        Swal.fire({
+            title: `Hafta ${weekNum} İlerleme Analizi`, html: `<div class="modal-chart-area"><canvas id="modalChartCanvas"></canvas></div>${tableHtml}`, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
+            didOpen: () => {
+                setTimeout(() => {
+                    try {
+                        const ctx = document.getElementById('modalChartCanvas').getContext('2d'); const labels = week.logs.map(log => log.dateKey); const data = week.logs.map(log => parseFloat(log.total));
+                        if (modalChartInstance) modalChartInstance.destroy(); Chart.defaults.color = '#94a3b8';
+                        modalChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font:{weight:'bold'}, callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false }, ticks:{font:{weight:'bold'}} } } } });
+                    } catch(e) {}
+                }, 100);
+            }
+        });
+    }
+
+    // --- MEGA RADAR FONKSİYONLARI ---
+    function renderOppSlider(results, typeStr, iconStr, colorVar, ascSort = false) {
+        const slider = document.getElementById('oppRadarSlider'); slider.style.display = 'flex';
+        if (results.length === 0) { slider.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Taranan havuzda güncel kriterlere uyan fırsat bulunamadı.</div>`; return; }
+        if (ascSort) results.sort((a,b) => a.score - b.score); else results.sort((a,b) => b.score - a.score);
+        let html = '';
+        results.forEach(res => {
+            html += `<div class="radar-card" style="border-top: 3px solid var(${colorVar});" onclick="addToPortfolioConfirm('${res.symbol}')"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div style="font-size:1.15rem; font-weight:900; color:white;">${res.symbol}</div></div><div style="font-size:1.2rem;">${iconStr}</div></div><div style="font-size:0.75rem; font-weight:800; color:var(${colorVar}); margin-top:8px;">${typeStr}</div><div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; line-height:1.4;">${res.detail}</div></div>`;
+        });
+        slider.innerHTML = html;
+    }
+
+    async function runFinnhubRadarScan(scanType) {
+        const limit = parseInt(document.getElementById('radarPoolSize').value) || 100;
+        let symbolsToScan = US_STOCK_POOL.slice(0, limit);
+        
+        Swal.fire({ title: '📡 Finnhub Radarı Çalışıyor', html: `<div style="font-size: 0.9rem; margin-bottom: 12px;">Seçilen ${limit} ABD hissesi tek tek inceleniyor.</div><div style="background: var(--input-bg); border: 1px solid var(--panel-border); padding: 12px; border-radius: 8px; font-family: monospace; color: var(--success); font-weight: bold; text-align: left; overflow: hidden; white-space: nowrap;">>_ Taranıyor: <span id="marqueeSymbol" style="animation: pulse-text 1s infinite;">BAŞLIYOR...</span></div><br><span style="font-size:0.75rem; opacity:0.8; color:var(--warning);">⚠️ API hız limitlerine takılmamak için tarama işlemi yaklaşık ${Math.ceil(limit / 30)} dakika sürebilir. Lütfen bekleyiniz...</span>`, allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => Swal.showLoading() });
+        const progressBar = document.getElementById('radarProgressBar'); const progressFill = document.getElementById('radarProgressFill');
+        progressBar.style.display = 'block'; progressFill.style.width = '0%';
+
+        let results = []; let rateLimited = false; const now = new Date(); const todayStr = now.toISOString().split('T')[0];
+        
+        let upcomingEarningsSymbols = [];
+        if (scanType === 'upcoming_earnings') {
+            const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1); const nextMonthStr = nextMonth.toISOString().split('T')[0];
+            try { const calRes = await fetch(`https://finnhub.io/api/v1/calendar/earnings?from=${todayStr}&to=${nextMonthStr}&token=${FINNHUB_KEY}`); const calData = await calRes.json(); if(calData && calData.earningsCalendar) { upcomingEarningsSymbols = calData.earningsCalendar.map(e => e.symbol); } } catch(e) {}
+        }
+        
+        for (let i = 0; i < symbolsToScan.length; i++) {
+            const sym = symbolsToScan[i]; const marqueeEl = document.getElementById('marqueeSymbol'); if (marqueeEl) marqueeEl.innerText = sym;
+            try {
+                if (scanType === '52w') {
+                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
+                    if (metData && metData.metric && metData.metric['52WeekLow']) {
+                        const low52 = metData.metric['52WeekLow']; const high52 = metData.metric['52WeekHigh'] || 0;
+                        const low52Date = metData.metric['52WeekLowDate'] || '-'; const high52Date = metData.metric['52WeekHighDate'] || '-';
+                        const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`); const qData = await quoteRes.json(); const currentPrice = qData.c || low52;
+                        const distFromLow = ((currentPrice - low52) / low52) * 100;
+                        if (distFromLow < 15.0) { results.push({ symbol: sym, score: distFromLow, detail: `Güncel: $${currentPrice.toFixed(2)}<br>52W Dip: $${low52.toFixed(2)} <span style="font-size:0.65rem;opacity:0.6;">(${low52Date})</span><br><span style="color:var(--text-muted);">52W Zirve: $${high52.toFixed(2)} <span style="font-size:0.65rem;opacity:0.6;">(${high52Date})</span></span><br><b style="color:var(--blue);">Dipten Fark: +%${distFromLow.toFixed(1)}</b>` }); }
+                    }
+                } 
+                else if (scanType === 'earnings') {
+                    const res = await fetch(`https://finnhub.io/api/v1/stock/earnings?symbol=${sym}&token=${FINNHUB_KEY}`); if (res.status === 429) { rateLimited = true; break; } const data = await res.json();
+                    if (data && data.length > 0) {
+                        const last = data[0];
+                        if (last.actual > last.estimate && last.estimate > 0) {
+                            const surprisePct = ((last.actual - last.estimate) / Math.abs(last.estimate)) * 100;
+                            if (surprisePct > 5.0) { results.push({ symbol: sym, score: surprisePct, detail: `Tarih: ${last.period}<br>Beklenti: $${last.estimate.toFixed(2)}<br>Gerçekleşen: $${last.actual.toFixed(2)}<br><b style="color:var(--purple);">🚀 SÜRPRİZ: +%${surprisePct.toFixed(1)} KÂR</b>` }); }
+                        }
+                    }
+                } 
+                else if (scanType === 'insider') {
+                    const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3); const cutoffDate = threeMonthsAgo.toISOString().split('T')[0];
+                    const res = await fetch(`https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${cutoffDate}&token=${FINNHUB_KEY}`); if (res.status === 429) { rateLimited = true; break; } const data = await res.json();
+                    if (data && data.data && data.data.length > 0) {
+                        let transactions = data.data.filter(t => t.change > 0 && t.transactionPrice > 0);
+                        if (transactions.length > 0) {
+                            transactions.sort((a,b) => new Date(b.transactionDate) - new Date(a.transactionDate)); let latestTxn = transactions[0]; let totalBought = 0; transactions.forEach(t => totalBought += (t.change * t.transactionPrice));
+                            if (totalBought > 500000) { results.push({ symbol: sym, score: new Date(latestTxn.transactionDate).getTime(), detail: `Son İşlem: ${latestTxn.transactionDate}<br>Alan: ${latestTxn.name.substring(0,18)}...<br>3 Aylık Alım: <b style="color:white;">$${(totalBought/1000000).toFixed(1)} Milyon</b>` }); }
+                        }
+                    }
+                } 
+                else if (scanType === 'target') {
+                    const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`); if (qRes.status === 429) { rateLimited = true; break; } const qData = await qRes.json();
+                    const tRes = await fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${sym}&token=${FINNHUB_KEY}`); const tData = await tRes.json();
+                    if (qData.c > 0 && tData && tData.targetMean) {
+                        const potential = ((tData.targetMean - qData.c) / qData.c) * 100;
+                        if (potential > 15.0) { results.push({ symbol: sym, score: potential, detail: `Güncel: $${qData.c.toFixed(2)}<br>Ort. Hedef: $${tData.targetMean.toFixed(2)}<br><b style="color:var(--pink);">+%${potential.toFixed(1)} Potansiyel</b>` }); }
+                    }
+                }
+                else if (scanType === 'upcoming_earnings') {
+                    if (upcomingEarningsSymbols.includes(sym)) {
+                        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+                        const newsRes = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${sym}&from=${past7Days}&to=${todayStr}&token=${FINNHUB_KEY}`); if (newsRes.status === 429) { rateLimited = true; break; } const newsData = await newsRes.json();
+                        if (newsData && newsData.length > 0) {
+                            const sentiment = analyzeHeadline(newsData[0].headline);
+                            if (sentiment.score >= 0.15) { results.push({ symbol: sym, score: sentiment.score, detail: `Durum: Bilanço Açıklanacak<br>Son Haber: <b style="color:var(--success);">AL (Pozitif Akış)</b><br>Haber Skoru: ${sentiment.score.toFixed(2)}` }); }
+                        }
+                    }
+                }
+                else if (scanType === 'golden_cross') {
+                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
+                    let isDip = false, lowDist = 0;
+                    if (metData?.metric?.['52WeekLow']) {
+                        const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`); const qData = await qRes.json();
+                        lowDist = ((qData.c - metData.metric['52WeekLow']) / metData.metric['52WeekLow']) * 100;
+                        if (lowDist <= 20.0) isDip = true;
+                    }
+                    if (isDip) {
+                        const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3); const cutoffDate = threeMonthsAgo.toISOString().split('T')[0];
+                        const insRes = await fetch(`https://finnhub.io/api/v1/stock/insider-transactions?symbol=${sym}&from=${cutoffDate}&token=${FINNHUB_KEY}`); if (insRes.status === 429) { rateLimited = true; break; } const insData = await insRes.json();
+                        let totalBought = 0; if (insData?.data) { insData.data.forEach(t => { if (t.change > 0 && t.transactionPrice > 0) totalBought += t.change * t.transactionPrice; }); }
+                        if (totalBought >= 200000) {
+                            const earnRes = await fetch(`https://finnhub.io/api/v1/stock/earnings?symbol=${sym}&token=${FINNHUB_KEY}`); if (earnRes.status === 429) { rateLimited = true; break; } const earnData = await earnRes.json();
+                            let surp = 0; if (earnData && earnData.length > 0) { if (earnData[0].actual > earnData[0].estimate && earnData[0].estimate > 0) { surp = ((earnData[0].actual - earnData[0].estimate) / Math.abs(earnData[0].estimate)) * 100; } }
+                            if (surp > 2.0) { results.push({ symbol: sym, score: (100 - lowDist) + surp, detail: `<b>Dip Farkı:</b> <span style="color:var(--blue);">+%${lowDist.toFixed(1)}</span><br><b>Balina:</b> <span style="color:var(--cyan);">$${(totalBought/1000).toFixed(0)}K</span><br><b>Kâr Sürprizi:</b> <span style="color:var(--purple);">+%${surp.toFixed(1)}</span>` }); }
+                        }
+                    }
+                }
+            } catch (e) { console.warn(`${sym} atlandı.`); }
+            progressFill.style.width = `${Math.round(((i+1) / symbolsToScan.length) * 100)}%`;
+            await new Promise(r => setTimeout(r, 800)); 
+        }
+
+        Swal.close(); progressBar.style.display = 'none';
+        if (rateLimited && results.length > 0) Toast.fire({ icon: 'warning', title: `API Limiti doldu, taranabilen ilk ${results.length} fırsat gösteriliyor.` });
+        else if (rateLimited && results.length === 0) { Toast.fire({ icon: 'error', title: 'API hız limitine takıldı, lütfen 1 dakika bekleyip tekrar deneyin.' }); return; }
+
+        if (scanType === '52w') renderOppSlider(results, 'DİP FIRSATI', '📉', '--blue', true);
+        else if (scanType === 'earnings') renderOppSlider(results, 'BİLANÇO SÜRPRİZİ', '🎯', '--purple', false);
+        else if (scanType === 'insider') renderOppSlider(results, 'GÜÇLÜ İÇERİDEN ALIM', '🐋', '--cyan', false);
+        else if (scanType === 'target') renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink', false);
+        else if (scanType === 'upcoming_earnings') renderOppSlider(results, 'YAKLAŞAN BİLANÇO', '⏳', '--orange', false);
+        else if (scanType === 'golden_cross') renderOppSlider(results, 'KUSURSUZ ÇAKIŞMA', '🔥', '--gold', false);
+    }
+
+    function addToPortfolioConfirm(symbol) { Swal.fire({ title: `${symbol} Eklensin mi?`, text: "Canlı varlık olarak eklenecek.", showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' } }).then(res => { if(res.isConfirmed) { appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 }); saveData(); fetchAllLivePrices(); Toast.fire({ icon: 'success', title: `${symbol} eklendi!` }); } }); }
+
+    // --- ANALİST VE KURUMSAL VERİ MODALLARI ---
     async function showAnalystDetailsModal(ticker) {
         Swal.fire({ title: `🏦 ${ticker} Analist Kurumları`, html: 'Wall Street kurumlarının son notları alınıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         try {
-            const res = await fetch(`https://finnhub.io/api/v1/stock/upgrade-downgrade?symbol=${ticker}&token=${FINNHUB_KEY}`);
-            const data = await res.json();
-            if (!Array.isArray(data) || data.length === 0) {
-                Swal.fire({ title: `🏦 ${ticker}`, html: '<div style="padding:20px; opacity:0.6;">Yakın tarihli kurum raporu bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' }); return;
-            }
+            const res = await fetch(`https://finnhub.io/api/v1/stock/upgrade-downgrade?symbol=${ticker}&token=${FINNHUB_KEY}`); const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) { Swal.fire({ title: `🏦 ${ticker}`, html: '<div style="padding:20px; opacity:0.6;">Yakın tarihli kurum raporu bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' }); return; }
             let tableRows = '';
             data.slice(0, 15).forEach(item => {
                 const dateStr = item.gradeTime ? new Date(item.gradeTime * 1000).toLocaleDateString('tr-TR') : '-';
@@ -703,12 +748,12 @@
                 let colorClass = item.sentiment.score >= 0.15 ? 'text-success' : (item.sentiment.score <= -0.15 ? 'text-danger' : 'text-muted');
                 let isLatest = index === 0 ? '<span style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;">SON HABER</span>' : '';
                 html += `
-                    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 18px; border-radius: 14px; margin-bottom: 14px; text-align: left; ${index===0 ? 'border-color:var(--primary);' : ''}">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px;">
-                            <div style="font-weight: 800; font-size: 1rem; color: white; flex: 1; line-height: 1.4;">${isLatest}<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a></div>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                    <div class="news-item" style="${index===0 ? 'border-color:var(--primary); box-shadow:0 0 15px rgba(59,130,246,0.15);' : ''}">
+                        <div class="news-header">
+                            <div class="news-title">${isLatest}<a href="${item.link}" target="_blank">${item.title}</a></div>
+                            <div class="news-sentiment">
                                 <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">${item.sentiment.emoji} ${item.sentiment.label}</div>
-                                <div style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-weight: 700; color: white;">Skor: ${item.sentiment.score.toFixed(2)}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 4px;">Skor: ${item.sentiment.score.toFixed(2)}</div>
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><b>${item.source}</b> &bull; ${item.date}</div>
@@ -721,117 +766,7 @@
         Swal.fire({ title: `📊 ${ticker} İnceleme`, html: html, width: 800, showCloseButton: true, confirmButtonText: 'Kapat', customClass: { popup: 'premium-modal' } });
     }
 
-    // --- TEMEL PORTFÖY UYGULAMASI ---
-    let livePricesCache = {}; let usdRateCache = 34.0;
-    let chartInstance = null; let modalChartInstance = null;
-
-    async function init() { document.getElementById('baseCapital').value = appData.baseCapital; document.getElementById('targetRate').value = appData.targetRate; updateWeekDropdown(); await fetchAllLivePrices(); updateDashboard(); }
-    
-    function parseTRDateStr(dateStr) { if(!dateStr) return new Date(); let parts = dateStr.split(/[\.\/ -]/); if(parts.length >= 3) { if (parts[2].length === 4) return new Date(`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}T12:00:00Z`); if (parts[0].length === 4) return new Date(`${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}T12:00:00Z`); } return new Date(dateStr); }
-    
-    function renderChart() {
-        const ctx = document.getElementById('growthChart').getContext('2d');
-        let allLogs = []; appData.weeks.forEach(w => { w.logs.forEach(log => { let d = parseTRDateStr(log.dateKey); if (!isNaN(d)) { allLogs.push({ time: d.getTime(), dateStr: log.dateKey, totalTL: parseFloat(log.total), totalUSD: log.totalUSD ? parseFloat(log.totalUSD) : (parseFloat(log.total) / usdRateCache), targetTL: getTargetAmt(w.weekNum) }); } }); });
-        allLogs.sort((a,b) => a.time - b.time); let uniqueLogs = []; let lastDateStr = ""; allLogs.forEach(log => { if (log.dateStr !== lastDateStr) { uniqueLogs.push(log); lastDateStr = log.dateStr; } else { uniqueLogs[uniqueLogs.length - 1] = log; } });
-        const labels = ['Başlangıç', ...uniqueLogs.map(l => l.dateStr)]; const tlData = [parseFloat(appData.baseCapital), ...uniqueLogs.map(l => l.totalTL)]; const usdData = [parseFloat(appData.baseCapital) / usdRateCache, ...uniqueLogs.map(l => l.totalUSD)]; const targetData = [parseFloat(appData.baseCapital), ...uniqueLogs.map(l => l.targetTL)];
-        if (chartInstance) chartInstance.destroy(); Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = "'Inter', sans-serif";
-        chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy (TL)', data: tlData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', fill: true, tension: 0.4, yAxisID: 'yTL' }, { label: 'Portföy (USD)', data: usdData, borderColor: '#10b981', borderWidth: 3, borderDash: [5, 5], pointRadius: 4, pointBackgroundColor: '#10b981', pointBorderColor: '#fff', fill: false, tension: 0.4, yAxisID: 'yUSD' }, { label: 'Hedef (TL)', data: targetData, borderColor: '#ef4444', borderWidth: 2, borderDash: [3, 3], pointRadius: 0, fill: false, tension: 0.4, yAxisID: 'yTL' }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {weight: 'bold'} } }, tooltip: { backgroundColor: 'rgba(17, 24, 39, 0.9)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13, weight: 'bold' }, padding: 12, callbacks: { label: function(context) { let val = context.parsed.y; if (context.datasetIndex === 1) return 'USD: $' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }); return context.dataset.label.replace(' (TL)', '') + ': ' + val.toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' ₺'; } } } }, scales: { x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }, yTL: { type: 'linear', position: 'left', grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font: { weight: 'bold' }, callback: val => val.toLocaleString('tr-TR') + ' ₺' } }, yUSD: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { weight: 'bold' }, color: '#10b981', callback: val => '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 }) } } } } });
-    }
-
-    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
-    function updateSettings() { appData.baseCapital = parseFloat(document.getElementById('baseCapital').value) || 0; appData.targetRate = parseFloat(document.getElementById('targetRate').value) || 0; saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Strateji güncellendi' }); }
-    async function fetchUsdTryRate() { try { const res = await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=TRY'); const data = await res.json(); return data[0]?.rate || 34.0; } catch(e) { return 34.0; } }
-    async function fetchUSPrice(symbol) { try { const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`); const data = await res.json(); return data.c || 0; } catch(e) { return 0; } }
-    async function fetchTRPrice(symbol) { try { const now = Math.floor(Date.now() / 1000); const fromDate = now - (30 * 24 * 60 * 60); const res = await fetch(`https://gate.fintables.com/barbar/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${fromDate}&to=${now}`); const data = await res.json(); return (data && data.c?.length > 0) ? data.c[data.c.length - 1] : 0; } catch(e) { return 0; } }
-    
-    async function fetchAllLivePrices() {
-        Swal.fire({ title: 'Terminal Güncelleniyor', html: 'Portföyünüz taranıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
-        usdRateCache = await fetchUsdTryRate(); let fetchPromises = []; window.newsSignalCache = window.newsSignalCache || {};
-        for (let asset of appData.assets) {
-            if (asset.type === 'US') fetchPromises.push(fetchUSPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-            else if (asset.type === 'TR') fetchPromises.push(fetchTRPrice(asset.name).then(p => livePricesCache[asset.name] = p));
-            if (asset.type !== 'MANUAL') fetchPromises.push(fetchAndAnalyzeNewsSilently(asset.name, asset.type));
-        }
-        await Promise.all(fetchPromises); Swal.close(); renderAssets();
-    }
-
-    function renderAssets() {
-        const container = document.getElementById('assetsContainer'); let totalLiveValue = 0; let html = '';
-        appData.assets.forEach(asset => {
-            let assetTotalTRY = 0;
-            if (asset.type === 'MANUAL') {
-                assetTotalTRY = asset.manualValue;
-                html += `<div class="asset-card"><div class="asset-header"><div class="asset-title-group"><input type="text" value="${asset.name}" onchange="updateAsset('${asset.id}', 'name', this.value)" style="background:transparent; border:none; font-size:1.05rem; font-weight:900; color:white; outline:none; max-width:180px;"><span class="badge-type bg-manual">MANUEL</span></div><div class="asset-actions"><button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div><div class="asset-inputs"><div style="flex: 1;"><label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Değer (₺)</label><input type="number" value="${asset.manualValue}" oninput="updateAsset('${asset.id}', 'manualValue', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;"></div></div></div>`;
-            } else {
-                const price = livePricesCache[asset.name] || 0; let displaySubText = '';
-                if (asset.type === 'US') { assetTotalTRY = (asset.amount * price) * usdRateCache; displaySubText = `Fiyat: $${price.toFixed(2)} &bull; Kur: ₺${usdRateCache.toFixed(2)}`; } 
-                else if (asset.type === 'TR') { assetTotalTRY = asset.amount * price; displaySubText = `Canlı Fiyat: ₺${price.toFixed(4)}`; }
-                const signalData = window.newsSignalCache[asset.name] || { signal: 'NÖTR', class: 'signal-neutral', score: 0 };
-                html += `<div class="asset-card"><div class="asset-header"><div class="asset-title-group"><div class="asset-title">${asset.name}</div><span class="badge-type ${asset.type === 'US' ? 'bg-us' : 'bg-tr'}">${asset.type}</span><div class="signal-badge ${signalData.class}" title="Son Haber Skoru: ${signalData.score.toFixed(2)}">${signalData.signal}</div></div><div class="asset-actions"><button onclick="showAssetDetailModal('${asset.name}', '${asset.type}', ${price})" class="btn-news" title="Kurumsal Analiz ve Hedefler">📊 Analiz</button><button class="btn-del" onclick="removeAsset('${asset.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div></div><div class="asset-info">${displaySubText}</div><div class="asset-inputs"><div style="flex: 1;"><label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Adet / Miktar</label><input type="number" step="0.0001" value="${asset.amount}" oninput="updateAsset('${asset.id}', 'amount', this.value)" style="padding: 10px; width: 100%; margin-top: 6px;"></div><div class="asset-val-display" style="flex: 1; margin-bottom: 4px;">${formatTL(assetTotalTRY)}</div></div></div>`;
-            }
-            totalLiveValue += assetTotalTRY;
-        });
-        container.innerHTML = html; document.getElementById('liveTotal').innerText = formatTL(totalLiveValue);
-    }
-
-    function openAddLiveAssetModal() { Swal.fire({ title: 'Canlı Varlık Ekle', html: `<div style="margin-bottom: 16px; text-align: left;"><label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Hisse / Fon Kodu</label><input id="swal-asset-symbol" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="Örn: NVDA, THYAO" style="text-transform: uppercase;"></div><div style="margin-bottom: 16px; text-align: left;"><label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Piyasa</label><select id="swal-asset-type" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;"><option value="US">ABD Borsası (USD)</option><option value="TR">Türkiye (BİST / TEFAS)</option></select></div><div style="text-align: left;"><label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adet</label><input id="swal-asset-amount" type="number" style="width: 100%; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 14px; border-radius: 10px; font-weight: 700; margin-top: 6px;" placeholder="10"></div>`, showCancelButton: true, confirmButtonText: 'Ekle', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal' }, preConfirm: () => { const name = document.getElementById('swal-asset-symbol').value.toUpperCase().trim(); const type = document.getElementById('swal-asset-type').value; const amount = parseFloat(document.getElementById('swal-asset-amount').value) || 0; if (!name || amount <= 0) { Swal.showValidationMessage('Geçerli değerler girin.'); return false; } return { id: Date.now().toString(), name, type, amount, manualValue: 0 }; } }).then(async (result) => { if (result.isConfirmed) { appData.assets.push(result.value); saveData(); await fetchAllLivePrices(); } }); }
-    function addManualAsset() { appData.assets.push({ id: Date.now().toString(), name: 'Nakit Portföyü', type: 'MANUAL', amount: 1, manualValue: 0 }); saveData(); renderAssets(); }
-    function removeAsset(id) { appData.assets = appData.assets.filter(a => a.id !== id); saveData(); renderAssets(); }
-    function updateAsset(id, field, value) { const asset = appData.assets.find(a => a.id === id); if (asset) { asset[field] = field === 'name' ? value : (parseFloat(value) || 0); saveData(); renderAssets(false); } }
-
-    function updateWeekDropdown() { const select = document.getElementById('activeWeekSelect'); select.innerHTML = ''; appData.weeks.forEach(w => { const opt = document.createElement('option'); opt.value = w.weekNum; opt.innerText = `Hafta ${w.weekNum} ${w.weekNum === appData.currentWeekNum ? '(Aktif)' : ''}`; if(w.weekNum === appData.currentWeekNum) opt.selected = true; select.appendChild(opt); }); }
-    function startNextWeek() { appData.currentWeekNum++; if(!appData.weeks.find(w => w.weekNum === appData.currentWeekNum)) appData.weeks.push({ weekNum: appData.currentWeekNum, logs: [] }); saveData(); updateWeekDropdown(); Toast.fire({ icon: 'success', title: `Hafta ${appData.currentWeekNum} başlatıldı!` }); }
-
-    function saveLog() {
-        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value); let week = appData.weeks.find(w => w.weekNum === selectedWeekNum); let total = 0, totalUSD = 0, walletsSnapshot = {};
-        appData.assets.forEach(asset => { let val = 0; if (asset.type === 'MANUAL') val = asset.manualValue; else if (asset.type === 'US') val = (asset.amount * (livePricesCache[asset.name]||0)) * usdRateCache; else if (asset.type === 'TR') val = asset.amount * (livePricesCache[asset.name]||0); total += val; if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val; });
-        if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
-        totalUSD = total / usdRateCache; 
-        const now = new Date(); const dd = String(now.getDate()).padStart(2, '0'); const mm = String(now.getMonth() + 1).padStart(2, '0'); const yyyy = now.getFullYear(); const dateKey = `${dd}.${mm}.${yyyy}`; const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey))); const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total, totalUSD };
-        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; else week.logs.push(newLogEntry);
-        saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Kayıt başarıyla işlendi!' });
-    }
-
-    function updateDashboard() {
-        let latestTotal = parseFloat(appData.baseCapital); for(let i = appData.weeks.length - 1; i >= 0; i--) { if(appData.weeks[i].logs.length > 0) { latestTotal = parseFloat(appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total); break; } }
-        const currentTarget = getTargetAmt(appData.currentWeekNum); document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal); document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
-        const netProfit = latestTotal - parseFloat(appData.baseCapital); const netProfitPct = ((latestTotal - parseFloat(appData.baseCapital)) / parseFloat(appData.baseCapital)) * 100; const diff = latestTotal - currentTarget;
-        const totalProfitEl = document.getElementById('statTotalProfit'); totalProfitEl.innerText = `Net Kar: ${formatTL(netProfit)} (%${netProfitPct.toFixed(2)})`; totalProfitEl.className = 'stat-sub ' + (netProfit >= 0 ? 'text-success' : 'text-danger');
-        const statDiffEl = document.getElementById('statDiff'); statDiffEl.innerText = `Hedefe Göre Fark: ${diff >= 0 ? '+' : ''}${formatTL(diff)}`; statDiffEl.className = 'stat-sub ' + (diff >= 0 ? 'text-success' : 'text-danger');
-        renderHistory(); renderChart();
-    }
-
-    function renderHistory() {
-        const container = document.getElementById('historyContainer'); container.innerHTML = ''; const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
-        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor. Sol panelden Günü Kaydedin.</div>'; return; }
-        [...weeksWithLogs].reverse().forEach(week => {
-            const lastLog = week.logs[week.logs.length - 1]; let prevTotal = parseFloat(appData.baseCapital); 
-            if(week.weekNum > 1) { const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1); if(prev && prev.logs.length > 0) prevTotal = parseFloat(prev.logs[prev.logs.length - 1].total); }
-            const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100; let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
-            container.innerHTML += `<div class="history-item"><div><div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div><div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div></div><div class="history-actions"><div style="text-align: right;"><div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div><div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div></div><button class="btn-icon" onclick="showWeekDetails(${week.weekNum})" title="Hafta İçi Performansını Gör"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></button></div></div>`;
-        });
-    }
-
-    function showWeekDetails(weekNum) {
-        const week = appData.weeks.find(w => w.weekNum === weekNum); if(!week || week.logs.length === 0) return;
-        let tableHtml = `<div class="modal-table-container"><table class="log-table"><thead><tr><th>Tarih</th><th>Varlık Dağılımı</th><th style="text-align: right;">Günlük Kapanış</th></tr></thead><tbody>`;
-        [...week.logs].reverse().forEach(log => { let details = []; for (const [k, v] of Object.entries(log.wallets)) { if(v > 0) details.push(`<b>${k}:</b> ${formatTL(v)}`); } tableHtml += `<tr><td style="white-space: nowrap;">${log.dateKey || log.date.split(' ')[0]}</td><td class="log-wallet-detail">${details.join('<br>')}</td><td style="text-align: right; font-weight: 800; color: white; font-size: 1rem;">${formatTL(log.total)}</td></tr>`; });
-        tableHtml += `</tbody></table></div>`;
-        Swal.fire({
-            title: `Hafta ${weekNum} İlerleme Analizi`, html: `<div class="modal-chart-area"><canvas id="modalChartCanvas"></canvas></div>${tableHtml}`, width: 800, showCloseButton: true, showConfirmButton: false, customClass: { popup: 'premium-modal' },
-            didOpen: () => {
-                setTimeout(() => {
-                    try {
-                        const ctx = document.getElementById('modalChartCanvas').getContext('2d'); const labels = week.logs.map(log => log.dateKey); const data = week.logs.map(log => parseFloat(log.total));
-                        if (modalChartInstance) modalChartInstance.destroy(); Chart.defaults.color = '#94a3b8';
-                        modalChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Portföy Değeri', data: data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { font:{weight:'bold'}, callback: function(value) { return value.toLocaleString('tr-TR') + ' ₺'; } } }, x: { grid: { display: false }, ticks:{font:{weight:'bold'}} } } } });
-                    } catch(e) {}
-                }, 100);
-            }
-        });
-    }
-
+    // --- MENÜ VE LİSANS İŞLEMLERİ ---
     const menuBtn = document.getElementById('menuBtn'); const dropdownMenu = document.getElementById('dropdownMenu');
     menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); }); document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
     function resetAllData() { dropdownMenu.classList.remove('active'); Swal.fire({ title: 'Sistemi Sıfırla', html: "Tüm portföy verileriniz sıfırlanacak. Onaylıyor musunuz?", icon: 'warning', showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' }, confirmButtonColor: '#ef4444' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }); }
