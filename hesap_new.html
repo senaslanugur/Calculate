@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (Tam Stabil ve Hatasız Sürüm)</title>
+    <title>Pro Varlık Terminali (Genişletilmiş Mega Radarlar)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -15,7 +15,8 @@
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
             --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #090d16;
             --purple: #a855f7; --cyan: #06b6d4; --pink: #ec4899; --blue: #38bdf8;
-            --orange: #f97316; --gold: #fbbf24;
+            --orange: #f97316; --gold: #fbbf24; 
+            --teal: #14b8a6; --indigo: #6366f1; --emerald: #10b981; --rose: #f43f5e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -38,7 +39,7 @@
         .dropdown-item:hover { background: rgba(255,255,255,0.05); }
         .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        /* RADARLAR BÖLÜMÜ */
+        /* FIRSAT RADARLARI BÖLÜMÜ */
         .opp-section { max-width: 1240px; margin: 24px auto 0; padding: 0 20px; }
         .opp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
         .opp-header-title { font-size: 1.15rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; }
@@ -54,6 +55,11 @@
         .opp-btn-card.pink:hover { border-color: var(--pink); }
         .opp-btn-card.orange:hover { border-color: var(--orange); }
         .opp-btn-card.gold:hover { border-color: var(--gold); }
+        .opp-btn-card.teal:hover { border-color: var(--teal); }
+        .opp-btn-card.indigo:hover { border-color: var(--indigo); }
+        .opp-btn-card.emerald:hover { border-color: var(--emerald); }
+        .opp-btn-card.rose:hover { border-color: var(--rose); }
+
         .opp-title { font-size: 1rem; font-weight: 800; color: white; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
         .opp-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
         
@@ -61,7 +67,7 @@
         .radar-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.2s; }
 
         .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; margin-top: 10px; display: none; }
-        .radar-card { flex: 0 0 260px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
+        .radar-card { flex: 0 0 240px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
         .radar-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
 
         /* Main Container */
@@ -161,6 +167,8 @@
         .log-table thead { background: rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 1; }
         .log-table th { color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; }
         .log-table tr:last-child td { border-bottom: none; }
+        .log-wallet-detail { color: var(--text-main); line-height: 1.6; }
+        .log-wallet-detail b { color: var(--text-muted); font-weight: 600; }
 
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -207,7 +215,9 @@
     <div class="radar-progress-bar" id="radarProgressBar">
         <div class="radar-progress-fill" id="radarProgressFill"></div>
     </div>
+    
     <div class="opp-grid">
+        <!-- Mevcut Radarlar -->
         <div class="opp-btn-card blue" onclick="runFinnhubRadarScan('52w')">
             <div class="opp-title"><span style="font-size:1.4rem;">📉</span> 52W Dip Radarı</div>
             <div class="opp-desc">Dibe en yakın olan şirketleri ve 52W zirvelerini bulur.</div>
@@ -232,12 +242,30 @@
             <div class="opp-title"><span style="font-size:1.4rem;">🔥</span> Altın Kesişim</div>
             <div class="opp-desc">Dipte olan + Balina Alımı olan + Sürpriz Kâr eden hisseler.</div>
         </div>
+
+        <!-- YENİ EKLENEN 4 RADAR (KATI KURALLI) -->
+        <div class="opp-btn-card teal" onclick="runFinnhubRadarScan('technicals')">
+            <div class="opp-title"><span style="font-size:1.4rem;">📈</span> Katı Teknik Sinyal</div>
+            <div class="opp-desc">Fiyat > 50 Günlük > 200 Günlük EMA (Güçlü Yükseliş Trendi teyidi).</div>
+        </div>
+        <div class="opp-btn-card indigo" onclick="runFinnhubRadarScan('pattern')">
+            <div class="opp-title"><span style="font-size:1.4rem;">📐</span> Formasyon Taraması</div>
+            <div class="opp-desc">Grafiklerde Kırılım, İkili Dip ve Yutan Boğa formasyonlarını tespit eder.</div>
+        </div>
+        <div class="opp-btn-card emerald" onclick="runFinnhubRadarScan('institutional')">
+            <div class="opp-title"><span style="font-size:1.4rem;">🏦</span> Kurumsal Fon Akışı</div>
+            <div class="opp-desc">Dev fonların ve kurumların agresif hacimle pozisyon artırdığı hisseler.</div>
+        </div>
+        <div class="opp-btn-card rose" onclick="runFinnhubRadarScan('peers')">
+            <div class="opp-title"><span style="font-size:1.4rem;">📊</span> Sektörel Kıyaslama</div>
+            <div class="opp-desc">Hissenin sektördeki rakiplerine (Peers) göre göreceli ucuzluk analizi.</div>
+        </div>
     </div>
+    
     <div class="radar-slider" id="oppRadarSlider"></div>
 </div>
 
 <div class="app-container">
-    
     <div class="sidebar">
         <div class="panel">
             <div class="panel-title">Strateji Ayarları</div>
@@ -338,7 +366,7 @@
     let modalChartInstance = null;
     window.newsSignalCache = {}; 
     window.newsItemsCache = {};
-    window.currentRadarResults = []; // Güvenli Modal Geçişi İçin
+    window.currentRadarResults = [];
 
     const US_STOCK_POOL = [
         "AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","BRK-B","AVGO","LLY","JPM","V","UNH","MA","XOM","JNJ","HD","PG","COST","MRK","ABBV","CRM","BAC","CVX","NFLX","AMD","KO","PEP","WMT","TMO","DIS","MCD","CSCO","ADBE","QCOM","INTC","TXN","IBM","AMGN","PFE","GE","NOW","INTU","CAT","VZ","HON","BA","NKE","GS","MS"
@@ -635,6 +663,63 @@
                         }
                     }
                 }
+                // --- 4 YENİ MEGA RADAR SİSTEMİ ---
+                else if (scanType === 'technicals') {
+                    // KATI TEKNİK SİNYAL: Fiyat > 50 EMA > 200 EMA
+                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
+                    if (metData?.metric) {
+                        const sma50 = metData.metric['50DayMovingAverage'] || 0;
+                        const sma200 = metData.metric['200DayMovingAverage'] || 0;
+                        const qRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`); const qData = await qRes.json();
+                        const c = qData.c || 0;
+                        if (c > sma50 && sma50 > sma200 && sma200 > 0) {
+                            results.push({ symbol: sym, score: (c - sma50)/sma50, detail: `<b>Trend:</b> <span style="color:var(--success);">GÜÇLÜ AL (Katı Kural)</span><br>Güncel: $${c.toFixed(2)}<br>50 Günlük EMA: $${sma50.toFixed(2)}<br>200 Günlük EMA: $${sma200.toFixed(2)}` });
+                        }
+                    }
+                }
+                else if (scanType === 'pattern') {
+                    // FORMASYON (YUTAN BOĞA & HACİM KIRILIMI)
+                    const toT = Math.floor(Date.now()/1000); const fromT = toT - (10*86400); // Son 10 gün
+                    const canRes = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${sym}&resolution=D&from=${fromT}&to=${toT}&token=${FINNHUB_KEY}`);
+                    if (canRes.status === 429) { rateLimited = true; break; } const canData = await canRes.json();
+                    if (canData.s === "ok" && canData.c.length >= 3) {
+                        const len = canData.c.length;
+                        const c1 = canData.c[len-1], o1 = canData.o[len-1], v1 = canData.v[len-1]; // Dün
+                        const c2 = canData.c[len-2], o2 = canData.o[len-2], v2 = canData.v[len-2]; // Önceki gün
+                        
+                        // Yutan Boğa (Bullish Engulfing) & Yüksek Hacim
+                        if (c1 > o1 && c2 < o2 && c1 > o2 && o1 < c2 && v1 > (v2 * 1.5)) {
+                            results.push({ symbol: sym, score: 1, detail: `<b>Tespit:</b> <span style="color:var(--indigo);">Yutan Boğa (Bullish Engulfing)</span><br>Grafik Formasyonu Onaylandı.<br>Hacim Artışı: <span style="color:var(--success);">%${(((v1-v2)/v2)*100).toFixed(0)} Yüksek</span>` });
+                        }
+                    }
+                }
+                else if (scanType === 'institutional') {
+                    // KURUMSAL GİRİŞ (ANORMAL HACİM PATLAMASI)
+                    const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
+                    if (metData?.metric) {
+                        const avgVol = metData.metric['3MonthAverageTradingVolume'] || 0;
+                        const dayVol = metData.metric['10DayAverageTradingVolume'] || 0;
+                        if (avgVol > 0 && dayVol > (avgVol * 1.5)) { // Son 10 günlük hacim, 3 aylık ortalamanın 1.5 katıysa
+                            results.push({ symbol: sym, score: dayVol / avgVol, detail: `<b>Giriş:</b> Gizli Kurumsal İlgi Tespit Edildi<br>3 Aylık Ort: ${(avgVol).toFixed(1)}M Hacim<br>Son 10 Gün: <span style="color:var(--emerald);">${(dayVol).toFixed(1)}M Hacim</span>` });
+                        }
+                    }
+                }
+                else if (scanType === 'peers') {
+                    // SEKTÖREL KIYASLAMA (UCUZ LİDER)
+                    const peerRes = await fetch(`https://finnhub.io/api/v1/stock/peers?symbol=${sym}&token=${FINNHUB_KEY}`);
+                    if (peerRes.status === 429) { rateLimited = true; break; } 
+                    if (peerRes.ok) {
+                        const peers = await peerRes.json();
+                        if (Array.isArray(peers) && peers.length > 2) {
+                            const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
+                            const pe = metData?.metric?.['peBasicExclExtraTTM'] || 0;
+                            if (pe > 0 && pe < 15) { // Sektöründe bilinen ve F/K'sı 15'ten küçük olanlar
+                                const peerList = peers.filter(p => p !== sym).slice(0, 3).join(", ");
+                                results.push({ symbol: sym, score: -pe, detail: `<b>Rakipler:</b> ${peerList}<br><b>Sektörel Durum:</b> Kendi klasmanında <span style="color:var(--success);">Ucuz (F/K: ${pe.toFixed(1)})</span>`});
+                            }
+                        }
+                    }
+                }
             } catch (e) {}
             progressFill.style.width = `${Math.round(((i+1) / symbolsToScan.length) * 100)}%`;
             await new Promise(r => setTimeout(r, 800)); // API Limiti koruması
@@ -650,17 +735,21 @@
         else if (scanType === 'target') renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink', false);
         else if (scanType === 'upcoming_earnings') renderOppSlider(results, 'YAKLAŞAN BİLANÇO', '⏳', '--orange', false);
         else if (scanType === 'golden_cross') renderOppSlider(results, 'KUSURSUZ ÇAKIŞMA', '🔥', '--gold', false);
+        else if (scanType === 'technicals') renderOppSlider(results, 'KATI TEKNİK SİNYAL', '📈', '--teal', false);
+        else if (scanType === 'pattern') renderOppSlider(results, 'FORMASYON TESPİTİ', '📐', '--indigo', false);
+        else if (scanType === 'institutional') renderOppSlider(results, 'KURUMSAL GİRİŞ', '🏦', '--emerald', false);
+        else if (scanType === 'peers') renderOppSlider(results, 'SEKTÖR LİDERİ (UCUZ)', '📊', '--rose', false);
     }
 
-    // ==========================================
-    // 6. KURUMSAL ANALİZ MODALLARI
-    // ==========================================
+    // --- ANALİST KURUMLARI & KURUMSAL DETAY MODALI ---
     async function showAnalystDetailsModal(ticker) {
         Swal.fire({ title: `🏦 ${ticker} Analist Kurumları`, html: 'Wall Street kurumlarının son notları alınıyor...', allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => { Swal.showLoading(); } });
         try {
             const res = await fetch(`https://finnhub.io/api/v1/stock/upgrade-downgrade?symbol=${ticker}&token=${FINNHUB_KEY}`);
             const data = await res.json();
-            if (!Array.isArray(data) || data.length === 0) { Swal.fire({ title: `🏦 ${ticker}`, html: '<div style="padding:20px; opacity:0.6;">Yakın tarihli kurum raporu bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' }); return; }
+            if (!Array.isArray(data) || data.length === 0) {
+                Swal.fire({ title: `🏦 ${ticker}`, html: '<div style="padding:20px; opacity:0.6;">Yakın tarihli kurum raporu bulunamadı.</div>', customClass: { popup: 'premium-modal' }, confirmButtonText: 'Kapat' }); return;
+            }
             let tableRows = '';
             data.slice(0, 15).forEach(item => {
                 const dateStr = item.gradeTime ? new Date(item.gradeTime * 1000).toLocaleDateString('tr-TR') : '-';
@@ -710,12 +799,12 @@
                 let colorClass = item.sentiment.score >= 0.15 ? 'text-success' : (item.sentiment.score <= -0.15 ? 'text-danger' : 'text-muted');
                 let isLatest = index === 0 ? '<span style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:middle;">SON HABER</span>' : '';
                 html += `
-                    <div class="news-item" style="${index===0 ? 'border-color:var(--primary); box-shadow:0 0 15px rgba(59,130,246,0.15);' : ''}">
-                        <div class="news-header">
-                            <div class="news-title">${isLatest}<a href="${item.link}" target="_blank">${item.title}</a></div>
-                            <div class="news-sentiment">
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 18px; border-radius: 14px; margin-bottom: 14px; text-align: left; ${index===0 ? 'border-color:var(--primary);' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px;">
+                            <div style="font-weight: 800; font-size: 1rem; color: white; flex: 1; line-height: 1.4;">${isLatest}<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a></div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
                                 <div class="badge ${colorClass === 'text-success' ? 'green' : (colorClass === 'text-danger' ? 'red' : '')}">${item.sentiment.emoji} ${item.sentiment.label}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 4px;">Skor: ${item.sentiment.score.toFixed(2)}</div>
+                                <div style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-weight: 700; color: white;">Skor: ${item.sentiment.score.toFixed(2)}</div>
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><b>${item.source}</b> &bull; ${item.date}</div>
@@ -731,20 +820,6 @@
     // ==========================================
     // 7. KAYIT & GÖSTERGE PANELI (DASHBOARD)
     // ==========================================
-    function updateWeekDropdown() { const select = document.getElementById('activeWeekSelect'); select.innerHTML = ''; appData.weeks.forEach(w => { const opt = document.createElement('option'); opt.value = w.weekNum; opt.innerText = `Hafta ${w.weekNum} ${w.weekNum === appData.currentWeekNum ? '(Aktif)' : ''}`; if(w.weekNum === appData.currentWeekNum) opt.selected = true; select.appendChild(opt); }); }
-    function startNextWeek() { appData.currentWeekNum++; if(!appData.weeks.find(w => w.weekNum === appData.currentWeekNum)) appData.weeks.push({ weekNum: appData.currentWeekNum, logs: [] }); saveData(); updateWeekDropdown(); Toast.fire({ icon: 'success', title: `Hafta ${appData.currentWeekNum} başlatıldı!` }); }
-
-    function saveLog() {
-        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value); let week = appData.weeks.find(w => w.weekNum === selectedWeekNum); let total = 0, totalUSD = 0, walletsSnapshot = {};
-        appData.assets.forEach(asset => { let val = 0; if (asset.type === 'MANUAL') val = parseFloat(asset.manualValue)||0; else if (asset.type === 'US') val = (parseFloat(asset.amount) * (parseFloat(livePricesCache[asset.name])||0)) * usdRateCache; else if (asset.type === 'TR') val = parseFloat(asset.amount) * (parseFloat(livePricesCache[asset.name])||0); total += val; if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val; });
-        if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
-        totalUSD = total / usdRateCache; 
-        const now = new Date(); const dd = String(now.getDate()).padStart(2, '0'); const mm = String(now.getMonth() + 1).padStart(2, '0'); const yyyy = now.getFullYear(); const dateKey = `${dd}.${mm}.${yyyy}`; const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey))); const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total, totalUSD };
-        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; else week.logs.push(newLogEntry);
-        saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Kayıt başarıyla işlendi!' });
-    }
-
     function updateDashboard() {
         let latestTotal = parseFloat(appData.baseCapital); for(let i = appData.weeks.length - 1; i >= 0; i--) { if(appData.weeks[i].logs.length > 0) { latestTotal = parseFloat(appData.weeks[i].logs[appData.weeks[i].logs.length - 1].total); break; } }
         const currentTarget = getTargetAmt(appData.currentWeekNum); document.getElementById('statCurrentTotal').innerText = formatTL(latestTotal); document.getElementById('statTargetTotal').innerText = formatTL(currentTarget);
@@ -754,7 +829,8 @@
         renderHistory(); renderChart();
     }
 
-    // --- GRAFİK VE GEÇMİŞ TABLOLARI ---
+    function parseTRDateStr(dateStr) { if(!dateStr) return new Date(); let parts = dateStr.split(/[\.\/ -]/); if(parts.length >= 3) { if (parts[2].length === 4) return new Date(`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}T12:00:00Z`); } return new Date(); }
+    
     function renderChart() {
         const ctx = document.getElementById('growthChart').getContext('2d');
         let allLogs = []; appData.weeks.forEach(w => { w.logs.forEach(log => { let d = parseTRDateStr(log.dateKey); if (!isNaN(d)) { allLogs.push({ time: d.getTime(), dateStr: log.dateKey, totalTL: parseFloat(log.total), totalUSD: log.totalUSD ? parseFloat(log.totalUSD) : (parseFloat(log.total) / usdRateCache), targetTL: getTargetAmt(w.weekNum) }); } }); });
@@ -766,12 +842,12 @@
 
     function renderHistory() {
         const container = document.getElementById('historyContainer'); container.innerHTML = ''; const weeksWithLogs = appData.weeks.filter(w => w.logs.length > 0);
-        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Kayıt bulunmuyor.</div>'; return; }
+        if(weeksWithLogs.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center;">Henüz kayıt bulunmuyor. Sol panelden Günü Kaydedin.</div>'; return; }
         [...weeksWithLogs].reverse().forEach(week => {
             const lastLog = week.logs[week.logs.length - 1]; let prevTotal = parseFloat(appData.baseCapital); 
             if(week.weekNum > 1) { const prev = appData.weeks.find(w => w.weekNum === week.weekNum - 1); if(prev && prev.logs.length > 0) prevTotal = parseFloat(prev.logs[prev.logs.length - 1].total); }
             const gainPct = ((lastLog.total - prevTotal) / prevTotal) * 100; let badgeClass = gainPct >= appData.targetRate ? 'green' : (gainPct >= 0 ? 'orange' : 'red');
-            container.innerHTML += `<div class="history-item"><div><div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div><div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Kalem</div></div><div class="history-actions"><div style="text-align: right;"><div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div><div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div></div><button class="btn-icon" onclick="showWeekDetailsModal(${week.weekNum})" title="Hafta İçi Performansını Gör"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></button></div></div>`;
+            container.innerHTML += `<div class="history-item"><div><div class="history-week">Hafta ${week.weekNum} <span style="font-size:0.8rem; opacity:0.6; font-weight:600;">(${lastLog.date})</span></div><div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">${week.logs.length} Günlük Kayıt &bull; ${Object.keys(lastLog.wallets).length} Varlık Kalemi</div></div><div class="history-actions"><div style="text-align: right;"><div style="font-size: 1.35rem; font-weight: 900; color: white;">${formatTL(lastLog.total)}</div><div class="badge ${badgeClass}">${(gainPct > 0 ? '+' : '') + formatPct(gainPct)}</div></div><button class="btn-icon" onclick="showWeekDetailsModal(${week.weekNum})" title="Hafta İçi Performansını Gör"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></button></div></div>`;
         });
     }
 
