@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Varlık Terminali (Genişletilmiş Mega Radarlar)</title>
+    <title>Pro Varlık Terminali (Gelişmiş Bilanço & Fırsat Radarları)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -67,7 +67,7 @@
         .radar-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.2s; }
 
         .radar-slider { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; scrollbar-width: thin; scroll-snap-type: x mandatory; margin-top: 10px; display: none; }
-        .radar-card { flex: 0 0 240px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
+        .radar-card { flex: 0 0 260px; background: linear-gradient(145deg, #131d2e, #0c1320); border: 1px solid var(--panel-border); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between; }
         .radar-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
 
         /* Main Container */
@@ -217,7 +217,7 @@
     </div>
     
     <div class="opp-grid">
-        <!-- Mevcut Radarlar -->
+        <!-- 10 Temel ve Gelişmiş Radar -->
         <div class="opp-btn-card blue" onclick="runFinnhubRadarScan('52w')">
             <div class="opp-title"><span style="font-size:1.4rem;">📉</span> 52W Dip Radarı</div>
             <div class="opp-desc">Dibe en yakın olan şirketleri ve 52W zirvelerini bulur.</div>
@@ -235,15 +235,13 @@
             <div class="opp-desc">Analist ortalama hedefine göre %20+ potansiyeli olanları bulur.</div>
         </div>
         <div class="opp-btn-card orange" onclick="runFinnhubRadarScan('upcoming_earnings')">
-            <div class="opp-title"><span style="font-size:1.4rem;">⏳</span> Yaklaşan Bilanço</div>
-            <div class="opp-desc">1 ay içinde bilanço açıklayacak, haberi pozitif şirketler.</div>
+            <div class="opp-title"><span style="font-size:1.4rem;">⏳</span> Yaklaşan Bilanço (7 Gün)</div>
+            <div class="opp-desc">Önümüzdeki 7 gün içinde açıklanacak, tahmini kârı en yüksek hisseler.</div>
         </div>
         <div class="opp-btn-card gold" onclick="runFinnhubRadarScan('golden_cross')">
             <div class="opp-title"><span style="font-size:1.4rem;">🔥</span> Altın Kesişim</div>
             <div class="opp-desc">Dipte olan + Balina Alımı olan + Sürpriz Kâr eden hisseler.</div>
         </div>
-
-        <!-- YENİ EKLENEN 4 RADAR (KATI KURALLI) -->
         <div class="opp-btn-card teal" onclick="runFinnhubRadarScan('technicals')">
             <div class="opp-title"><span style="font-size:1.4rem;">📈</span> Katı Teknik Sinyal</div>
             <div class="opp-desc">Fiyat > 50 Günlük > 200 Günlük EMA (Güçlü Yükseliş Trendi teyidi).</div>
@@ -565,9 +563,133 @@
         slider.innerHTML = html;
     }
 
-    function openRadarDetailModal(symbol) {
+    async function openRadarDetailModal(symbol) {
         const res = window.currentRadarResults.find(r => r.symbol === symbol);
         if (!res) return;
+
+        // YAKLAŞAN BİLANÇO İÇİN TIKLANDIĞINDA CANLI HABER VE ANALİST SORGUSU
+        if (res.type === 'upcoming_earnings') {
+            Swal.fire({
+                title: `⏳ ${symbol} Analiz Ediliyor`,
+                html: 'Yaklaşan bilanço öncesi haber akışı ve Wall Street analist beklentileri sorgulanıyor...',
+                allowOutsideClick: false,
+                customClass: { popup: 'premium-modal' },
+                didOpen: () => Swal.showLoading()
+            });
+
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+
+            let quote = null, target = null, rec = null, latestNews = null, sentiment = { score: 0, label: 'NÖTR', emoji: '⚪' };
+
+            try {
+                const [qRes, tRes, rRes, nRes] = await Promise.all([
+                    fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()).catch(() => null),
+                    fetch(`https://finnhub.io/api/v1/stock/price-target?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()).catch(() => null),
+                    fetch(`https://finnhub.io/api/v1/stock/recommendation?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()).catch(() => null),
+                    fetch(`https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${past7Days}&to=${todayStr}&token=${FINNHUB_KEY}`).then(r => r.json()).catch(() => null)
+                ]);
+
+                quote = qRes;
+                target = tRes;
+                rec = Array.isArray(rRes) && rRes.length > 0 ? rRes[0] : null;
+                if (Array.isArray(nRes) && nRes.length > 0) {
+                    latestNews = nRes[0];
+                    sentiment = analyzeHeadline(latestNews.headline);
+                }
+            } catch(e) {
+                console.warn(e);
+            }
+
+            let priceText = quote && quote.c ? `$${quote.c.toFixed(2)}` : 'N/A';
+            let potText = 'N/A';
+            let potColor = 'var(--text-muted)';
+            if (quote && quote.c && target && target.targetMean) {
+                let pot = ((target.targetMean - quote.c) / quote.c) * 100;
+                potText = (pot >= 0 ? '+' : '') + pot.toFixed(1) + '%';
+                potColor = pot >= 0 ? 'var(--success)' : 'var(--danger)';
+            }
+
+            let recHtml = '';
+            if (rec) {
+                let total = (rec.buy || 0) + (rec.hold || 0) + (rec.sell || 0) + (rec.strongBuy || 0) + (rec.strongSell || 0);
+                if (total > 0) {
+                    let buyPct = (((rec.buy || 0) + (rec.strongBuy || 0)) / total) * 100;
+                    let holdPct = ((rec.hold || 0) / total) * 100;
+                    let sellPct = (((rec.sell || 0) + (rec.strongSell || 0)) / total) * 100;
+                    recHtml = `
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 14px; border-radius: 12px; margin-bottom: 12px;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 6px;">WALL STREET ANALİST TAVSİYELERİ (${total} Analist)</div>
+                            <div style="display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 8px 0;">
+                                <div style="width: ${buyPct}%; background: var(--success);" title="Al"></div>
+                                <div style="width: ${holdPct}%; background: var(--text-muted);" title="Tut"></div>
+                                <div style="width: ${sellPct}%; background: var(--danger);" title="Sat"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700;">
+                                <span style="color: var(--success);">${buyPct.toFixed(0)}% AL</span>
+                                <span style="color: var(--text-muted);">${holdPct.toFixed(0)}% TUT</span>
+                                <span style="color: var(--danger);">${sellPct.toFixed(0)}% SAT</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            let newsHtml = '';
+            if (latestNews) {
+                let badgeClass = sentiment.score >= 0.15 ? 'green' : (sentiment.score <= -0.15 ? 'red' : '');
+                newsHtml = `
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 14px; border-radius: 12px; margin-bottom: 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; gap:10px;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">SON PİYASA HABERİ</span>
+                            <span class="badge ${badgeClass}" style="margin:0; padding:2px 8px; font-size:0.7rem;">${sentiment.emoji} ${sentiment.label}</span>
+                        </div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: white; line-height: 1.4;">${latestNews.headline}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">Kaynak: ${latestNews.source || 'Piyasa'} &bull; Skor: ${sentiment.score.toFixed(2)}</div>
+                    </div>
+                `;
+            }
+
+            let modalBody = `
+                <div style="text-align: left;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 12px; border-radius: 12px;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">BİLANÇO TARİHİ</div>
+                            <div style="font-size: 1.1rem; font-weight: 900; color: #f97316;">${res.earningsDate}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Tahmini EPS: $${res.epsEstimate ? res.epsEstimate.toFixed(2) : '-'}</div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); padding: 12px; border-radius: 12px;">
+                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">GÜNCEL / HEDEF FİYAT</div>
+                            <div style="font-size: 1.1rem; font-weight: 900; color: white;">${priceText}</div>
+                            <div style="font-size: 0.7rem; font-weight: 700; color: ${potColor};">Ort. Hedef Potansiyeli: ${potText}</div>
+                        </div>
+                    </div>
+                    ${recHtml}
+                    ${newsHtml}
+                </div>
+            `;
+
+            Swal.fire({
+                title: `⏳ ${symbol} — Bilanço Öncesi Görünüm`,
+                html: modalBody,
+                width: 650,
+                showCancelButton: true,
+                confirmButtonText: '+ Portföyüme Ekle',
+                cancelButtonText: 'Kapat',
+                customClass: { popup: 'premium-modal' }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    appData.assets.push({ id: Date.now().toString(), name: symbol, type: 'US', amount: 1, manualValue: 0 });
+                    saveData();
+                    fetchAllLivePrices();
+                    Toast.fire({ icon: 'success', title: `${symbol} portföyünüze eklendi!` });
+                }
+            });
+            return;
+        }
+
+        // Diğer radarlar için standart ekleme modalı
         Swal.fire({
             title: `🚀 ${symbol} Radara Girdi`, html: `<div style="text-align: left; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 14px; border: 1px solid var(--panel-border); margin-bottom: 16px;"><div style="font-size: 0.9rem; color: white; line-height: 1.5;">${res.detail}</div></div>`,
             showCancelButton: true, confirmButtonText: '+ Portföyüme Ekle', cancelButtonText: 'Kapat', customClass: { popup: 'premium-modal' }
@@ -579,18 +701,65 @@
     async function runFinnhubRadarScan(scanType) {
         const limit = parseInt(document.getElementById('radarPoolSize').value) || 100;
         let symbolsToScan = US_STOCK_POOL.slice(0, limit);
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
         
+        // --- 1. YAKLAŞAN BİLANÇO (ÖNÜMÜZDEKİ 7 GÜN & YÜKSEK ESTIMATE) ---
+        if (scanType === 'upcoming_earnings') {
+            Swal.fire({
+                title: '⏳ Bilanço Takvimi Taranıyor',
+                html: 'Önümüzdeki 7 gün içinde bilanço açıklayacak şirketler taranıyor...',
+                allowOutsideClick: false,
+                customClass: { popup: 'premium-modal' },
+                didOpen: () => Swal.showLoading()
+            });
+
+            const next7Days = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+            const next7DaysStr = next7Days.toISOString().split('T')[0];
+            let results = [];
+
+            try {
+                const calRes = await fetch(`https://finnhub.io/api/v1/calendar/earnings?from=${todayStr}&to=${next7DaysStr}&token=${FINNHUB_KEY}`);
+                const calData = await calRes.json();
+                
+                if (calData && Array.isArray(calData.earningsCalendar)) {
+                    // 7 Gün içinde olan ve epsEstimate değeri bulunan hisseler
+                    let list = calData.earningsCalendar.filter(e => e.symbol && typeof e.epsEstimate === 'number');
+                    
+                    // Havuz veya genel hisselerle eşleştir
+                    let poolMatches = list.filter(e => US_STOCK_POOL.includes(e.symbol) || symbolsToScan.includes(e.symbol));
+                    let finalList = poolMatches.length > 0 ? poolMatches : list;
+                    
+                    // En yüksek tahmini kâra (EPS Estimate) göre sırala
+                    finalList.sort((a, b) => b.epsEstimate - a.epsEstimate);
+                    
+                    finalList.slice(0, 20).forEach(e => {
+                        results.push({
+                            symbol: e.symbol,
+                            score: e.epsEstimate,
+                            type: 'upcoming_earnings',
+                            earningsDate: e.date,
+                            epsEstimate: e.epsEstimate,
+                            hour: e.hour ? e.hour.toUpperCase() : '',
+                            detail: `Bilanço: <b>${e.date}</b> ${e.hour ? '(' + e.hour.toUpperCase() + ')' : ''}<br>Tahmini EPS: <b style="color:var(--success);">$${e.epsEstimate.toFixed(2)}</b><br><span style="font-size:0.7rem; color:var(--orange); font-weight:700;">🔍 Tıkla: Haber & Analiz Sorgula</span>`
+                        });
+                    });
+                }
+            } catch(e) {
+                console.warn("Upcoming earnings error", e);
+            }
+
+            Swal.close();
+            renderOppSlider(results, 'YAKLAŞAN BİLANÇO (7 GÜN)', '⏳', '--orange', false);
+            return;
+        }
+
+        // --- DİĞER RADARLAR (LİMİT KORUMALI DÖNGÜ) ---
         Swal.fire({ title: '📡 Finnhub Radarı Çalışıyor', html: `<div style="font-size: 0.9rem; margin-bottom: 12px;">Seçilen ${limit} ABD hissesi tek tek inceleniyor.</div><div style="background: var(--input-bg); border: 1px solid var(--panel-border); padding: 12px; border-radius: 8px; font-family: monospace; color: var(--success); font-weight: bold; text-align: left; overflow: hidden; white-space: nowrap;">>_ Taranıyor: <span id="marqueeSymbol" style="animation: pulse-text 1s infinite;">BAŞLIYOR...</span></div><br><span style="font-size:0.75rem; opacity:0.8; color:var(--warning);">⚠️ API limitleri gereği tarama yaklaşık ${Math.ceil(limit / 30)} dakika sürebilir.</span>`, allowOutsideClick: false, customClass: { popup: 'premium-modal' }, didOpen: () => Swal.showLoading() });
         const progressBar = document.getElementById('radarProgressBar'); const progressFill = document.getElementById('radarProgressFill');
         progressBar.style.display = 'block'; progressFill.style.width = '0%';
 
-        let results = []; let rateLimited = false; const now = new Date(); const todayStr = now.toISOString().split('T')[0];
-        
-        let upcomingEarningsSymbols = [];
-        if (scanType === 'upcoming_earnings') {
-            const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1); const nextMonthStr = nextMonth.toISOString().split('T')[0];
-            try { const calRes = await fetch(`https://finnhub.io/api/v1/calendar/earnings?from=${todayStr}&to=${nextMonthStr}&token=${FINNHUB_KEY}`); const calData = await calRes.json(); if(calData && calData.earningsCalendar) { upcomingEarningsSymbols = calData.earningsCalendar.map(e => e.symbol); } } catch(e) {}
-        }
+        let results = []; let rateLimited = false;
         
         for (let i = 0; i < symbolsToScan.length; i++) {
             const sym = symbolsToScan[i]; const marqueeEl = document.getElementById('marqueeSymbol'); if (marqueeEl) marqueeEl.innerText = sym;
@@ -634,16 +803,6 @@
                         if (potential > 15.0) { results.push({ symbol: sym, score: potential, detail: `Güncel: $${qData.c.toFixed(2)}<br>Ort. Hedef: $${tData.targetMean.toFixed(2)}<br><b style="color:var(--pink);">+%${potential.toFixed(1)} Potansiyel</b>` }); }
                     }
                 }
-                else if (scanType === 'upcoming_earnings') {
-                    if (upcomingEarningsSymbols.includes(sym)) {
-                        const past7Days = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
-                        const newsRes = await fetch(`https://finnhub.io/api/v1/company-news?symbol=${sym}&from=${past7Days}&to=${todayStr}&token=${FINNHUB_KEY}`); if (newsRes.status === 429) { rateLimited = true; break; } const newsData = await newsRes.json();
-                        if (Array.isArray(newsData) && newsData.length > 0) {
-                            const sentiment = analyzeHeadline(newsData[0].headline);
-                            if (sentiment.score >= 0.15) { results.push({ symbol: sym, score: sentiment.score, detail: `Durum: Yakında Bilanço<br>Son Haber: <b style="color:var(--success);">AL (Pozitif Akış)</b><br>Skor: ${sentiment.score.toFixed(2)}` }); }
-                        }
-                    }
-                }
                 else if (scanType === 'golden_cross') {
                     const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
                     let isDip = false, lowDist = 0;
@@ -663,9 +822,7 @@
                         }
                     }
                 }
-                // --- 4 YENİ MEGA RADAR SİSTEMİ ---
                 else if (scanType === 'technicals') {
-                    // KATI TEKNİK SİNYAL: Fiyat > 50 EMA > 200 EMA
                     const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
                     if (metData?.metric) {
                         const sma50 = metData.metric['50DayMovingAverage'] || 0;
@@ -678,34 +835,29 @@
                     }
                 }
                 else if (scanType === 'pattern') {
-                    // FORMASYON (YUTAN BOĞA & HACİM KIRILIMI)
-                    const toT = Math.floor(Date.now()/1000); const fromT = toT - (10*86400); // Son 10 gün
+                    const toT = Math.floor(Date.now()/1000); const fromT = toT - (10*86400);
                     const canRes = await fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${sym}&resolution=D&from=${fromT}&to=${toT}&token=${FINNHUB_KEY}`);
                     if (canRes.status === 429) { rateLimited = true; break; } const canData = await canRes.json();
                     if (canData.s === "ok" && canData.c.length >= 3) {
                         const len = canData.c.length;
-                        const c1 = canData.c[len-1], o1 = canData.o[len-1], v1 = canData.v[len-1]; // Dün
-                        const c2 = canData.c[len-2], o2 = canData.o[len-2], v2 = canData.v[len-2]; // Önceki gün
-                        
-                        // Yutan Boğa (Bullish Engulfing) & Yüksek Hacim
+                        const c1 = canData.c[len-1], o1 = canData.o[len-1], v1 = canData.v[len-1];
+                        const c2 = canData.c[len-2], o2 = canData.o[len-2], v2 = canData.v[len-2];
                         if (c1 > o1 && c2 < o2 && c1 > o2 && o1 < c2 && v1 > (v2 * 1.5)) {
                             results.push({ symbol: sym, score: 1, detail: `<b>Tespit:</b> <span style="color:var(--indigo);">Yutan Boğa (Bullish Engulfing)</span><br>Grafik Formasyonu Onaylandı.<br>Hacim Artışı: <span style="color:var(--success);">%${(((v1-v2)/v2)*100).toFixed(0)} Yüksek</span>` });
                         }
                     }
                 }
                 else if (scanType === 'institutional') {
-                    // KURUMSAL GİRİŞ (ANORMAL HACİM PATLAMASI)
                     const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
                     if (metData?.metric) {
                         const avgVol = metData.metric['3MonthAverageTradingVolume'] || 0;
                         const dayVol = metData.metric['10DayAverageTradingVolume'] || 0;
-                        if (avgVol > 0 && dayVol > (avgVol * 1.5)) { // Son 10 günlük hacim, 3 aylık ortalamanın 1.5 katıysa
+                        if (avgVol > 0 && dayVol > (avgVol * 1.5)) {
                             results.push({ symbol: sym, score: dayVol / avgVol, detail: `<b>Giriş:</b> Gizli Kurumsal İlgi Tespit Edildi<br>3 Aylık Ort: ${(avgVol).toFixed(1)}M Hacim<br>Son 10 Gün: <span style="color:var(--emerald);">${(dayVol).toFixed(1)}M Hacim</span>` });
                         }
                     }
                 }
                 else if (scanType === 'peers') {
-                    // SEKTÖREL KIYASLAMA (UCUZ LİDER)
                     const peerRes = await fetch(`https://finnhub.io/api/v1/stock/peers?symbol=${sym}&token=${FINNHUB_KEY}`);
                     if (peerRes.status === 429) { rateLimited = true; break; } 
                     if (peerRes.ok) {
@@ -713,7 +865,7 @@
                         if (Array.isArray(peers) && peers.length > 2) {
                             const metRes = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${sym}&metric=all&token=${FINNHUB_KEY}`); if (metRes.status === 429) { rateLimited = true; break; } const metData = await metRes.json();
                             const pe = metData?.metric?.['peBasicExclExtraTTM'] || 0;
-                            if (pe > 0 && pe < 15) { // Sektöründe bilinen ve F/K'sı 15'ten küçük olanlar
+                            if (pe > 0 && pe < 15) {
                                 const peerList = peers.filter(p => p !== sym).slice(0, 3).join(", ");
                                 results.push({ symbol: sym, score: -pe, detail: `<b>Rakipler:</b> ${peerList}<br><b>Sektörel Durum:</b> Kendi klasmanında <span style="color:var(--success);">Ucuz (F/K: ${pe.toFixed(1)})</span>`});
                             }
@@ -722,7 +874,7 @@
                 }
             } catch (e) {}
             progressFill.style.width = `${Math.round(((i+1) / symbolsToScan.length) * 100)}%`;
-            await new Promise(r => setTimeout(r, 800)); // API Limiti koruması
+            await new Promise(r => setTimeout(r, 800));
         }
 
         Swal.close(); progressBar.style.display = 'none';
@@ -733,7 +885,6 @@
         else if (scanType === 'earnings') renderOppSlider(results, 'BİLANÇO SÜRPRİZİ', '🎯', '--purple', false);
         else if (scanType === 'insider') renderOppSlider(results, 'GÜÇLÜ İÇERİDEN ALIM', '🐋', '--cyan', false);
         else if (scanType === 'target') renderOppSlider(results, 'HEDEF FİYAT UCUZLUĞU', '🚀', '--pink', false);
-        else if (scanType === 'upcoming_earnings') renderOppSlider(results, 'YAKLAŞAN BİLANÇO', '⏳', '--orange', false);
         else if (scanType === 'golden_cross') renderOppSlider(results, 'KUSURSUZ ÇAKIŞMA', '🔥', '--gold', false);
         else if (scanType === 'technicals') renderOppSlider(results, 'KATI TEKNİK SİNYAL', '📈', '--teal', false);
         else if (scanType === 'pattern') renderOppSlider(results, 'FORMASYON TESPİTİ', '📐', '--indigo', false);
@@ -870,10 +1021,26 @@
         });
     }
 
+    function updateWeekDropdown() { const select = document.getElementById('activeWeekSelect'); select.innerHTML = ''; appData.weeks.forEach(w => { const opt = document.createElement('option'); opt.value = w.weekNum; opt.innerText = `Hafta ${w.weekNum} ${w.weekNum === appData.currentWeekNum ? '(Aktif)' : ''}`; if(w.weekNum === appData.currentWeekNum) opt.selected = true; select.appendChild(opt); }); }
+    function startNextWeek() { appData.currentWeekNum++; if(!appData.weeks.find(w => w.weekNum === appData.currentWeekNum)) appData.weeks.push({ weekNum: appData.currentWeekNum, logs: [] }); saveData(); updateWeekDropdown(); Toast.fire({ icon: 'success', title: `Hafta ${appData.currentWeekNum} başlatıldı!` }); }
+
+    function saveLog() {
+        const selectedWeekNum = parseInt(document.getElementById('activeWeekSelect').value); let week = appData.weeks.find(w => w.weekNum === selectedWeekNum); let total = 0, totalUSD = 0, walletsSnapshot = {};
+        appData.assets.forEach(asset => { let val = 0; if (asset.type === 'MANUAL') val = parseFloat(asset.manualValue)||0; else if (asset.type === 'US') val = (parseFloat(asset.amount) * (parseFloat(livePricesCache[asset.name])||0)) * usdRateCache; else if (asset.type === 'TR') val = parseFloat(asset.amount) * (parseFloat(livePricesCache[asset.name])||0); total += val; if(val > 0) walletsSnapshot[`${asset.name} (${asset.type})`] = val; });
+        if(total <= 0) { Toast.fire({ icon: 'error', title: 'Toplam varlık 0 olamaz.' }); return; }
+        totalUSD = total / usdRateCache; 
+        const now = new Date(); const dd = String(now.getDate()).padStart(2, '0'); const mm = String(now.getMonth() + 1).padStart(2, '0'); const yyyy = now.getFullYear(); const dateKey = `${dd}.${mm}.${yyyy}`; const fullDateDisplay = `${dateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const existingLogIndex = week.logs.findIndex(l => l.dateKey === dateKey || (l.date && l.date.startsWith(dateKey))); const newLogEntry = { dateKey, date: fullDateDisplay, wallets: walletsSnapshot, total, totalUSD };
+        if (existingLogIndex >= 0) week.logs[existingLogIndex] = newLogEntry; else week.logs.push(newLogEntry);
+        saveData(); updateDashboard(); Toast.fire({ icon: 'success', title: 'Kayıt başarıyla işlendi!' });
+    }
+
     const menuBtn = document.getElementById('menuBtn'); const dropdownMenu = document.getElementById('dropdownMenu');
     menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('active'); }); document.addEventListener('click', (e) => { if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) dropdownMenu.classList.remove('active'); });
     function resetAllData() { dropdownMenu.classList.remove('active'); Swal.fire({ title: 'Sistemi Sıfırla', html: "Tüm portföy verileriniz sıfırlanacak. Onaylıyor musunuz?", icon: 'warning', showCancelButton: true, confirmButtonText: 'Sıfırla', cancelButtonText: 'İptal', customClass: { popup: 'premium-modal', confirmButton: 'swal2-confirm bg-red', cancelButton: 'swal2-cancel' }, confirmButtonColor: '#ef4444' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }); }
     function forceSyncPrices() { dropdownMenu.classList.remove('active'); fetchAllLivePrices(); }
+
+    async function init() { document.getElementById('baseCapital').value = appData.baseCapital; document.getElementById('targetRate').value = appData.targetRate; updateWeekDropdown(); await fetchAllLivePrices(); updateDashboard(); }
     window.onload = init;
 </script>
 
